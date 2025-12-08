@@ -1,6 +1,6 @@
 import React from "react";
 import { FiFilter } from "react-icons/fi";
-import type { Tag, SortBy, SortOrder } from "../types";
+import type { Tag, SortBy, SortOrder, Problem } from "../types";
 import { PREDEFINED_TAGS } from "../constants";
 import { FilterBar as StyledFilterBar, Select, Button } from "../styled";
 
@@ -12,6 +12,7 @@ interface FilterBarProps {
   groupByTag: boolean;
   showDoneOnly: boolean;
   showUndoneOnly: boolean;
+  problems: Problem[];
   onFilterTagsChange: (tags: string[]) => void;
   onSortByChange: (sortBy: SortBy) => void;
   onSortOrderChange: (sortOrder: SortOrder) => void;
@@ -29,6 +30,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   groupByTag,
   showDoneOnly,
   showUndoneOnly,
+  problems,
   onFilterTagsChange,
   onSortByChange,
   onSortOrderChange,
@@ -42,6 +44,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const hasActiveFilters =
     selectedFilterTags.length > 0 || showDoneOnly || showUndoneOnly;
 
+  // Calculate problem count for each tag
+  const getTagCount = (tagId: string): number => {
+    return problems.filter((problem) =>
+      problem.tags.some((tag) => tag.id === tagId)
+    ).length;
+  };
+
   return (
     <StyledFilterBar>
       <Select
@@ -54,12 +63,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           }
         }}
       >
-        <option value="">All Tags</option>
-        {allTags.map((tag) => (
-          <option key={tag.id} value={tag.id}>
-            {tag.name}
-          </option>
-        ))}
+        <option value="">All Tags ({problems.length})</option>
+        {allTags.map((tag) => {
+          const count = getTagCount(tag.id);
+          return (
+            <option key={tag.id} value={tag.id}>
+              {tag.name} ({count})
+            </option>
+          );
+        })}
       </Select>
 
       <Select

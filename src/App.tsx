@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { FiPlus, FiDownload, FiUpload, FiRefreshCw } from 'react-icons/fi';
-import type{ Problem, Tag, SortBy, SortOrder } from './types';
+import { useState, useEffect, useRef } from "react";
+import { FiPlus, FiDownload, FiUpload, FiRefreshCw } from "react-icons/fi";
+import type { Problem, Tag, SortBy, SortOrder } from "./types";
 import {
   loadProblems,
   saveProblems,
@@ -8,11 +8,11 @@ import {
   saveCustomTags,
   exportData,
   importData,
-} from './utils';
-import { ProblemForm } from './components/ProblemForm';
-import { ProblemList } from './components/ProblemList';
-import { FilterBar } from './components/FilterBar';
-import { Stats } from './components/Stats';
+} from "./utils";
+import { ProblemForm } from "./components/ProblemForm";
+import { ProblemList } from "./components/ProblemList";
+import { FilterBar } from "./components/FilterBar";
+import { Stats } from "./components/Stats";
 import {
   AppContainer,
   Header,
@@ -25,7 +25,7 @@ import {
   FileInput,
   FileInputLabel,
   GroupHeader,
-} from './styled';
+} from "./styled";
 
 function App() {
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -33,29 +33,39 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [editingProblem, setEditingProblem] = useState<Problem | undefined>();
   const [selectedFilterTags, setSelectedFilterTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<SortBy>('dateAdded');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [sortBy, setSortBy] = useState<SortBy>("dateAdded");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [groupByTag, setGroupByTag] = useState(false);
   const [showDoneOnly, setShowDoneOnly] = useState(false);
   const [showUndoneOnly, setShowUndoneOnly] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isInitialMount = useRef(true);
 
   // Load data on mount
   useEffect(() => {
-    setProblems(loadProblems());
-    setCustomTags(loadCustomTags());
+    const loadedProblems = loadProblems();
+    const loadedTags = loadCustomTags();
+    setProblems(loadedProblems);
+    setCustomTags(loadedTags);
+
+    // Use setTimeout to ensure the flag is set after state updates
+    setTimeout(() => {
+      isInitialMount.current = false;
+    }, 0);
   }, []);
 
-  // Save problems whenever they change
+  // Save problems whenever they change (skip initial mount)
   useEffect(() => {
-    if (problems.length > 0 || loadProblems().length > 0) {
+    if (!isInitialMount.current) {
+      console.log("Saving problems:", problems.length);
       saveProblems(problems);
     }
   }, [problems]);
 
-  // Save custom tags whenever they change
+  // Save custom tags whenever they change (skip initial mount)
   useEffect(() => {
-    if (customTags.length > 0 || loadCustomTags().length > 0) {
+    if (!isInitialMount.current) {
+      console.log("Saving tags:", customTags.length);
       saveCustomTags(customTags);
     }
   }, [customTags]);
@@ -80,7 +90,9 @@ function App() {
   const handleToggleDone = (problemId: string) => {
     setProblems((prev) =>
       prev.map((p) =>
-        p.id === problemId ? { ...p, isDone: !p.isDone, updatedAt: Date.now() } : p
+        p.id === problemId
+          ? { ...p, isDone: !p.isDone, updatedAt: Date.now() }
+          : p
       )
     );
   };
@@ -90,7 +102,9 @@ function App() {
   };
 
   const handleResetProgress = () => {
-    if (window.confirm('Are you sure you want to mark all problems as undone?')) {
+    if (
+      window.confirm("Are you sure you want to mark all problems as undone?")
+    ) {
       setProblems((prev) =>
         prev.map((p) => ({ ...p, isDone: false, updatedAt: Date.now() }))
       );
@@ -107,20 +121,29 @@ function App() {
 
     try {
       const data = await importData(file);
-      
-      if (window.confirm(
-        `This will import ${data.problems.length} problems and ${data.customTags?.length || 0} custom tags. Continue?`
-      )) {
+
+      if (
+        window.confirm(
+          `This will import ${data.problems.length} problems and ${
+            data.customTags?.length || 0
+          } custom tags. Continue?`
+        )
+      ) {
+        // Update state and immediately persist to localStorage
         setProblems(data.problems);
         setCustomTags(data.customTags || []);
+
+        // Immediately save to localStorage to ensure persistence
+        saveProblems(data.problems);
+        saveCustomTags(data.customTags || []);
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to import data');
+      alert(error instanceof Error ? error.message : "Failed to import data");
     }
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -160,18 +183,18 @@ function App() {
     let comparison = 0;
 
     switch (sortBy) {
-      case 'dateAdded':
+      case "dateAdded":
         comparison = a.createdAt - b.createdAt;
         break;
-      case 'dateUpdated':
+      case "dateUpdated":
         comparison = a.updatedAt - b.updatedAt;
         break;
-      case 'status':
+      case "status":
         comparison = (a.isDone ? 1 : 0) - (b.isDone ? 1 : 0);
         break;
     }
 
-    return sortOrder === 'asc' ? comparison : -comparison;
+    return sortOrder === "asc" ? comparison : -comparison;
   });
 
   // Group problems by tag
@@ -179,10 +202,10 @@ function App() {
   if (groupByTag) {
     filteredProblems.forEach((problem) => {
       if (problem.tags.length === 0) {
-        if (!groupedProblems['Untagged']) {
-          groupedProblems['Untagged'] = [];
+        if (!groupedProblems["Untagged"]) {
+          groupedProblems["Untagged"] = [];
         }
-        groupedProblems['Untagged'].push(problem);
+        groupedProblems["Untagged"].push(problem);
       } else {
         problem.tags.forEach((tag) => {
           if (!groupedProblems[tag.name]) {
@@ -203,7 +226,11 @@ function App() {
             <FiPlus size={16} />
             Add Problem
           </Button>
-          <Button variant="secondary" onClick={handleExport} disabled={problems.length === 0}>
+          <Button
+            variant="secondary"
+            onClick={handleExport}
+            disabled={problems.length === 0}
+          >
             <FiDownload size={16} />
             Export
           </Button>
@@ -242,6 +269,7 @@ function App() {
               groupByTag={groupByTag}
               showDoneOnly={showDoneOnly}
               showUndoneOnly={showUndoneOnly}
+              problems={problems}
               onFilterTagsChange={setSelectedFilterTags}
               onSortByChange={setSortBy}
               onSortOrderChange={setSortOrder}
@@ -255,7 +283,8 @@ function App() {
               Object.entries(groupedProblems).map(([tagName, tagProblems]) => (
                 <div key={tagName}>
                   <GroupHeader>
-                    {tagName} <span className="count">({tagProblems.length})</span>
+                    {tagName}{" "}
+                    <span className="count">({tagProblems.length})</span>
                   </GroupHeader>
                   <ProblemList
                     problems={tagProblems}
@@ -291,7 +320,7 @@ function App() {
       {showModal && (
         <Modal onClick={handleCloseModal}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <h2>{editingProblem ? 'Edit Problem' : 'Add New Problem'}</h2>
+            <h2>{editingProblem ? "Edit Problem" : "Add New Problem"}</h2>
             <ProblemForm
               problem={editingProblem}
               customTags={customTags}

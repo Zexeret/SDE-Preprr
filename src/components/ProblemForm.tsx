@@ -71,7 +71,7 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
     e.preventDefault();
 
     if (!link.trim()) {
-      alert("Please enter a problem link");
+      alert("Please enter a problem link or title");
       return;
     }
 
@@ -92,13 +92,13 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
   return (
     <form onSubmit={handleSubmit}>
       <FormGroup>
-        <label htmlFor="problem-link">Problem Link *</label>
+        <label htmlFor="problem-link">Problem Link / Title *</label>
         <input
           id="problem-link"
-          type="url"
+          type="text"
           value={link}
           onChange={(e) => setLink(e.target.value)}
-          placeholder="https://leetcode.com/problems/..."
+          placeholder="https://leetcode.com/problems/... or Theory: Binary Search"
           required
         />
       </FormGroup>
