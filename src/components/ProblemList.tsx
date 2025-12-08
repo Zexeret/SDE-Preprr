@@ -7,7 +7,25 @@ import {
   FiFileText,
   FiEye,
   FiEyeOff,
+  FiMenu,
 } from "react-icons/fi";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { Problem } from "../types";
 import { stripHtmlTags } from "../utils";
 import {
@@ -25,6 +43,7 @@ import {
   Modal,
   ModalContent,
   ModalActions,
+  DragHandle,
 } from "../styled";
 
 interface ProblemListProps {
@@ -32,16 +51,172 @@ interface ProblemListProps {
   onEdit: (problem: Problem) => void;
   onDelete: (problemId: string) => void;
   onToggleDone: (problemId: string) => void;
+  onReorder?: (problems: Problem[]) => void;
+  enableDragDrop?: boolean;
 }
+
+interface SortableProblemCardProps {
+  problem: Problem;
+  showTags: boolean;
+  enableDragDrop: boolean;
+  onEdit: (problem: Problem) => void;
+  onDelete: (problemId: string) => void;
+  onToggleDone: (problemId: string) => void;
+  onViewNotes: (problem: Problem) => void;
+}
+
+const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
+  problem,
+  showTags,
+  enableDragDrop,
+  onEdit,
+  onDelete,
+  onToggleDone,
+  onViewNotes,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: problem.id, disabled: !enableDragDrop });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <ProblemCard isDone={problem.isDone} isDragging={isDragging}>
+        <ProblemHeader>
+          {enableDragDrop && (
+            <DragHandle {...attributes} {...listeners}>
+              <FiMenu size={18} />
+            </DragHandle>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                flexWrap: "wrap",
+                marginBottom:
+                  showTags && problem.tags.length > 0 ? "0.75rem" : 0,
+              }}
+            >
+              <ProblemLink
+                href={
+                  problem.link.startsWith("http") ? problem.link : undefined
+                }
+                target={problem.link.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  problem.link.startsWith("http")
+                    ? "noopener noreferrer"
+                    : undefined
+                }
+                isDone={problem.isDone}
+                as={problem.link.startsWith("http") ? "a" : "span"}
+                style={{
+                  cursor: problem.link.startsWith("http")
+                    ? "pointer"
+                    : "default",
+                }}
+              >
+                {problem.link}
+              </ProblemLink>
+            </div>
+            {showTags && problem.tags.length > 0 && (
+              <TagsContainer style={{ marginTop: 0 }}>
+                {problem.tags.map((tag) => (
+                  <Tag key={tag.id} isCustom={tag.isCustom}>
+                    {tag.name}
+                  </Tag>
+                ))}
+              </TagsContainer>
+            )}
+          </div>
+          <ProblemActions>
+            <IconButton
+              variant={problem.isDone ? "primary" : "success"}
+              onClick={() => onToggleDone(problem.id)}
+              title={problem.isDone ? "Mark as undone" : "Mark as done"}
+            >
+              {problem.isDone ? <FiX size={16} /> : <FiCheck size={16} />}
+            </IconButton>
+            {problem.notes && (
+              <IconButton
+                onClick={() => onViewNotes(problem)}
+                title="View notes"
+              >
+                <FiFileText size={16} />
+              </IconButton>
+            )}
+            <IconButton onClick={() => onEdit(problem)} title="Edit problem">
+              <FiEdit2 size={16} />
+            </IconButton>
+            <IconButton
+              variant="danger"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Are you sure you want to delete this problem?"
+                  )
+                ) {
+                  onDelete(problem.id);
+                }
+              }}
+              title="Delete problem"
+            >
+              <FiTrash2 size={16} />
+            </IconButton>
+          </ProblemActions>
+        </ProblemHeader>
+      </ProblemCard>
+    </div>
+  );
+};
 
 export const ProblemList: React.FC<ProblemListProps> = ({
   problems,
   onEdit,
   onDelete,
   onToggleDone,
+  onReorder,
+  enableDragDrop = false,
 }) => {
   const [showTags, setShowTags] = useState(false);
-  const [notesModalProblem, setNotesModalProblem] = useState<Problem | null>(null);
+  const [notesModalProblem, setNotesModalProblem] = useState<Problem | null>(
+    null
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && onReorder) {
+      const oldIndex = problems.findIndex((p) => p.id === active.id);
+      const newIndex = problems.findIndex((p) => p.id === over.id);
+
+      const reorderedProblems = arrayMove(problems, oldIndex, newIndex).map(
+        (problem, index) => ({
+          ...problem,
+          order: index,
+        })
+      );
+
+      onReorder(reorderedProblems);
+    }
+  };
 
   if (problems.length === 0) {
     return (
@@ -53,7 +228,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
     );
   }
 
-  return (
+  const problemsList = (
     <>
       <div style={{ marginBottom: "1rem" }}>
         <Button variant="secondary" onClick={() => setShowTags(!showTags)}>
@@ -63,94 +238,39 @@ export const ProblemList: React.FC<ProblemListProps> = ({
       </div>
       <ProblemsGrid>
         {problems.map((problem) => (
-          <ProblemCard key={problem.id} isDone={problem.isDone}>
-            <ProblemHeader>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    flexWrap: "wrap",
-                    marginBottom:
-                      showTags && problem.tags.length > 0 ? "0.75rem" : 0,
-                  }}
-                >
-                  <ProblemLink
-                    href={
-                      problem.link.startsWith("http") ? problem.link : undefined
-                    }
-                    target={
-                      problem.link.startsWith("http") ? "_blank" : undefined
-                    }
-                    rel={
-                      problem.link.startsWith("http")
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
-                    isDone={problem.isDone}
-                    as={problem.link.startsWith("http") ? "a" : "span"}
-                    style={{
-                      cursor: problem.link.startsWith("http")
-                        ? "pointer"
-                        : "default",
-                    }}
-                  >
-                    {problem.link}
-                  </ProblemLink>
-                </div>
-                {showTags && problem.tags.length > 0 && (
-                  <TagsContainer style={{ marginTop: 0 }}>
-                    {problem.tags.map((tag) => (
-                      <Tag key={tag.id} isCustom={tag.isCustom}>
-                        {tag.name}
-                      </Tag>
-                    ))}
-                  </TagsContainer>
-                )}
-              </div>
-              <ProblemActions>
-                <IconButton
-                  variant={problem.isDone ? "primary" : "success"}
-                  onClick={() => onToggleDone(problem.id)}
-                  title={problem.isDone ? "Mark as undone" : "Mark as done"}
-                >
-                  {problem.isDone ? <FiX size={16} /> : <FiCheck size={16} />}
-                </IconButton>
-                {problem.notes && (
-                  <IconButton
-                    onClick={() => setNotesModalProblem(problem)}
-                    title="View notes"
-                  >
-                    <FiFileText size={16} />
-                  </IconButton>
-                )}
-                <IconButton
-                  onClick={() => onEdit(problem)}
-                  title="Edit problem"
-                >
-                  <FiEdit2 size={16} />
-                </IconButton>
-                <IconButton
-                  variant="danger"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this problem?"
-                      )
-                    ) {
-                      onDelete(problem.id);
-                    }
-                  }}
-                  title="Delete problem"
-                >
-                  <FiTrash2 size={16} />
-                </IconButton>
-              </ProblemActions>
-            </ProblemHeader>
-          </ProblemCard>
+          <SortableProblemCard
+            key={problem.id}
+            problem={problem}
+            showTags={showTags}
+            enableDragDrop={enableDragDrop}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onToggleDone={onToggleDone}
+            onViewNotes={setNotesModalProblem}
+          />
         ))}
       </ProblemsGrid>
+    </>
+  );
+
+  return (
+    <>
+      {enableDragDrop ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={problems.map((p) => p.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {problemsList}
+          </SortableContext>
+        </DndContext>
+      ) : (
+        problemsList
+      )}
 
       {notesModalProblem && (
         <Modal onClick={() => setNotesModalProblem(null)}>

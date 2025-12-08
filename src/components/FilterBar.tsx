@@ -13,12 +13,14 @@ interface FilterBarProps {
   showDoneOnly: boolean;
   showUndoneOnly: boolean;
   problems: Problem[];
+  selectedDifficulty: string[];
   onFilterTagsChange: (tags: string[]) => void;
   onSortByChange: (sortBy: SortBy) => void;
   onSortOrderChange: (sortOrder: SortOrder) => void;
   onGroupByTagChange: (group: boolean) => void;
   onShowDoneOnlyChange: (show: boolean) => void;
   onShowUndoneOnlyChange: (show: boolean) => void;
+  onDifficultyChange: (difficulty: string[]) => void;
   onClearFilters: () => void;
 }
 
@@ -31,18 +33,31 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   showDoneOnly,
   showUndoneOnly,
   problems,
+  selectedDifficulty,
   onFilterTagsChange,
   onSortByChange,
   onSortOrderChange,
   onGroupByTagChange,
   onShowDoneOnlyChange,
   onShowUndoneOnlyChange,
+  onDifficultyChange,
   onClearFilters,
 }) => {
-  const allTags = [...PREDEFINED_TAGS, ...customTags];
+  const difficultyTags = PREDEFINED_TAGS.filter((tag) =>
+    ["easy", "medium", "hard"].includes(tag.id)
+  );
+  const topicTags = [
+    ...PREDEFINED_TAGS.filter(
+      (tag) => !["easy", "medium", "hard"].includes(tag.id)
+    ),
+    ...customTags,
+  ];
 
   const hasActiveFilters =
-    selectedFilterTags.length > 0 || showDoneOnly || showUndoneOnly;
+    selectedFilterTags.length > 0 ||
+    showDoneOnly ||
+    showUndoneOnly ||
+    selectedDifficulty.length > 0;
 
   // Calculate problem count for each tag
   const getTagCount = (tagId: string): number => {
@@ -54,6 +69,27 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <StyledFilterBar>
       <Select
+        value={selectedDifficulty[0] || ""}
+        onChange={(e) => {
+          if (e.target.value) {
+            onDifficultyChange([e.target.value]);
+          } else {
+            onDifficultyChange([]);
+          }
+        }}
+      >
+        <option value="">All Difficulties ({problems.length})</option>
+        {difficultyTags.map((tag) => {
+          const count = getTagCount(tag.id);
+          return (
+            <option key={tag.id} value={tag.id}>
+              {tag.name} ({count})
+            </option>
+          );
+        })}
+      </Select>
+
+      <Select
         value={selectedFilterTags[0] || ""}
         onChange={(e) => {
           if (e.target.value) {
@@ -63,8 +99,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           }
         }}
       >
-        <option value="">All Tags ({problems.length})</option>
-        {allTags.map((tag) => {
+        <option value="">All Topics ({problems.length})</option>
+        {topicTags.map((tag) => {
           const count = getTagCount(tag.id);
           return (
             <option key={tag.id} value={tag.id}>

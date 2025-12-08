@@ -34,7 +34,12 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
   const [newTagName, setNewTagName] = useState("");
   const [showCustomTagInput, setShowCustomTagInput] = useState(false);
 
-  const allTags = [...PREDEFINED_TAGS, ...customTags];
+  const difficultyTags = PREDEFINED_TAGS.filter((tag) =>
+    ["easy", "medium", "hard"].includes(tag.id)
+  );
+  const topicTags = PREDEFINED_TAGS.filter(
+    (tag) => !["easy", "medium", "hard"].includes(tag.id)
+  );
 
   const handleTagToggle = (tag: Tag) => {
     setSelectedTags((prev) => {
@@ -75,6 +80,18 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
       return;
     }
 
+    // Check if at least one difficulty tag is selected
+    const hasDifficultyTag = selectedTags.some((tag) =>
+      ["easy", "medium", "hard"].includes(tag.id)
+    );
+
+    if (!hasDifficultyTag) {
+      alert(
+        "Please select at least one difficulty level (Easy, Medium, or Hard)"
+      );
+      return;
+    }
+
     const now = Date.now();
     const problemData: Problem = {
       id: problem?.id || generateId(),
@@ -104,9 +121,35 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
       </FormGroup>
 
       <FormGroup>
+        <label>Difficulty Level *</label>
+        <TagsContainer>
+          {difficultyTags.map((tag) => (
+            <StyledTag
+              key={tag.id}
+              selected={selectedTags.some((t) => t.id === tag.id)}
+              isCustom={tag.isCustom}
+              onClick={() => handleTagToggle(tag)}
+            >
+              {tag.name}
+            </StyledTag>
+          ))}
+        </TagsContainer>
+      </FormGroup>
+
+      <FormGroup>
         <label>Tags</label>
         <TagsContainer>
-          {allTags.map((tag) => (
+          {topicTags.map((tag) => (
+            <StyledTag
+              key={tag.id}
+              selected={selectedTags.some((t) => t.id === tag.id)}
+              isCustom={tag.isCustom}
+              onClick={() => handleTagToggle(tag)}
+            >
+              {tag.name}
+            </StyledTag>
+          ))}
+          {customTags.map((tag) => (
             <StyledTag
               key={tag.id}
               selected={selectedTags.some((t) => t.id === tag.id)}

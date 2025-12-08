@@ -286,17 +286,45 @@ export const Select = styled.select`
   }
 `;
 
-export const ProblemCard = styled.div<{ isDone?: boolean }>`
+export const ProblemCard = styled.div<{
+  isDone?: boolean;
+  isDragging?: boolean;
+}>`
   background: ${colors.surface};
   border-radius: 0.75rem;
   padding: 1.25rem;
   border: 1px solid ${colors.border};
   transition: all 0.2s;
   opacity: ${({ isDone }) => (isDone ? 0.7 : 1)};
+  ${({ isDragging }) =>
+    isDragging &&
+    `
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    transform: rotate(2deg);
+  `}
 
   &:hover {
     border-color: ${colors.primary};
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  }
+`;
+
+export const DragHandle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: ${colors.textMuted};
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: ${colors.primary};
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 `;
 

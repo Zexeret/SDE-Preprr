@@ -1,6 +1,12 @@
 import type { Tag } from "./types";
 
 export const PREDEFINED_TAGS: Tag[] = [
+  // Difficulty Tags
+  { id: "easy", name: "Easy", isCustom: false },
+  { id: "medium", name: "Medium", isCustom: false },
+  { id: "hard", name: "Hard", isCustom: false },
+
+  // Topic Tags
   { id: "array", name: "Array", isCustom: false },
   { id: "string", name: "String", isCustom: false },
   { id: "linked-list", name: "Linked List", isCustom: false },
@@ -21,9 +27,6 @@ export const PREDEFINED_TAGS: Tag[] = [
   { id: "sorting", name: "Sorting", isCustom: false },
   { id: "math", name: "Math", isCustom: false },
   { id: "bit-manipulation", name: "Bit Manipulation", isCustom: false },
-  { id: "easy", name: "Easy", isCustom: false },
-  { id: "medium", name: "Medium", isCustom: false },
-  { id: "hard", name: "Hard", isCustom: false },
 ];
 
 export const STORAGE_KEYS = {

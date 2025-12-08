@@ -12,6 +12,7 @@ export interface Problem {
   isDone: boolean;
   createdAt: number;
   updatedAt: number;
+  order: number;
 }
 
 export type SortBy = "dateAdded" | "dateUpdated" | "status" | "name";

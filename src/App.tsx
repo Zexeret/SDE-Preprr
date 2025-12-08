@@ -33,6 +33,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [editingProblem, setEditingProblem] = useState<Problem | undefined>();
   const [selectedFilterTags, setSelectedFilterTags] = useState<string[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortBy>("dateAdded");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [groupByTag, setGroupByTag] = useState(false);
@@ -45,7 +46,14 @@ function App() {
   useEffect(() => {
     const loadedProblems = loadProblems();
     const loadedTags = loadCustomTags();
-    setProblems(loadedProblems);
+
+    // Initialize order property if it doesn't exist
+    const problemsWithOrder = loadedProblems.map((problem, index) => ({
+      ...problem,
+      order: problem.order !== undefined ? problem.order : index,
+    }));
+
+    setProblems(problemsWithOrder);
     setCustomTags(loadedTags);
 
     // Use setTimeout to ensure the flag is set after state updates
@@ -71,7 +79,11 @@ function App() {
   }, [customTags]);
 
   const handleAddProblem = (problem: Problem) => {
-    setProblems((prev) => [...prev, problem]);
+    const newProblem = {
+      ...problem,
+      order: problems.length,
+    };
+    setProblems((prev) => [...prev, newProblem]);
     setShowModal(false);
   };
 
@@ -164,14 +176,23 @@ function App() {
 
   const handleClearFilters = () => {
     setSelectedFilterTags([]);
+    setSelectedDifficulty([]);
     setShowDoneOnly(false);
     setShowUndoneOnly(false);
+  };
+
+  const handleReorderProblems = (reorderedProblems: Problem[]) => {
+    setProblems(reorderedProblems);
   };
 
   // Filter problems
   let filteredProblems = problems.filter((problem) => {
     if (showDoneOnly && !problem.isDone) return false;
     if (showUndoneOnly && problem.isDone) return false;
+    if (selectedDifficulty.length > 0) {
+      if (!problem.tags.some((tag) => selectedDifficulty.includes(tag.id)))
+        return false;
+    }
     if (selectedFilterTags.length > 0) {
       return problem.tags.some((tag) => selectedFilterTags.includes(tag.id));
     }
@@ -196,6 +217,13 @@ function App() {
 
     return sortOrder === "asc" ? comparison : -comparison;
   });
+
+  // When not grouped and using default sort (dateAdded desc), use custom order
+  const shouldUseCustomOrder =
+    !groupByTag && sortBy === "dateAdded" && sortOrder === "desc";
+  if (shouldUseCustomOrder) {
+    filteredProblems = [...filteredProblems].sort((a, b) => a.order - b.order);
+  }
 
   // Group problems by tag
   const groupedProblems: Record<string, Problem[]> = {};
@@ -270,12 +298,14 @@ function App() {
               showDoneOnly={showDoneOnly}
               showUndoneOnly={showUndoneOnly}
               problems={problems}
+              selectedDifficulty={selectedDifficulty}
               onFilterTagsChange={setSelectedFilterTags}
               onSortByChange={setSortBy}
               onSortOrderChange={setSortOrder}
               onGroupByTagChange={setGroupByTag}
               onShowDoneOnlyChange={setShowDoneOnly}
               onShowUndoneOnlyChange={setShowUndoneOnly}
+              onDifficultyChange={setSelectedDifficulty}
               onClearFilters={handleClearFilters}
             />
 
@@ -291,6 +321,7 @@ function App() {
                     onEdit={handleOpenEditModal}
                     onDelete={handleDeleteProblem}
                     onToggleDone={handleToggleDone}
+                    enableDragDrop={false}
                   />
                 </div>
               ))
@@ -300,6 +331,8 @@ function App() {
                 onEdit={handleOpenEditModal}
                 onDelete={handleDeleteProblem}
                 onToggleDone={handleToggleDone}
+                onReorder={handleReorderProblems}
+                enableDragDrop={shouldUseCustomOrder}
               />
             )}
           </Card>
@@ -312,6 +345,7 @@ function App() {
               onEdit={handleOpenEditModal}
               onDelete={handleDeleteProblem}
               onToggleDone={handleToggleDone}
+              enableDragDrop={false}
             />
           </Card>
         )}
