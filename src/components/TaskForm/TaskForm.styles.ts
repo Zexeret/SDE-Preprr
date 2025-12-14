@@ -107,6 +107,20 @@ export const tagWithDeleteStyles = css`
   }
 `;
 
+export const tagWithDeleteCustomStyles = css`
+  ${tagWithDeleteStyles}
+  background: #8b5cf6;
+
+  button {
+    margin-left: 0.5rem;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+`;
+
 export const customTagInputContainerStyles = css`
   margin-top: 1rem;
   display: flex;
@@ -133,4 +147,23 @@ export const modalActionsStyles = css`
   justify-content: flex-end;
   margin-top: 1.5rem;
   flex-wrap: wrap;
+`;
+
+export const customTagsHeaderStyles = css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+export const customTagsLabelContainerStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const customTagsInfoStyles = css`
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
 `;

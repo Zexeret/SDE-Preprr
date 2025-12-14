@@ -29,6 +29,8 @@ import {
   titleStyles,
   headerActionsStyles,
   mainContentStyles,
+  formGroupStyles,
+  modalActionsStyles,
 } from "./App.styles";
 
 function App() {
@@ -49,6 +51,7 @@ function App() {
     toggleTaskDone,
     reorderTasks,
     addCustomTag,
+    deleteCustomTag,
   } = useApp();
 
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -313,6 +316,7 @@ function App() {
                 showUndoneOnly={showUndoneOnly}
                 tasks={groupTasks}
                 selectedDifficulty={selectedDifficulty}
+                selectedGroupId={selectedGroupId}
                 onFilterTagsChange={setSelectedFilterTags}
                 onSortByChange={setSortBy}
                 onSortOrderChange={setSortOrder}
@@ -378,6 +382,7 @@ function App() {
                 onSubmit={handleTaskSubmit}
                 onCancel={handleCloseTaskModal}
                 onAddCustomTag={addCustomTag}
+                onDeleteCustomTag={deleteCustomTag}
               />
             </div>
           </div>

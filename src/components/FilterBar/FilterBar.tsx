@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { FiFilter } from "react-icons/fi";
 import type { Tag, SortBy, SortOrder, PreparationTask } from "../../model";
-import { PREDEFINED_TAGS, DIFFICULTY_TAG_IDS } from "../../constants";
+import { DIFFICULTY_TAGS, DSA_SPECIFIC_TAGS } from "../../constants/index";
 import { buttonSecondaryStyles } from "../../styles";
 import { filterBarContainerStyles, selectStyles } from "./FilterBar.styles";
 
@@ -15,6 +15,7 @@ interface FilterBarProps {
   readonly showUndoneOnly: boolean;
   readonly tasks: ReadonlyArray<PreparationTask>;
   readonly selectedDifficulty: ReadonlyArray<string>;
+  readonly selectedGroupId: string;
   readonly onFilterTagsChange: (tags: ReadonlyArray<string>) => void;
   readonly onSortByChange: (sortBy: SortBy) => void;
   readonly onSortOrderChange: (sortOrder: SortOrder) => void;
@@ -35,6 +36,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   showUndoneOnly,
   tasks,
   selectedDifficulty,
+  selectedGroupId,
   onFilterTagsChange,
   onSortByChange,
   onSortOrderChange,
@@ -44,23 +46,18 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onDifficultyChange,
   onClearFilters,
 }) => {
-  const difficultyTags = useMemo(
-    () =>
-      PREDEFINED_TAGS.filter((tag) =>
-        DIFFICULTY_TAG_IDS.includes(tag.id as any)
-      ),
-    []
-  );
+  // Get topic tags based on selected group
+  const topicTags = useMemo(() => {
+    const groupCustomTags = customTags.filter(
+      (tag) => tag.groupId === selectedGroupId
+    );
 
-  const topicTags = useMemo(
-    () => [
-      ...PREDEFINED_TAGS.filter(
-        (tag) => !DIFFICULTY_TAG_IDS.includes(tag.id as any)
-      ),
-      ...customTags,
-    ],
-    [customTags]
-  );
+    if (selectedGroupId === "dsa") {
+      return [...DSA_SPECIFIC_TAGS, ...groupCustomTags];
+    }
+
+    return groupCustomTags;
+  }, [customTags, selectedGroupId]);
 
   const hasActiveFilters =
     selectedFilterTags.length > 0 ||
@@ -87,7 +84,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         }}
       >
         <option value="">All Difficulties ({tasks.length})</option>
-        {difficultyTags.map((tag) => {
+        {DIFFICULTY_TAGS.map((tag) => {
           const count = getTagCount(tag.id);
           return (
             <option key={tag.id} value={tag.id}>
@@ -97,27 +94,29 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         })}
       </select>
 
-      <select
-        className={selectStyles}
-        value={selectedFilterTags[0] || ""}
-        onChange={(e) => {
-          if (e.target.value) {
-            onFilterTagsChange([e.target.value]);
-          } else {
-            onFilterTagsChange([]);
-          }
-        }}
-      >
-        <option value="">All Topics ({tasks.length})</option>
-        {topicTags.map((tag) => {
-          const count = getTagCount(tag.id);
-          return (
-            <option key={tag.id} value={tag.id}>
-              {tag.name} ({count})
-            </option>
-          );
-        })}
-      </select>
+      {topicTags.length > 0 && (
+        <select
+          className={selectStyles}
+          value={selectedFilterTags[0] || ""}
+          onChange={(e) => {
+            if (e.target.value) {
+              onFilterTagsChange([e.target.value]);
+            } else {
+              onFilterTagsChange([]);
+            }
+          }}
+        >
+          <option value="">All Topics ({tasks.length})</option>
+          {topicTags.map((tag) => {
+            const count = getTagCount(tag.id);
+            return (
+              <option key={tag.id} value={tag.id}>
+                {tag.name} ({count})
+              </option>
+            );
+          })}
+        </select>
+      )}
 
       <select
         className={selectStyles}
@@ -151,14 +150,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <option value="undone">Pending Only</option>
       </select>
 
-      <select
-        className={selectStyles}
-        value={groupByTag ? "yes" : "no"}
-        onChange={(e) => onGroupByTagChange(e.target.value === "yes")}
-      >
-        <option value="no">No Grouping</option>
-        <option value="yes">Group by Tag</option>
-      </select>
+      {topicTags.length > 0 && (
+        <select
+          className={selectStyles}
+          value={groupByTag ? "yes" : "no"}
+          onChange={(e) => onGroupByTagChange(e.target.value === "yes")}
+        >
+          <option value="no">No Grouping</option>
+          <option value="yes">Group by Tag</option>
+        </select>
+      )}
 
       {hasActiveFilters && (
         <button className={buttonSecondaryStyles} onClick={onClearFilters}>

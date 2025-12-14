@@ -31,6 +31,7 @@ interface AppContextType {
   readonly toggleTaskDone: (taskId: string) => void;
   readonly reorderTasks: (tasks: ReadonlyArray<PreparationTask>) => void;
   readonly addCustomTag: (tag: Tag) => void;
+  readonly deleteCustomTag: (tagId: string) => void;
   readonly addCustomGroup: (group: Group) => void;
   readonly setSelectedGroupId: (groupId: string) => void;
   readonly resetGroupProgress: () => void;
@@ -161,6 +162,20 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
     setCustomTagsState((prev) => [...prev, tag]);
   }, []);
 
+  const deleteCustomTag = useCallback((tagId: string) => {
+    // Remove tag from custom tags
+    setCustomTagsState((prev) => prev.filter((t) => t.id !== tagId));
+
+    // Remove tag from all tasks
+    setTasksState((prev) =>
+      prev.map((task) => ({
+        ...task,
+        tags: task.tags.filter((t) => t.id !== tagId),
+        updatedAt: Date.now(),
+      }))
+    );
+  }, []);
+
   const addCustomGroup = useCallback((group: Group) => {
     setCustomGroupsState((prev) => [...prev, group]);
   }, []);
@@ -186,6 +201,7 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
     toggleTaskDone,
     reorderTasks,
     addCustomTag,
+    deleteCustomTag,
     addCustomGroup,
     setSelectedGroupId,
     resetGroupProgress,

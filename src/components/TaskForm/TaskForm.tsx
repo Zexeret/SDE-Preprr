@@ -1,10 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { Editor } from "primereact/editor";
-import { FiX, FiPlus } from "react-icons/fi";
+import { FiX, FiPlus, FiTrash2 } from "react-icons/fi";
 import { cx } from "@emotion/css";
 import type { PreparationTask, Tag } from "../../model";
 import { generateId } from "../../utils";
-import { buttonPrimaryStyles, buttonSecondaryStyles } from "../../styles";
+import {
+  DIFFICULTY_TAGS,
+  DSA_SPECIFIC_TAGS,
+  DIFFICULTY_TAG_IDS,
+} from "../../constants/index";
+import {
+  buttonPrimaryStyles,
+  buttonSecondaryStyles,
+  buttonDangerStyles,
+} from "../../styles";
 import {
   formGroupStyles,
   tagsContainerStyles,
@@ -12,14 +21,15 @@ import {
   tagButtonSelectedStyles,
   tagButtonCustomStyles,
   tagWithDeleteStyles,
+  tagWithDeleteCustomStyles,
   customTagInputContainerStyles,
   selectedTagsSectionStyles,
   selectedTagsLabelStyles,
   modalActionsStyles,
+  customTagsHeaderStyles,
+  customTagsLabelContainerStyles,
+  customTagsInfoStyles,
 } from "./TaskForm.styles";
-import { PREDEFINED_TAGS, DIFFICULTY_TAG_IDS } from "../../constants/index";
-
-
 
 interface TaskFormProps {
   readonly task?: PreparationTask;
@@ -28,6 +38,7 @@ interface TaskFormProps {
   readonly onSubmit: (task: PreparationTask) => void;
   readonly onCancel: () => void;
   readonly onAddCustomTag: (tag: Tag) => void;
+  readonly onDeleteCustomTag: (tagId: string) => void;
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({
@@ -37,6 +48,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onSubmit,
   onCancel,
   onAddCustomTag,
+  onDeleteCustomTag,
 }) => {
   const [link, setLink] = useState(task?.link || "");
   const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
@@ -46,21 +58,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [newTagName, setNewTagName] = useState("");
   const [showCustomTagInput, setShowCustomTagInput] = useState(false);
 
-  const difficultyTags = useMemo(
-    () =>
-      PREDEFINED_TAGS.filter((tag) =>
-        DIFFICULTY_TAG_IDS.includes(tag.id as any)
-      ),
-    []
-  );
+  // Get topic tags based on current group
+  const topicTags = useMemo(() => {
+    const groupCustomTags = customTags.filter((tag) => tag.groupId === groupId);
 
-  const topicTags = useMemo(
-    () =>
-      PREDEFINED_TAGS.filter(
-        (tag) => !DIFFICULTY_TAG_IDS.includes(tag.id as any)
-      ),
-    []
-  );
+    if (groupId === "dsa") {
+      return [...DSA_SPECIFIC_TAGS, ...groupCustomTags];
+    }
+
+    return groupCustomTags;
+  }, [customTags, groupId]);
 
   const handleTagToggle = (tag: Tag) => {
     setSelectedTags((prev) => {
@@ -77,6 +84,17 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
   };
 
+  const handleDeleteCustomTag = (tagId: string) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this tag? It will be removed from all tasks in this group."
+      )
+    ) {
+      onDeleteCustomTag(tagId);
+      handleRemoveTag(tagId);
+    }
+  };
+
   const handleAddCustomTag = () => {
     if (!newTagName.trim()) return;
 
@@ -85,6 +103,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       id: `custom-${tagId}-${Date.now()}`,
       name: newTagName.trim(),
       isCustom: true,
+      groupId: groupId,
     };
 
     onAddCustomTag(newTag);
@@ -128,6 +147,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     onSubmit(taskData);
   };
 
+  const groupCustomTags = topicTags.filter((tag) => tag.isCustom);
+
   return (
     <form onSubmit={handleSubmit}>
       <div className={formGroupStyles}>
@@ -145,7 +166,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       <div className={formGroupStyles}>
         <label>Difficulty Level *</label>
         <div className={tagsContainerStyles}>
-          {difficultyTags.map((tag) => (
+          {DIFFICULTY_TAGS.map((tag) => (
             <button
               key={tag.id}
               type="button"
@@ -163,23 +184,34 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className={formGroupStyles}>
-        <label>Tags</label>
+        <div className={customTagsHeaderStyles}>
+          <div className={customTagsLabelContainerStyles}>
+            <label>Tags</label>
+            {groupId !== "dsa" && topicTags.length === 0 && (
+              <span className={customTagsInfoStyles}>
+                (Add custom tags for this group)
+              </span>
+            )}
+          </div>
+        </div>
         <div className={tagsContainerStyles}>
-          {topicTags.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              className={cx(
-                selectedTags.some((t) => t.id === tag.id)
-                  ? tagButtonSelectedStyles
-                  : tagButtonStyles
-              )}
-              onClick={() => handleTagToggle(tag)}
-            >
-              {tag.name}
-            </button>
-          ))}
-          {customTags.map((tag) => (
+          {topicTags
+            .filter((tag) => !tag.isCustom)
+            .map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                className={cx(
+                  selectedTags.some((t) => t.id === tag.id)
+                    ? tagButtonSelectedStyles
+                    : tagButtonStyles
+                )}
+                onClick={() => handleTagToggle(tag)}
+              >
+                {tag.name}
+              </button>
+            ))}
+          {groupCustomTags.map((tag) => (
             <button
               key={tag.id}
               type="button"
@@ -244,10 +276,39 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             <div className={selectedTagsLabelStyles}>Selected Tags:</div>
             <div className={tagsContainerStyles}>
               {selectedTags.map((tag) => (
-                <div key={tag.id} className={tagWithDeleteStyles}>
+                <div
+                  key={tag.id}
+                  className={
+                    tag.isCustom
+                      ? tagWithDeleteCustomStyles
+                      : tagWithDeleteStyles
+                  }
+                >
                   {tag.name}
                   <button type="button" onClick={() => handleRemoveTag(tag.id)}>
                     <FiX size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {groupCustomTags.length > 0 && (
+          <div className={selectedTagsSectionStyles}>
+            <div className={selectedTagsLabelStyles}>
+              Manage Custom Tags for this Group:
+            </div>
+            <div className={tagsContainerStyles}>
+              {groupCustomTags.map((tag) => (
+                <div key={tag.id} className={tagWithDeleteCustomStyles}>
+                  {tag.name}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCustomTag(tag.id)}
+                    title="Delete this tag permanently"
+                  >
+                    <FiTrash2 size={12} />
                   </button>
                 </div>
               ))}

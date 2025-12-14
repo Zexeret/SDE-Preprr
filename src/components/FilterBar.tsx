@@ -1,7 +1,7 @@
 import React from "react";
 import { FiFilter } from "react-icons/fi";
 import type { Tag, SortBy, SortOrder, PreparationTask } from "../types";
-import { PREDEFINED_TAGS } from "../constants";
+import { DIFFICULTY_TAGS } from "../constants/index";
 import { FilterBar as StyledFilterBar, Select, Button } from "../styled";
 
 interface FilterBarProps {
@@ -43,11 +43,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onDifficultyChange,
   onClearFilters,
 }) => {
-  const difficultyTags = PREDEFINED_TAGS.filter((tag) =>
+  const difficultyTags = DIFFICULTY_TAGS.filter((tag) =>
     ["easy", "medium", "hard"].includes(tag.id)
   );
   const topicTags = [
-    ...PREDEFINED_TAGS.filter(
+    ...DIFFICULTY_TAGS.filter(
       (tag) => !["easy", "medium", "hard"].includes(tag.id)
     ),
     ...customTags,
