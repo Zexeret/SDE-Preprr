@@ -277,6 +277,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <h2>Notes</h2>
             <div
+              className="notes-content"
               style={{
                 marginBottom: "1.5rem",
                 padding: "1rem",

@@ -15,6 +15,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
+    "@emotion/css": "^11.13.5",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.4",
     "quill": "^2.0.2",

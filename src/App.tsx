@@ -26,8 +26,10 @@ import {
   FileInputLabel,
   GroupHeader,
 } from "./styled";
+import { ThemeProvider, type ThemeName } from "./theme";
 
 function App() {
+  const [themeName, setThemeName] = useState<ThemeName>('dark');
   const [problems, setProblems] = useState<Problem[]>([]);
   const [customTags, setCustomTags] = useState<Tag[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -246,126 +248,134 @@ function App() {
   }
 
   return (
-    <AppContainer>
-      <Header>
-        <h1>🚀 DSA Manager</h1>
-        <HeaderActions>
-          <Button variant="primary" onClick={handleOpenAddModal}>
-            <FiPlus size={16} />
-            Add Problem
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={handleExport}
-            disabled={problems.length === 0}
-          >
-            <FiDownload size={16} />
-            Export
-          </Button>
-          <FileInputLabel htmlFor="import-file">
-            <FiUpload size={16} />
-            Import
-          </FileInputLabel>
-          <FileInput
-            id="import-file"
-            type="file"
-            accept=".json"
-            ref={fileInputRef}
-            onChange={handleImport}
-          />
-          <Button
-            variant="danger"
-            onClick={handleResetProgress}
-            disabled={problems.length === 0 || !problems.some((p) => p.isDone)}
-          >
-            <FiRefreshCw size={16} />
-            Reset Progress
-          </Button>
-        </HeaderActions>
-      </Header>
-
-      <MainContent>
-        <Stats problems={problems} />
-
-        {problems.length > 0 && (
-          <Card>
-            <FilterBar
-              customTags={customTags}
-              selectedFilterTags={selectedFilterTags}
-              sortBy={sortBy}
-              sortOrder={sortOrder}
-              groupByTag={groupByTag}
-              showDoneOnly={showDoneOnly}
-              showUndoneOnly={showUndoneOnly}
-              problems={problems}
-              selectedDifficulty={selectedDifficulty}
-              onFilterTagsChange={setSelectedFilterTags}
-              onSortByChange={setSortBy}
-              onSortOrderChange={setSortOrder}
-              onGroupByTagChange={setGroupByTag}
-              onShowDoneOnlyChange={setShowDoneOnly}
-              onShowUndoneOnlyChange={setShowUndoneOnly}
-              onDifficultyChange={setSelectedDifficulty}
-              onClearFilters={handleClearFilters}
+    <ThemeProvider themeName={themeName}>
+      <AppContainer>
+        <Header>
+          <h1>🚀 DSA Manager</h1>
+          <HeaderActions>
+            <Button variant="primary" onClick={handleOpenAddModal}>
+              <FiPlus size={16} />
+              Add Problem
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleExport}
+              disabled={problems.length === 0}
+            >
+              <FiDownload size={16} />
+              Export
+            </Button>
+            <FileInputLabel htmlFor="import-file">
+              <FiUpload size={16} />
+              Import
+            </FileInputLabel>
+            <FileInput
+              id="import-file"
+              type="file"
+              accept=".json"
+              ref={fileInputRef}
+              onChange={handleImport}
             />
+            <Button
+              variant="danger"
+              onClick={handleResetProgress}
+              disabled={
+                problems.length === 0 || !problems.some((p) => p.isDone)
+              }
+            >
+              <FiRefreshCw size={16} />
+              Reset Progress
+            </Button>
+          </HeaderActions>
+        </Header>
 
-            {groupByTag ? (
-              Object.entries(groupedProblems).map(([tagName, tagProblems]) => (
-                <div key={tagName}>
-                  <GroupHeader>
-                    {tagName}{" "}
-                    <span className="count">({tagProblems.length})</span>
-                  </GroupHeader>
-                  <ProblemList
-                    problems={tagProblems}
-                    onEdit={handleOpenEditModal}
-                    onDelete={handleDeleteProblem}
-                    onToggleDone={handleToggleDone}
-                    enableDragDrop={false}
-                  />
-                </div>
-              ))
-            ) : (
+        <MainContent>
+          <Stats problems={problems} />
+
+          {problems.length > 0 && (
+            <Card>
+              <FilterBar
+                customTags={customTags}
+                selectedFilterTags={selectedFilterTags}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                groupByTag={groupByTag}
+                showDoneOnly={showDoneOnly}
+                showUndoneOnly={showUndoneOnly}
+                problems={problems}
+                selectedDifficulty={selectedDifficulty}
+                onFilterTagsChange={setSelectedFilterTags}
+                onSortByChange={setSortBy}
+                onSortOrderChange={setSortOrder}
+                onGroupByTagChange={setGroupByTag}
+                onShowDoneOnlyChange={setShowDoneOnly}
+                onShowUndoneOnlyChange={setShowUndoneOnly}
+                onDifficultyChange={setSelectedDifficulty}
+                onClearFilters={handleClearFilters}
+              />
+
+              {groupByTag ? (
+                Object.entries(groupedProblems).map(
+                  ([tagName, tagProblems]) => (
+                    <div key={tagName}>
+                      <GroupHeader>
+                        {tagName}{" "}
+                        <span className="count">({tagProblems.length})</span>
+                      </GroupHeader>
+                      <ProblemList
+                        problems={tagProblems}
+                        onEdit={handleOpenEditModal}
+                        onDelete={handleDeleteProblem}
+                        onToggleDone={handleToggleDone}
+                        enableDragDrop={false}
+                      />
+                    </div>
+                  )
+                )
+              ) : (
+                <ProblemList
+                  problems={filteredProblems}
+                  onEdit={handleOpenEditModal}
+                  onDelete={handleDeleteProblem}
+                  onToggleDone={handleToggleDone}
+                  onReorder={handleReorderProblems}
+                  enableDragDrop={shouldUseCustomOrder}
+                />
+              )}
+            </Card>
+          )}
+
+          {problems.length === 0 && (
+            <Card>
               <ProblemList
-                problems={filteredProblems}
+                problems={[]}
                 onEdit={handleOpenEditModal}
                 onDelete={handleDeleteProblem}
                 onToggleDone={handleToggleDone}
-                onReorder={handleReorderProblems}
-                enableDragDrop={shouldUseCustomOrder}
+                enableDragDrop={false}
               />
-            )}
-          </Card>
-        )}
+            </Card>
+          )}
+        </MainContent>
 
-        {problems.length === 0 && (
-          <Card>
-            <ProblemList
-              problems={[]}
-              onEdit={handleOpenEditModal}
-              onDelete={handleDeleteProblem}
-              onToggleDone={handleToggleDone}
-              enableDragDrop={false}
-            />
-          </Card>
+        {showModal && (
+          <Modal onClick={handleCloseModal}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+              <h2>{editingProblem ? "Edit Problem" : "Add New Problem"}</h2>
+              <ProblemForm
+                problem={editingProblem}
+                customTags={customTags}
+                onSubmit={
+                  editingProblem ? handleUpdateProblem : handleAddProblem
+                }
+                onCancel={handleCloseModal}
+                onAddCustomTag={handleAddCustomTag}
+              />
+            </ModalContent>
+          </Modal>
         )}
-      </MainContent>
-
-      {showModal && (
-        <Modal onClick={handleCloseModal}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <h2>{editingProblem ? "Edit Problem" : "Add New Problem"}</h2>
-            <ProblemForm
-              problem={editingProblem}
-              customTags={customTags}
-              onSubmit={editingProblem ? handleUpdateProblem : handleAddProblem}
-              onCancel={handleCloseModal}
-              onAddCustomTag={handleAddCustomTag}
-            />
-          </ModalContent>
-        </Modal>
-      )}
-    </AppContainer>
+      </AppContainer>
+    </ThemeProvider>
   );
 }
 

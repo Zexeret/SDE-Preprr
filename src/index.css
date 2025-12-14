@@ -115,6 +115,32 @@ button:focus-visible {
   color: #64748b !important;
 }
 
+/* Image sizing in editor and notes display */
+.p-editor-content .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.5rem 0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+/* Image sizing in notes display (modal and preview) */
+.notes-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.5rem 0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+/* Allow clicking to view full size */
+.notes-content img:hover,
+.p-editor-content .ql-editor img:hover {
+  opacity: 0.9;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
