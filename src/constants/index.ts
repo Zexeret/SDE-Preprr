@@ -1,4 +1,4 @@
-import type { Tag, Group } from "./types";
+import type { Tag, Group } from "../model";
 
 export const PREDEFINED_GROUPS: ReadonlyArray<Group> = [
   { id: "dsa", name: "DSA Problems", isCustom: false, createdAt: Date.now() },
@@ -10,17 +10,14 @@ export const PREDEFINED_GROUPS: ReadonlyArray<Group> = [
   },
   { id: "backend", name: "Backend", isCustom: false, createdAt: Date.now() },
   { id: "frontend", name: "Frontend", isCustom: false, createdAt: Date.now() },
-];
+] as const;
 
-export const DEFAULT_GROUP_ID = "dsa";
+export const DEFAULT_GROUP_ID = "dsa" as const;
 
 export const PREDEFINED_TAGS: ReadonlyArray<Tag> = [
-  // Difficulty Tags
   { id: "easy", name: "Easy", isCustom: false },
   { id: "medium", name: "Medium", isCustom: false },
   { id: "hard", name: "Hard", isCustom: false },
-
-  // Topic Tags
   { id: "array", name: "Array", isCustom: false },
   { id: "string", name: "String", isCustom: false },
   { id: "linked-list", name: "Linked List", isCustom: false },
@@ -41,14 +38,8 @@ export const PREDEFINED_TAGS: ReadonlyArray<Tag> = [
   { id: "sorting", name: "Sorting", isCustom: false },
   { id: "math", name: "Math", isCustom: false },
   { id: "bit-manipulation", name: "Bit Manipulation", isCustom: false },
-];
+] as const;
 
-export const STORAGE_KEYS = {
-  PROBLEMS: "dsa-manager-problems",
-  TASKS: "dsa-manager-tasks",
-  CUSTOM_TAGS: "dsa-manager-custom-tags",
-  CUSTOM_GROUPS: "dsa-manager-custom-groups",
-  SELECTED_GROUP: "dsa-manager-selected-group",
-};
+export const APP_VERSION = "1.0.0" as const;
 
-export const APP_VERSION = "1.0.0";
+export const DIFFICULTY_TAG_IDS = ["easy", "medium", "hard"] as const;

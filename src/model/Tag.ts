@@ -1,5 +1,5 @@
 export type Tag = {
-  readonly tagId: string;
+  readonly id: string;
   readonly name: string;
   readonly isCustom: boolean;
 };
