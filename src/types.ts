@@ -1,26 +1,26 @@
-export interface Tag {
-  id: string;
-  name: string;
-  isCustom: boolean;
+export type Tag = {
+  readonly id: string;
+  readonly name: string;
+  readonly isCustom: boolean;
 }
 
 export interface Problem {
-  id: string;
-  link: string;
-  tags: Tag[];
-  notes: string;
-  isDone: boolean;
-  createdAt: number;
-  updatedAt: number;
-  order: number;
+  readonly id: string;
+  readonly link: string;
+  readonly tags: ReadonlyArray<Tag>;
+  readonly notes: string;
+  readonly isDone: boolean;
+  readonly createdAt: number;
+  readonly updatedAt: number;
+  readonly order: number;
 }
 
 export type SortBy = "dateAdded" | "dateUpdated" | "status" | "name";
 export type SortOrder = "asc" | "desc";
 
 export interface ExportData {
-  version: string;
-  problems: Problem[];
-  customTags: Tag[];
-  exportedAt: number;
+  readonly version: string;
+  readonly problems: ReadonlyArray<Problem>;
+  readonly customTags: ReadonlyArray<Tag>;
+  readonly exportedAt: number;
 }

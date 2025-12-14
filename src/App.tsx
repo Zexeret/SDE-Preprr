@@ -30,12 +30,12 @@ import { ThemeProvider, type ThemeName } from "./theme";
 
 function App() {
   const [themeName, setThemeName] = useState<ThemeName>('dark');
-  const [problems, setProblems] = useState<Problem[]>([]);
-  const [customTags, setCustomTags] = useState<Tag[]>([]);
+  const [problems, setProblems] = useState<ReadonlyArray<Problem>>([]);
+  const [customTags, setCustomTags] = useState<Array<Tag>>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProblem, setEditingProblem] = useState<Problem | undefined>();
-  const [selectedFilterTags, setSelectedFilterTags] = useState<string[]>([]);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
+  const [selectedFilterTags, setSelectedFilterTags] = useState<Array<string>>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Array<string>>([]);
   const [sortBy, setSortBy] = useState<SortBy>("dateAdded");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [groupByTag, setGroupByTag] = useState(false);
@@ -183,7 +183,7 @@ function App() {
     setShowUndoneOnly(false);
   };
 
-  const handleReorderProblems = (reorderedProblems: Problem[]) => {
+  const handleReorderProblems = (reorderedProblems: Array<Problem>) => {
     setProblems(reorderedProblems);
   };
 
@@ -228,7 +228,7 @@ function App() {
   }
 
   // Group problems by tag
-  const groupedProblems: Record<string, Problem[]> = {};
+  const groupedProblems: Record<string, Array<Problem>> = {};
   if (groupByTag) {
     filteredProblems.forEach((problem) => {
       if (problem.tags.length === 0) {
