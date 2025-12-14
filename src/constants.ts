@@ -1,6 +1,20 @@
-import type { Tag } from "./types";
+import type { Tag, Group } from "./types";
 
-export const PREDEFINED_TAGS: Tag[] = [
+export const PREDEFINED_GROUPS: ReadonlyArray<Group> = [
+  { id: "dsa", name: "DSA Problems", isCustom: false, createdAt: Date.now() },
+  {
+    id: "system-design",
+    name: "System Design",
+    isCustom: false,
+    createdAt: Date.now(),
+  },
+  { id: "backend", name: "Backend", isCustom: false, createdAt: Date.now() },
+  { id: "frontend", name: "Frontend", isCustom: false, createdAt: Date.now() },
+];
+
+export const DEFAULT_GROUP_ID = "dsa";
+
+export const PREDEFINED_TAGS: ReadonlyArray<Tag> = [
   // Difficulty Tags
   { id: "easy", name: "Easy", isCustom: false },
   { id: "medium", name: "Medium", isCustom: false },
@@ -31,7 +45,10 @@ export const PREDEFINED_TAGS: Tag[] = [
 
 export const STORAGE_KEYS = {
   PROBLEMS: "dsa-manager-problems",
+  TASKS: "dsa-manager-tasks",
   CUSTOM_TAGS: "dsa-manager-custom-tags",
+  CUSTOM_GROUPS: "dsa-manager-custom-groups",
+  SELECTED_GROUP: "dsa-manager-selected-group",
 };
 
 export const APP_VERSION = "1.0.0";

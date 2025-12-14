@@ -1,36 +1,34 @@
 import React from "react";
-import type{ Problem } from "../types";
+import type { PreparationTask } from "../types";
 import { StatsBar, StatCard } from "../styled";
 
 interface StatsProps {
-  problems: Problem[];
+  readonly tasks: ReadonlyArray<PreparationTask>;
 }
 
-export const Stats: React.FC<StatsProps> = ({ problems }) => {
-  const totalProblems = problems.length;
-  const completedProblems = problems.filter((p) => p.isDone).length;
-  const pendingProblems = totalProblems - completedProblems;
+export const Stats: React.FC<StatsProps> = ({ tasks }) => {
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.isDone).length;
+  const pendingTasks = totalTasks - completedTasks;
   const completionRate =
-    totalProblems > 0
-      ? Math.round((completedProblems / totalProblems) * 100)
-      : 0;
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
     <StatsBar>
       <StatCard>
-        <div className="label">Total Problems</div>
-        <div className="value">{totalProblems}</div>
+        <div className="label">Total Tasks</div>
+        <div className="value">{totalTasks}</div>
       </StatCard>
       <StatCard>
         <div className="label">Completed</div>
         <div className="value" style={{ color: "#10b981" }}>
-          {completedProblems}
+          {completedTasks}
         </div>
       </StatCard>
       <StatCard>
         <div className="label">Pending</div>
         <div className="value" style={{ color: "#f59e0b" }}>
-          {pendingProblems}
+          {pendingTasks}
         </div>
       </StatCard>
       <StatCard>

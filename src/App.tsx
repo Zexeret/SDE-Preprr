@@ -1,16 +1,26 @@
 import { useState, useEffect, useRef } from "react";
-import { FiPlus, FiDownload, FiUpload, FiRefreshCw } from "react-icons/fi";
-import type { Problem, Tag, SortBy, SortOrder } from "./types";
 import {
-  loadProblems,
-  saveProblems,
+  FiPlus,
+  FiDownload,
+  FiUpload,
+  FiRefreshCw,
+  FiFolder,
+} from "react-icons/fi";
+import type { PreparationTask, Tag, Group, SortBy, SortOrder } from "./types";
+import {
+  loadTasks,
+  saveTasks,
   loadCustomTags,
   saveCustomTags,
+  loadCustomGroups,
+  saveCustomGroups,
+  loadSelectedGroup,
+  saveSelectedGroup,
   exportData,
   importData,
 } from "./utils";
-import { ProblemForm } from "./components/ProblemForm";
-import { ProblemList } from "./components/ProblemList";
+import { TaskForm } from "./components/ProblemForm";
+import { TaskList } from "./components/ProblemList";
 import { FilterBar } from "./components/FilterBar";
 import { Stats } from "./components/Stats";
 import {
@@ -25,17 +35,29 @@ import {
   FileInput,
   FileInputLabel,
   GroupHeader,
+  GroupSelector,
+  GroupButton,
 } from "./styled";
 import { ThemeProvider, type ThemeName } from "./theme";
+import { PREDEFINED_GROUPS, DEFAULT_GROUP_ID } from "./constants";
 
 function App() {
-  const [themeName, setThemeName] = useState<ThemeName>('dark');
-  const [problems, setProblems] = useState<ReadonlyArray<Problem>>([]);
-  const [customTags, setCustomTags] = useState<Array<Tag>>([]);
+  const [themeName, setThemeName] = useState<ThemeName>("dark");
+  const [tasks, setTasks] = useState<ReadonlyArray<PreparationTask>>([]);
+  const [customTags, setCustomTags] = useState<ReadonlyArray<Tag>>([]);
+  const [customGroups, setCustomGroups] = useState<ReadonlyArray<Group>>([]);
+  const [selectedGroupId, setSelectedGroupId] =
+    useState<string>(DEFAULT_GROUP_ID);
   const [showModal, setShowModal] = useState(false);
-  const [editingProblem, setEditingProblem] = useState<Problem | undefined>();
-  const [selectedFilterTags, setSelectedFilterTags] = useState<Array<string>>([]);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Array<string>>([]);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [editingTask, setEditingTask] = useState<PreparationTask | undefined>();
+  const [selectedFilterTags, setSelectedFilterTags] = useState<
+    ReadonlyArray<string>
+  >([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<
+    ReadonlyArray<string>
+  >([]);
   const [sortBy, setSortBy] = useState<SortBy>("dateAdded");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [groupByTag, setGroupByTag] = useState(false);
@@ -46,67 +68,86 @@ function App() {
 
   // Load data on mount
   useEffect(() => {
-    const loadedProblems = loadProblems();
+    const loadedTasks = loadTasks();
     const loadedTags = loadCustomTags();
+    const loadedGroups = loadCustomGroups();
+    const loadedSelectedGroup = loadSelectedGroup();
 
     // Initialize order property if it doesn't exist
-    const problemsWithOrder = loadedProblems.map((problem, index) => ({
-      ...problem,
-      order: problem.order !== undefined ? problem.order : index,
+    const tasksWithOrder = loadedTasks.map((task, index) => ({
+      ...task,
+      order: task.order !== undefined ? task.order : index,
     }));
 
-    setProblems(problemsWithOrder);
+    setTasks(tasksWithOrder);
     setCustomTags(loadedTags);
+    setCustomGroups(loadedGroups);
+    setSelectedGroupId(loadedSelectedGroup);
 
-    // Use setTimeout to ensure the flag is set after state updates
     setTimeout(() => {
       isInitialMount.current = false;
     }, 0);
   }, []);
 
-  // Save problems whenever they change (skip initial mount)
+  // Save tasks whenever they change
   useEffect(() => {
     if (!isInitialMount.current) {
-      console.log("Saving problems:", problems.length);
-      saveProblems(problems);
+      saveTasks(tasks);
     }
-  }, [problems]);
+  }, [tasks]);
 
-  // Save custom tags whenever they change (skip initial mount)
+  // Save custom tags whenever they change
   useEffect(() => {
     if (!isInitialMount.current) {
-      console.log("Saving tags:", customTags.length);
       saveCustomTags(customTags);
     }
   }, [customTags]);
 
-  const handleAddProblem = (problem: Problem) => {
-    const newProblem = {
-      ...problem,
-      order: problems.length,
+  // Save custom groups whenever they change
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      saveCustomGroups(customGroups);
+    }
+  }, [customGroups]);
+
+  // Save selected group whenever it changes
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      saveSelectedGroup(selectedGroupId);
+    }
+  }, [selectedGroupId]);
+
+  const allGroups = [...PREDEFINED_GROUPS, ...customGroups];
+  const currentGroup = allGroups.find((g) => g.id === selectedGroupId);
+
+  // Filter tasks by selected group
+  const groupTasks = tasks.filter((task) => task.groupId === selectedGroupId);
+
+  const handleAddTask = (task: PreparationTask) => {
+    const newTask = {
+      ...task,
+      order: groupTasks.length,
     };
-    setProblems((prev) => [...prev, newProblem]);
+    setTasks((prev) => [...prev, newTask]);
     setShowModal(false);
   };
 
-  const handleUpdateProblem = (updatedProblem: Problem) => {
-    setProblems((prev) =>
-      prev.map((p) => (p.id === updatedProblem.id ? updatedProblem : p))
+  const handleUpdateTask = (updatedTask: PreparationTask) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
     );
     setShowModal(false);
-    setEditingProblem(undefined);
+    setEditingTask(undefined);
   };
 
-  const handleDeleteProblem = (problemId: string) => {
-    setProblems((prev) => prev.filter((p) => p.id !== problemId));
+  const handleDeleteTask = (taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
-  const handleToggleDone = (problemId: string) => {
-    setProblems((prev) =>
-      prev.map((p) =>
-        p.id === problemId
-          ? { ...p, isDone: !p.isDone, updatedAt: Date.now() }
-          : p
+  const handleToggleDone = (taskId: string) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, isDone: !t.isDone, updatedAt: Date.now() } : t
       )
     );
   };
@@ -115,18 +156,41 @@ function App() {
     setCustomTags((prev) => [...prev, tag]);
   };
 
+  const handleAddCustomGroup = () => {
+    if (!newGroupName.trim()) return;
+
+    const groupId = newGroupName.toLowerCase().replace(/\s+/g, "-");
+    const newGroup: Group = {
+      id: `custom-${groupId}-${Date.now()}`,
+      name: newGroupName.trim(),
+      isCustom: true,
+      createdAt: Date.now(),
+    };
+
+    setCustomGroups((prev) => [...prev, newGroup]);
+    setSelectedGroupId(newGroup.id);
+    setNewGroupName("");
+    setShowGroupModal(false);
+  };
+
   const handleResetProgress = () => {
     if (
-      window.confirm("Are you sure you want to mark all problems as undone?")
+      window.confirm(
+        `Are you sure you want to mark all tasks in "${currentGroup?.name}" as undone?`
+      )
     ) {
-      setProblems((prev) =>
-        prev.map((p) => ({ ...p, isDone: false, updatedAt: Date.now() }))
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.groupId === selectedGroupId
+            ? { ...t, isDone: false, updatedAt: Date.now() }
+            : t
+        )
       );
     }
   };
 
   const handleExport = () => {
-    exportData(problems, customTags);
+    exportData(tasks, customTags, customGroups);
   };
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,42 +202,43 @@ function App() {
 
       if (
         window.confirm(
-          `This will import ${data.problems.length} problems and ${
+          `This will import ${data.tasks.length} tasks, ${
             data.customTags?.length || 0
-          } custom tags. Continue?`
+          } custom tags, and ${
+            data.customGroups?.length || 0
+          } custom groups. Continue?`
         )
       ) {
-        // Update state and immediately persist to localStorage
-        setProblems(data.problems);
+        setTasks(data.tasks);
         setCustomTags(data.customTags || []);
+        setCustomGroups(data.customGroups || []);
 
-        // Immediately save to localStorage to ensure persistence
-        saveProblems(data.problems);
+        saveTasks(data.tasks);
         saveCustomTags(data.customTags || []);
+        saveCustomGroups(data.customGroups || []);
       }
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to import data");
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   const handleOpenAddModal = () => {
-    setEditingProblem(undefined);
+    setEditingTask(undefined);
     setShowModal(true);
   };
 
-  const handleOpenEditModal = (problem: Problem) => {
-    setEditingProblem(problem);
+  const handleOpenEditModal = (task: PreparationTask) => {
+    setEditingTask(task);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setEditingProblem(undefined);
+    setEditingTask(undefined);
   };
 
   const handleClearFilters = () => {
@@ -183,26 +248,33 @@ function App() {
     setShowUndoneOnly(false);
   };
 
-  const handleReorderProblems = (reorderedProblems: Array<Problem>) => {
-    setProblems(reorderedProblems);
+  const handleReorderTasks = (
+    reorderedTasks: ReadonlyArray<PreparationTask>
+  ) => {
+    // Update tasks in state
+    setTasks((prev) => {
+      // Replace tasks with reordered ones
+      const otherGroupTasks = prev.filter((t) => t.groupId !== selectedGroupId);
+      return [...otherGroupTasks, ...reorderedTasks];
+    });
   };
 
-  // Filter problems
-  let filteredProblems = problems.filter((problem) => {
-    if (showDoneOnly && !problem.isDone) return false;
-    if (showUndoneOnly && problem.isDone) return false;
+  // Filter tasks
+  let filteredTasks = groupTasks.filter((task) => {
+    if (showDoneOnly && !task.isDone) return false;
+    if (showUndoneOnly && task.isDone) return false;
     if (selectedDifficulty.length > 0) {
-      if (!problem.tags.some((tag) => selectedDifficulty.includes(tag.id)))
+      if (!task.tags.some((tag) => selectedDifficulty.includes(tag.id)))
         return false;
     }
     if (selectedFilterTags.length > 0) {
-      return problem.tags.some((tag) => selectedFilterTags.includes(tag.id));
+      return task.tags.some((tag) => selectedFilterTags.includes(tag.id));
     }
     return true;
   });
 
-  // Sort problems
-  filteredProblems = [...filteredProblems].sort((a, b) => {
+  // Sort tasks
+  filteredTasks = [...filteredTasks].sort((a, b) => {
     let comparison = 0;
 
     switch (sortBy) {
@@ -220,32 +292,36 @@ function App() {
     return sortOrder === "asc" ? comparison : -comparison;
   });
 
-  // When not grouped and using default sort (dateAdded desc), use custom order
+  // When not grouped and using default sort, use custom order
   const shouldUseCustomOrder =
     !groupByTag && sortBy === "dateAdded" && sortOrder === "desc";
   if (shouldUseCustomOrder) {
-    filteredProblems = [...filteredProblems].sort((a, b) => a.order - b.order);
+    filteredTasks = [...filteredTasks].sort((a, b) => a.order - b.order);
   }
 
-  // Group problems by tag
-  const groupedProblems: Record<string, Array<Problem>> = {};
+  // Group tasks by tag
+  const groupedTasks: Record<string, ReadonlyArray<PreparationTask>> = {};
   if (groupByTag) {
-    filteredProblems.forEach((problem) => {
-      if (problem.tags.length === 0) {
-        if (!groupedProblems["Untagged"]) {
-          groupedProblems["Untagged"] = [];
+    filteredTasks.forEach((task) => {
+      if (task.tags.length === 0) {
+        if (!groupedTasks["Untagged"]) {
+          groupedTasks["Untagged"] = [];
         }
-        groupedProblems["Untagged"].push(problem);
+        groupedTasks["Untagged"] = [...groupedTasks["Untagged"], task];
       } else {
-        problem.tags.forEach((tag) => {
-          if (!groupedProblems[tag.name]) {
-            groupedProblems[tag.name] = [];
+        task.tags.forEach((tag) => {
+          if (!groupedTasks[tag.name]) {
+            groupedTasks[tag.name] = [];
           }
-          groupedProblems[tag.name].push(problem);
+          groupedTasks[tag.name] = [...groupedTasks[tag.name], task];
         });
       }
     });
   }
+
+  const getGroupTaskCount = (groupId: string): number => {
+    return tasks.filter((t) => t.groupId === groupId).length;
+  };
 
   return (
     <ThemeProvider themeName={themeName}>
@@ -255,12 +331,12 @@ function App() {
           <HeaderActions>
             <Button variant="primary" onClick={handleOpenAddModal}>
               <FiPlus size={16} />
-              Add Problem
+              Add Task
             </Button>
             <Button
               variant="secondary"
               onClick={handleExport}
-              disabled={problems.length === 0}
+              disabled={tasks.length === 0}
             >
               <FiDownload size={16} />
               Export
@@ -280,7 +356,7 @@ function App() {
               variant="danger"
               onClick={handleResetProgress}
               disabled={
-                problems.length === 0 || !problems.some((p) => p.isDone)
+                groupTasks.length === 0 || !groupTasks.some((t) => t.isDone)
               }
             >
               <FiRefreshCw size={16} />
@@ -290,9 +366,46 @@ function App() {
         </Header>
 
         <MainContent>
-          <Stats problems={problems} />
+          <Card>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "1rem",
+              }}
+            >
+              <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Groups</h2>
+              <Button variant="primary" onClick={() => setShowGroupModal(true)}>
+                <FiFolder size={16} />
+                New Group
+              </Button>
+            </div>
+            <GroupSelector>
+              {allGroups.map((group) => (
+                <GroupButton
+                  key={group.id}
+                  active={selectedGroupId === group.id}
+                  onClick={() => setSelectedGroupId(group.id)}
+                >
+                  {group.name}
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      opacity: 0.8,
+                      marginLeft: "0.25rem",
+                    }}
+                  >
+                    ({getGroupTaskCount(group.id)})
+                  </span>
+                </GroupButton>
+              ))}
+            </GroupSelector>
+          </Card>
 
-          {problems.length > 0 && (
+          <Stats tasks={groupTasks} />
+
+          {groupTasks.length > 0 && (
             <Card>
               <FilterBar
                 customTags={customTags}
@@ -302,7 +415,7 @@ function App() {
                 groupByTag={groupByTag}
                 showDoneOnly={showDoneOnly}
                 showUndoneOnly={showUndoneOnly}
-                problems={problems}
+                tasks={groupTasks}
                 selectedDifficulty={selectedDifficulty}
                 onFilterTagsChange={setSelectedFilterTags}
                 onSortByChange={setSortBy}
@@ -315,42 +428,40 @@ function App() {
               />
 
               {groupByTag ? (
-                Object.entries(groupedProblems).map(
-                  ([tagName, tagProblems]) => (
-                    <div key={tagName}>
-                      <GroupHeader>
-                        {tagName}{" "}
-                        <span className="count">({tagProblems.length})</span>
-                      </GroupHeader>
-                      <ProblemList
-                        problems={tagProblems}
-                        onEdit={handleOpenEditModal}
-                        onDelete={handleDeleteProblem}
-                        onToggleDone={handleToggleDone}
-                        enableDragDrop={false}
-                      />
-                    </div>
-                  )
-                )
+                Object.entries(groupedTasks).map(([tagName, tagTasks]) => (
+                  <div key={tagName}>
+                    <GroupHeader>
+                      {tagName}{" "}
+                      <span className="count">({tagTasks.length})</span>
+                    </GroupHeader>
+                    <TaskList
+                      tasks={tagTasks}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleDeleteTask}
+                      onToggleDone={handleToggleDone}
+                      enableDragDrop={false}
+                    />
+                  </div>
+                ))
               ) : (
-                <ProblemList
-                  problems={filteredProblems}
+                <TaskList
+                  tasks={filteredTasks}
                   onEdit={handleOpenEditModal}
-                  onDelete={handleDeleteProblem}
+                  onDelete={handleDeleteTask}
                   onToggleDone={handleToggleDone}
-                  onReorder={handleReorderProblems}
+                  onReorder={handleReorderTasks}
                   enableDragDrop={shouldUseCustomOrder}
                 />
               )}
             </Card>
           )}
 
-          {problems.length === 0 && (
+          {groupTasks.length === 0 && (
             <Card>
-              <ProblemList
-                problems={[]}
+              <TaskList
+                tasks={[]}
                 onEdit={handleOpenEditModal}
-                onDelete={handleDeleteProblem}
+                onDelete={handleDeleteTask}
                 onToggleDone={handleToggleDone}
                 enableDragDrop={false}
               />
@@ -361,16 +472,69 @@ function App() {
         {showModal && (
           <Modal onClick={handleCloseModal}>
             <ModalContent onClick={(e) => e.stopPropagation()}>
-              <h2>{editingProblem ? "Edit Problem" : "Add New Problem"}</h2>
-              <ProblemForm
-                problem={editingProblem}
+              <h2>{editingTask ? "Edit Task" : "Add New Task"}</h2>
+              <TaskForm
+                task={editingTask}
                 customTags={customTags}
-                onSubmit={
-                  editingProblem ? handleUpdateProblem : handleAddProblem
-                }
+                groupId={selectedGroupId}
+                onSubmit={editingTask ? handleUpdateTask : handleAddTask}
                 onCancel={handleCloseModal}
                 onAddCustomTag={handleAddCustomTag}
               />
+            </ModalContent>
+          </Modal>
+        )}
+
+        {showGroupModal && (
+          <Modal onClick={() => setShowGroupModal(false)}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+              <h2>Create New Group</h2>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Group Name *
+                </label>
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  placeholder="e.g., System Design, OOP Concepts"
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "0.5rem",
+                    border: "1px solid #334155",
+                    background: "#0f172a",
+                    color: "#f1f5f9",
+                    fontSize: "0.875rem",
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCustomGroup();
+                    }
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "0.75rem",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowGroupModal(false);
+                    setNewGroupName("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={handleAddCustomGroup}>
+                  Create Group
+                </Button>
+              </div>
             </ModalContent>
           </Modal>
         )}

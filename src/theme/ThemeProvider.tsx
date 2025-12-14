@@ -12,8 +12,8 @@ export const ThemeProvider = ({
   themeName,
   children,
 }: {
-  themeName: ThemeName;
-  children: React.ReactNode;
+  readonly themeName: ThemeName;
+  readonly children: React.ReactNode;
 }) => {
   const theme = getByThemeName[themeName];
 

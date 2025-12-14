@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Editor } from "primereact/editor";
 import { FiX, FiPlus } from "react-icons/fi";
-import type { Problem, Tag } from "../types";
+import type { PreparationTask, Tag } from "../types";
 import { generateId } from "../utils";
 import { PREDEFINED_TAGS } from "../constants";
 import {
@@ -13,24 +13,28 @@ import {
   ModalActions,
 } from "../styled";
 
-interface ProblemFormProps {
-  problem?: Problem;
-  customTags: Tag[];
-  onSubmit: (problem: Problem) => void;
-  onCancel: () => void;
-  onAddCustomTag: (tag: Tag) => void;
+interface TaskFormProps {
+  readonly task?: PreparationTask;
+  readonly customTags: ReadonlyArray<Tag>;
+  readonly groupId: string;
+  readonly onSubmit: (task: PreparationTask) => void;
+  readonly onCancel: () => void;
+  readonly onAddCustomTag: (tag: Tag) => void;
 }
 
-export const ProblemForm: React.FC<ProblemFormProps> = ({
-  problem,
+export const TaskForm: React.FC<TaskFormProps> = ({
+  task,
   customTags,
+  groupId,
   onSubmit,
   onCancel,
   onAddCustomTag,
 }) => {
-  const [link, setLink] = useState(problem?.link || "");
-  const [selectedTags, setSelectedTags] = useState<Tag[]>(problem?.tags || []);
-  const [notes, setNotes] = useState(problem?.notes || "");
+  const [link, setLink] = useState(task?.link || "");
+  const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
+    task?.tags || []
+  );
+  const [notes, setNotes] = useState(task?.notes || "");
   const [newTagName, setNewTagName] = useState("");
   const [showCustomTagInput, setShowCustomTagInput] = useState(false);
 
@@ -76,7 +80,7 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
     e.preventDefault();
 
     if (!link.trim()) {
-      alert("Please enter a problem link or title");
+      alert("Please enter a task link or title");
       return;
     }
 
@@ -93,25 +97,27 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
     }
 
     const now = Date.now();
-    const problemData: Problem = {
-      id: problem?.id || generateId(),
+    const taskData: PreparationTask = {
+      id: task?.id || generateId(),
+      groupId: task?.groupId || groupId,
       link: link.trim(),
       tags: selectedTags,
       notes,
-      isDone: problem?.isDone || false,
-      createdAt: problem?.createdAt || now,
+      isDone: task?.isDone || false,
+      createdAt: task?.createdAt || now,
       updatedAt: now,
+      order: task?.order || 0,
     };
 
-    onSubmit(problemData);
+    onSubmit(taskData);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <FormGroup>
-        <label htmlFor="problem-link">Problem Link / Title *</label>
+        <label htmlFor="task-link">Task Link / Title *</label>
         <input
-          id="problem-link"
+          id="task-link"
           type="text"
           value={link}
           onChange={(e) => setLink(e.target.value)}
@@ -241,9 +247,12 @@ export const ProblemForm: React.FC<ProblemFormProps> = ({
           Cancel
         </Button>
         <Button type="submit" variant="primary">
-          {problem ? "Update Problem" : "Add Problem"}
+          {task ? "Update Task" : "Add Task"}
         </Button>
       </ModalActions>
     </form>
   );
 };
+
+// Keep old export name for backward compatibility
+export const ProblemForm = TaskForm;

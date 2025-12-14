@@ -1,25 +1,43 @@
-import type { Problem, Tag, ExportData } from "./types";
-import { STORAGE_KEYS, APP_VERSION } from "./constants";
+import type { PreparationTask, Tag, Group, ExportData } from "./types";
+import { STORAGE_KEYS, APP_VERSION, DEFAULT_GROUP_ID } from "./constants";
 
-export const loadProblems = (): Problem[] => {
+export const loadTasks = (): ReadonlyArray<PreparationTask> => {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.PROBLEMS);
+    // Try loading from new key first
+    let data = localStorage.getItem(STORAGE_KEYS.TASKS);
+
+    // If not found, try migrating from old problems key
+    if (!data) {
+      data = localStorage.getItem(STORAGE_KEYS.PROBLEMS);
+      if (data) {
+        const oldProblems = JSON.parse(data);
+        // Migrate old problems to new format with default groupId
+        const migratedTasks = oldProblems.map((problem: any) => ({
+          ...problem,
+          groupId: problem.groupId || DEFAULT_GROUP_ID,
+        }));
+        // Save migrated data
+        saveTasks(migratedTasks);
+        return migratedTasks;
+      }
+    }
+
     return data ? JSON.parse(data) : [];
   } catch (error) {
-    console.error("Error loading problems:", error);
+    console.error("Error loading tasks:", error);
     return [];
   }
 };
 
-export const saveProblems = (problems: Problem[]): void => {
+export const saveTasks = (tasks: ReadonlyArray<PreparationTask>): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.PROBLEMS, JSON.stringify(problems));
+    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
   } catch (error) {
-    console.error("Error saving problems:", error);
+    console.error("Error saving tasks:", error);
   }
 };
 
-export const loadCustomTags = (): Tag[] => {
+export const loadCustomTags = (): ReadonlyArray<Tag> => {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CUSTOM_TAGS);
     return data ? JSON.parse(data) : [];
@@ -29,7 +47,7 @@ export const loadCustomTags = (): Tag[] => {
   }
 };
 
-export const saveCustomTags = (tags: Tag[]): void => {
+export const saveCustomTags = (tags: ReadonlyArray<Tag>): void => {
   try {
     localStorage.setItem(STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(tags));
   } catch (error) {
@@ -37,11 +55,53 @@ export const saveCustomTags = (tags: Tag[]): void => {
   }
 };
 
-export const exportData = (problems: Problem[], customTags: Tag[]): void => {
+export const loadCustomGroups = (): ReadonlyArray<Group> => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.CUSTOM_GROUPS);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error("Error loading custom groups:", error);
+    return [];
+  }
+};
+
+export const saveCustomGroups = (groups: ReadonlyArray<Group>): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_GROUPS, JSON.stringify(groups));
+  } catch (error) {
+    console.error("Error saving custom groups:", error);
+  }
+};
+
+export const loadSelectedGroup = (): string => {
+  try {
+    return (
+      localStorage.getItem(STORAGE_KEYS.SELECTED_GROUP) || DEFAULT_GROUP_ID
+    );
+  } catch (error) {
+    console.error("Error loading selected group:", error);
+    return DEFAULT_GROUP_ID;
+  }
+};
+
+export const saveSelectedGroup = (groupId: string): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.SELECTED_GROUP, groupId);
+  } catch (error) {
+    console.error("Error saving selected group:", error);
+  }
+};
+
+export const exportData = (
+  tasks: ReadonlyArray<PreparationTask>,
+  customTags: ReadonlyArray<Tag>,
+  customGroups: ReadonlyArray<Group>
+): void => {
   const data: ExportData = {
     version: APP_VERSION,
-    problems,
+    tasks,
     customTags,
+    customGroups,
     exportedAt: Date.now(),
   };
 
@@ -68,11 +128,24 @@ export const importData = (file: File): Promise<ExportData> => {
       try {
         const data = JSON.parse(e.target?.result as string) as ExportData;
 
-        if (!data.problems || !Array.isArray(data.problems)) {
+        // Support both old (problems) and new (tasks) format
+        const tasks = data.tasks || data.problems || [];
+
+        if (!Array.isArray(tasks)) {
           throw new Error("Invalid file format");
         }
 
-        resolve(data);
+        // Ensure all tasks have groupId
+        const tasksWithGroup = tasks.map((task: any) => ({
+          ...task,
+          groupId: task.groupId || DEFAULT_GROUP_ID,
+        }));
+
+        resolve({
+          ...data,
+          tasks: tasksWithGroup,
+          customGroups: data.customGroups || [],
+        });
       } catch (error) {
         reject(
           new Error(

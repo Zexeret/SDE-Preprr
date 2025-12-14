@@ -19,7 +19,7 @@ export const colors = {
 export const AppContainer = styled.div`
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, ${colors.background} 0%, #1a1f3a 100%);
+  background: ${({ theme }) => theme.background};
   color: ${colors.text};
   padding: 2rem;
 
@@ -545,6 +545,43 @@ export const GroupHeader = styled.div`
     color: ${colors.textSecondary};
     font-weight: 400;
   }
+`;
+
+export const GroupSelector = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: ${({ theme }) => theme.background};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 0.75rem;
+  border: 1px solid ${({ theme }) => theme.background};
+`;
+
+export const GroupButton = styled.button<{ active?: boolean }>`
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ active }) => (active ? colors.primary : colors.border)};
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: ${({ active }) => (active ? colors.primary : colors.surface)};
+  color: ${({ active }) => (active ? "white" : colors.text)};
+
+  &:hover {
+    background: ${({ active }) =>
+      active ? colors.primaryHover : colors.surfaceHover};
+    border-color: ${colors.primary};
+    ${({ active }) => !active && `color: ${colors.primary};`}
+  }
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 export const ProblemsGrid = styled.div`

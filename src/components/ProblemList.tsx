@@ -26,7 +26,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Problem } from "../types";
+import type { PreparationTask } from "../types";
 import { stripHtmlTags } from "../utils";
 import {
   ProblemCard,
@@ -46,27 +46,27 @@ import {
   DragHandle,
 } from "../styled";
 
-interface ProblemListProps {
-  problems: Problem[];
-  onEdit: (problem: Problem) => void;
-  onDelete: (problemId: string) => void;
-  onToggleDone: (problemId: string) => void;
-  onReorder?: (problems: Problem[]) => void;
-  enableDragDrop?: boolean;
+interface TaskListProps {
+  readonly tasks: ReadonlyArray<PreparationTask>;
+  readonly onEdit: (task: PreparationTask) => void;
+  readonly onDelete: (taskId: string) => void;
+  readonly onToggleDone: (taskId: string) => void;
+  readonly onReorder?: (tasks: ReadonlyArray<PreparationTask>) => void;
+  readonly enableDragDrop?: boolean;
 }
 
-interface SortableProblemCardProps {
-  problem: Problem;
-  showTags: boolean;
-  enableDragDrop: boolean;
-  onEdit: (problem: Problem) => void;
-  onDelete: (problemId: string) => void;
-  onToggleDone: (problemId: string) => void;
-  onViewNotes: (problem: Problem) => void;
+interface SortableTaskCardProps {
+  readonly task: PreparationTask;
+  readonly showTags: boolean;
+  readonly enableDragDrop: boolean;
+  readonly onEdit: (task: PreparationTask) => void;
+  readonly onDelete: (taskId: string) => void;
+  readonly onToggleDone: (taskId: string) => void;
+  readonly onViewNotes: (task: PreparationTask) => void;
 }
 
-const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
-  problem,
+const SortableTaskCard: React.FC<SortableTaskCardProps> = ({
+  task,
   showTags,
   enableDragDrop,
   onEdit,
@@ -81,7 +81,7 @@ const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: problem.id, disabled: !enableDragDrop });
+  } = useSortable({ id: task.id, disabled: !enableDragDrop });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -90,7 +90,7 @@ const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <ProblemCard isDone={problem.isDone} isDragging={isDragging}>
+      <ProblemCard isDone={task.isDone} isDragging={isDragging}>
         <ProblemHeader>
           {enableDragDrop && (
             <DragHandle {...attributes} {...listeners}>
@@ -104,34 +104,29 @@ const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
                 alignItems: "center",
                 gap: "0.5rem",
                 flexWrap: "wrap",
-                marginBottom:
-                  showTags && problem.tags.length > 0 ? "0.75rem" : 0,
+                marginBottom: showTags && task.tags.length > 0 ? "0.75rem" : 0,
               }}
             >
               <ProblemLink
-                href={
-                  problem.link.startsWith("http") ? problem.link : undefined
-                }
-                target={problem.link.startsWith("http") ? "_blank" : undefined}
+                href={task.link.startsWith("http") ? task.link : undefined}
+                target={task.link.startsWith("http") ? "_blank" : undefined}
                 rel={
-                  problem.link.startsWith("http")
+                  task.link.startsWith("http")
                     ? "noopener noreferrer"
                     : undefined
                 }
-                isDone={problem.isDone}
-                as={problem.link.startsWith("http") ? "a" : "span"}
+                isDone={task.isDone}
+                as={task.link.startsWith("http") ? "a" : "span"}
                 style={{
-                  cursor: problem.link.startsWith("http")
-                    ? "pointer"
-                    : "default",
+                  cursor: task.link.startsWith("http") ? "pointer" : "default",
                 }}
               >
-                {problem.link}
+                {task.link}
               </ProblemLink>
             </div>
-            {showTags && problem.tags.length > 0 && (
+            {showTags && task.tags.length > 0 && (
               <TagsContainer style={{ marginTop: 0 }}>
-                {problem.tags.map((tag) => (
+                {task.tags.map((tag) => (
                   <Tag key={tag.id} isCustom={tag.isCustom}>
                     {tag.name}
                   </Tag>
@@ -141,35 +136,30 @@ const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
           </div>
           <ProblemActions>
             <IconButton
-              variant={problem.isDone ? "primary" : "success"}
-              onClick={() => onToggleDone(problem.id)}
-              title={problem.isDone ? "Mark as undone" : "Mark as done"}
+              variant={task.isDone ? "primary" : "success"}
+              onClick={() => onToggleDone(task.id)}
+              title={task.isDone ? "Mark as undone" : "Mark as done"}
             >
-              {problem.isDone ? <FiX size={16} /> : <FiCheck size={16} />}
+              {task.isDone ? <FiX size={16} /> : <FiCheck size={16} />}
             </IconButton>
-            {problem.notes && (
-              <IconButton
-                onClick={() => onViewNotes(problem)}
-                title="View notes"
-              >
+            {task.notes && (
+              <IconButton onClick={() => onViewNotes(task)} title="View notes">
                 <FiFileText size={16} />
               </IconButton>
             )}
-            <IconButton onClick={() => onEdit(problem)} title="Edit problem">
+            <IconButton onClick={() => onEdit(task)} title="Edit task">
               <FiEdit2 size={16} />
             </IconButton>
             <IconButton
               variant="danger"
               onClick={() => {
                 if (
-                  window.confirm(
-                    "Are you sure you want to delete this problem?"
-                  )
+                  window.confirm("Are you sure you want to delete this task?")
                 ) {
-                  onDelete(problem.id);
+                  onDelete(task.id);
                 }
               }}
-              title="Delete problem"
+              title="Delete task"
             >
               <FiTrash2 size={16} />
             </IconButton>
@@ -180,8 +170,8 @@ const SortableProblemCard: React.FC<SortableProblemCardProps> = ({
   );
 };
 
-export const ProblemList: React.FC<ProblemListProps> = ({
-  problems,
+export const TaskList: React.FC<TaskListProps> = ({
+  tasks,
   onEdit,
   onDelete,
   onToggleDone,
@@ -189,7 +179,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
   enableDragDrop = false,
 }) => {
   const [showTags, setShowTags] = useState(false);
-  const [notesModalProblem, setNotesModalProblem] = useState<Problem | null>(
+  const [notesModalTask, setNotesModalTask] = useState<PreparationTask | null>(
     null
   );
 
@@ -204,31 +194,31 @@ export const ProblemList: React.FC<ProblemListProps> = ({
     const { active, over } = event;
 
     if (over && active.id !== over.id && onReorder) {
-      const oldIndex = problems.findIndex((p) => p.id === active.id);
-      const newIndex = problems.findIndex((p) => p.id === over.id);
+      const oldIndex = tasks.findIndex((t) => t.id === active.id);
+      const newIndex = tasks.findIndex((t) => t.id === over.id);
 
-      const reorderedProblems = arrayMove(problems, oldIndex, newIndex).map(
-        (problem, index) => ({
-          ...problem,
+      const reorderedTasks = arrayMove([...tasks], oldIndex, newIndex).map(
+        (task, index) => ({
+          ...task,
           order: index,
         })
       );
 
-      onReorder(reorderedProblems);
+      onReorder(reorderedTasks);
     }
   };
 
-  if (problems.length === 0) {
+  if (tasks.length === 0) {
     return (
       <EmptyState>
         <FiX />
-        <h3>No problems found</h3>
-        <p>Add your first DSA problem to get started!</p>
+        <h3>No tasks found</h3>
+        <p>Add your first preparation task to get started!</p>
       </EmptyState>
     );
   }
 
-  const problemsList = (
+  const tasksList = (
     <>
       <div style={{ marginBottom: "1rem" }}>
         <Button variant="secondary" onClick={() => setShowTags(!showTags)}>
@@ -237,16 +227,16 @@ export const ProblemList: React.FC<ProblemListProps> = ({
         </Button>
       </div>
       <ProblemsGrid>
-        {problems.map((problem) => (
-          <SortableProblemCard
-            key={problem.id}
-            problem={problem}
+        {tasks.map((task) => (
+          <SortableTaskCard
+            key={task.id}
+            task={task}
             showTags={showTags}
             enableDragDrop={enableDragDrop}
             onEdit={onEdit}
             onDelete={onDelete}
             onToggleDone={onToggleDone}
-            onViewNotes={setNotesModalProblem}
+            onViewNotes={setNotesModalTask}
           />
         ))}
       </ProblemsGrid>
@@ -262,18 +252,18 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={problems.map((p) => p.id)}
+            items={tasks.map((t) => t.id)}
             strategy={verticalListSortingStrategy}
           >
-            {problemsList}
+            {tasksList}
           </SortableContext>
         </DndContext>
       ) : (
-        problemsList
+        tasksList
       )}
 
-      {notesModalProblem && (
-        <Modal onClick={() => setNotesModalProblem(null)}>
+      {notesModalTask && (
+        <Modal onClick={() => setNotesModalTask(null)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <h2>Notes</h2>
             <div
@@ -287,24 +277,24 @@ export const ProblemList: React.FC<ProblemListProps> = ({
                 maxHeight: "400px",
                 overflowY: "auto",
               }}
-              dangerouslySetInnerHTML={{ __html: notesModalProblem.notes }}
+              dangerouslySetInnerHTML={{ __html: notesModalTask.notes }}
             />
             <ModalActions>
               <Button
                 variant="secondary"
-                onClick={() => setNotesModalProblem(null)}
+                onClick={() => setNotesModalTask(null)}
               >
                 Close
               </Button>
               <Button
                 variant="primary"
                 onClick={() => {
-                  onEdit(notesModalProblem);
-                  setNotesModalProblem(null);
+                  onEdit(notesModalTask);
+                  setNotesModalTask(null);
                 }}
               >
                 <FiEdit2 size={16} />
-                Edit Problem
+                Edit Task
               </Button>
             </ModalActions>
           </ModalContent>
@@ -313,3 +303,6 @@ export const ProblemList: React.FC<ProblemListProps> = ({
     </>
   );
 };
+
+// Keep old export name for backward compatibility
+export const ProblemList = TaskList;

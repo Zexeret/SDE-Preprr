@@ -1,27 +1,27 @@
 import React from "react";
 import { FiFilter } from "react-icons/fi";
-import type { Tag, SortBy, SortOrder, Problem } from "../types";
+import type { Tag, SortBy, SortOrder, PreparationTask } from "../types";
 import { PREDEFINED_TAGS } from "../constants";
 import { FilterBar as StyledFilterBar, Select, Button } from "../styled";
 
 interface FilterBarProps {
-  customTags: Tag[];
-  selectedFilterTags: string[];
-  sortBy: SortBy;
-  sortOrder: SortOrder;
-  groupByTag: boolean;
-  showDoneOnly: boolean;
-  showUndoneOnly: boolean;
-  problems: Problem[];
-  selectedDifficulty: string[];
-  onFilterTagsChange: (tags: string[]) => void;
-  onSortByChange: (sortBy: SortBy) => void;
-  onSortOrderChange: (sortOrder: SortOrder) => void;
-  onGroupByTagChange: (group: boolean) => void;
-  onShowDoneOnlyChange: (show: boolean) => void;
-  onShowUndoneOnlyChange: (show: boolean) => void;
-  onDifficultyChange: (difficulty: string[]) => void;
-  onClearFilters: () => void;
+  readonly customTags: ReadonlyArray<Tag>;
+  readonly selectedFilterTags: ReadonlyArray<string>;
+  readonly sortBy: SortBy;
+  readonly sortOrder: SortOrder;
+  readonly groupByTag: boolean;
+  readonly showDoneOnly: boolean;
+  readonly showUndoneOnly: boolean;
+  readonly tasks: ReadonlyArray<PreparationTask>;
+  readonly selectedDifficulty: ReadonlyArray<string>;
+  readonly onFilterTagsChange: (tags: ReadonlyArray<string>) => void;
+  readonly onSortByChange: (sortBy: SortBy) => void;
+  readonly onSortOrderChange: (sortOrder: SortOrder) => void;
+  readonly onGroupByTagChange: (group: boolean) => void;
+  readonly onShowDoneOnlyChange: (show: boolean) => void;
+  readonly onShowUndoneOnlyChange: (show: boolean) => void;
+  readonly onDifficultyChange: (difficulty: ReadonlyArray<string>) => void;
+  readonly onClearFilters: () => void;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -32,7 +32,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   groupByTag,
   showDoneOnly,
   showUndoneOnly,
-  problems,
+  tasks,
   selectedDifficulty,
   onFilterTagsChange,
   onSortByChange,
@@ -59,11 +59,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     showUndoneOnly ||
     selectedDifficulty.length > 0;
 
-  // Calculate problem count for each tag
+  // Calculate task count for each tag
   const getTagCount = (tagId: string): number => {
-    return problems.filter((problem) =>
-      problem.tags.some((tag) => tag.id === tagId)
-    ).length;
+    return tasks.filter((task) => task.tags.some((tag) => tag.id === tagId))
+      .length;
   };
 
   return (
@@ -78,7 +77,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           }
         }}
       >
-        <option value="">All Difficulties ({problems.length})</option>
+        <option value="">All Difficulties ({tasks.length})</option>
         {difficultyTags.map((tag) => {
           const count = getTagCount(tag.id);
           return (
@@ -99,7 +98,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           }
         }}
       >
-        <option value="">All Topics ({problems.length})</option>
+        <option value="">All Topics ({tasks.length})</option>
         {topicTags.map((tag) => {
           const count = getTagCount(tag.id);
           return (
@@ -134,7 +133,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           onShowUndoneOnlyChange(e.target.value === "undone");
         }}
       >
-        <option value="all">All Problems</option>
+        <option value="all">All Tasks</option>
         <option value="done">Completed Only</option>
         <option value="undone">Pending Only</option>
       </Select>
