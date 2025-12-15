@@ -97,7 +97,7 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const addTask = useCallback((task: PreparationTask) => {
-    setTasksState((prev) => [...prev, task]);
+    setTasksState((prev) => [...prev, task].map((t, index) => ({ ...t, order: index })));
   }, []);
 
   const updateTask = useCallback((updatedTask: PreparationTask) => {
@@ -107,7 +107,7 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const deleteTask = useCallback((taskId: string) => {
-    setTasksState((prev) => prev.filter((t) => t.id !== taskId));
+    setTasksState((prev) => prev.filter((t) => t.id !== taskId).map((t, index) => ({ ...t, order: index })));
   }, []);
 
   const toggleTaskDone = useCallback((taskId: string) => {
@@ -119,16 +119,23 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const reorderTasks = useCallback(
-    (reorderedTasks: ReadonlyArray<PreparationTask>) => {
-      setTasksState((prev) => {
-        const groupId = reorderedTasks[0]?.groupId;
-        if (!groupId) return prev;
+    (activeTaskId : string , overTaskId : string) => {
+      const activeTaskIndex = tasks.findIndex((t) => t.id === activeTaskId);
+      const overTaskIndex = tasks.findIndex((t) => t.id === overTaskId);
+      if (activeTaskIndex === -1 || overTaskIndex === -1) return;
 
-        const otherGroupTasks = prev.filter((t) => t.groupId !== groupId);
-        return [...otherGroupTasks, ...reorderedTasks];
-      });
+      const reorderedTasks = Array.from(tasks);
+      const [movedTask] = reorderedTasks.splice(activeTaskIndex, 1);
+      reorderedTasks.splice(overTaskIndex, 0, movedTask);
+      setTasksState(
+        reorderedTasks.map((task, index) => ({
+          ...task,
+          order: index,
+        }))
+      );
+
     },
-    []
+    [tasks]
   );
 
   const addCustomTag = useCallback((tag: Tag) => {

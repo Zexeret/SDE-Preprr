@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   ContentActions,
   ContentHeaderContainer,
@@ -7,15 +7,39 @@ import {
 } from "./ContentHeader.styles";
 import { ButtonPrimary } from "../../styles";
 import { FiPlus } from "react-icons/fi";
-import type { Group } from "../../model";
+import { PREDEFINED_GROUPS } from "../../constants";
+import { useTaskUtility } from "../../context";
+import type { PreparationTask } from "../../model";
 
 type ContentHeaderProps = {
-  readonly currentSelectedGroup: Group;
-  readonly openAddTaskModal: () => void;
+  readonly openAddTaskModal: (task: PreparationTask | null) => void;
 };
 
 export const ContentHeader = memo<ContentHeaderProps>(
-  ({ openAddTaskModal, currentSelectedGroup }) => {
+  ({ openAddTaskModal }) => {
+    const { customGroups, selectedGroupId } = useTaskUtility();
+
+    const allGroups = useMemo(
+      () => [...PREDEFINED_GROUPS, ...customGroups],
+      [customGroups]
+    );
+
+    const currentSelectedGroup = useMemo(
+      () =>
+        selectedGroupId
+          ? allGroups.find((g) => g.id === selectedGroupId)
+          : null,
+      [allGroups, selectedGroupId]
+    );
+
+    const handleAddTask = useCallback(() => {
+      openAddTaskModal(null);
+    }, [openAddTaskModal]);
+
+    if (!currentSelectedGroup) {
+      return null;
+    }
+
     return (
       <ContentHeaderContainer>
         <ContentTitle>{currentSelectedGroup.name}</ContentTitle>
@@ -24,7 +48,7 @@ export const ContentHeader = memo<ContentHeaderProps>(
           tasks
         </ContentSubtitle>
         <ContentActions>
-          <ButtonPrimary onClick={openAddTaskModal}>
+          <ButtonPrimary onClick={handleAddTask}>
             <FiPlus size={16} />
             Add Task
           </ButtonPrimary>

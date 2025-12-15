@@ -1,10 +1,11 @@
 import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 
 export const taskListContainerStyles = css`
   /* Container for the entire task list */
 `;
 
-export const emptyStateStyles = css`
+export const EmptyListContainer = styled.div`
   text-align: center;
   padding: 4rem 2rem;
   color: #94a3b8;

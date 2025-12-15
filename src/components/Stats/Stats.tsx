@@ -1,12 +1,16 @@
-import  { memo } from "react";
+import { memo, useMemo } from "react";
 import { StatCard, StatsBar } from "./Stats.styles";
 import { useTaskUtility } from "../../context";
 
 export const Stats = memo(() => {
-  const {tasks} = useTaskUtility() ;
+  const { tasks, selectedGroupId } = useTaskUtility();
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.isDone).length;
+  const tasksByGroup = useMemo(
+    () => tasks.filter((task) => task.groupId === selectedGroupId),
+    [selectedGroupId, tasks]
+  );
+  const totalTasks = tasksByGroup.length;
+  const completedTasks = tasksByGroup.filter((t) => t.isDone).length;
   const pendingTasks = totalTasks - completedTasks;
   const completionRate =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;

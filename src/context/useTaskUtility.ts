@@ -11,7 +11,7 @@ export interface TaskUtilityContextType {
   readonly updateTask: (task: PreparationTask) => void;
   readonly deleteTask: (taskId: string) => void;
   readonly toggleTaskDone: (taskId: string) => void;
-  readonly reorderTasks: (tasks: ReadonlyArray<PreparationTask>) => void;
+  readonly reorderTasks: (activeTaskId : string , overTaskId : string) => void;
   readonly addCustomTag: (tag: Tag) => void;
   readonly deleteCustomTag: (tagId: string) => void;
   readonly addCustomGroup: (group: Group) => void;

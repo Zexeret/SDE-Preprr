@@ -22,12 +22,11 @@ import { FiX } from "react-icons/fi";
 interface TaskFormProps {
   readonly selectedGroupId: string;
   readonly currentTaskInFormModal: PreparationTask | null;
-  readonly onSubmit: (task: PreparationTask) => void;
   readonly onClose: () => void;
 }
 
 export const TaskForm = memo<TaskFormProps>(
-  ({ currentTaskInFormModal, onSubmit, onClose, selectedGroupId }) => {
+  ({ currentTaskInFormModal, onClose, selectedGroupId }) => {
     const [title, setTitle] = useState<string>(
       currentTaskInFormModal?.title || ""
     );
@@ -44,13 +43,14 @@ export const TaskForm = memo<TaskFormProps>(
       currentTaskInFormModal?.tags || []
     );
 
-    const { tasks, customTags, deleteCustomTag } = useTaskUtility();
+    const { tasks, customTags, deleteCustomTag, updateTask, addTask } =
+      useTaskUtility();
 
     const isNewTaskBeingAdded = !currentTaskInFormModal;
 
     const tagsByGroup: ReadonlyArray<Tag> = useMemo(() => {
       return [
-        ...DSA_SPECIFIC_TAGS,
+        ...DSA_SPECIFIC_TAGS.filter((tag) => tag.groupId === selectedGroupId),
         ...customTags.filter((tag) => tag.groupId === selectedGroupId),
       ];
     }, [customTags, selectedGroupId]);
@@ -82,6 +82,18 @@ export const TaskForm = memo<TaskFormProps>(
         }
       },
       [deleteCustomTag]
+    );
+
+    const submitNewTask = useCallback(
+      (task: PreparationTask) => {
+        if (currentTaskInFormModal) {
+          updateTask(task);
+        } else {
+          addTask(task);
+        }
+        onClose();
+      },
+      [addTask, currentTaskInFormModal, onClose, updateTask]
     );
 
     const handleSubmit = useCallback(
@@ -125,13 +137,13 @@ export const TaskForm = memo<TaskFormProps>(
           };
         }
 
-        onSubmit(taskData);
+        submitNewTask(taskData);
       },
       [
         currentTaskInFormModal,
         isNewTaskBeingAdded,
         notes,
-        onSubmit,
+        submitNewTask,
         selectedGroupId,
         selectedTags,
         tasks.length,

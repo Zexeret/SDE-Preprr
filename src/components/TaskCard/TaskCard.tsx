@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   FiEdit2,
   FiTrash2,
@@ -29,14 +29,13 @@ import {
   tagStyles,
   tagCustomStyles,
 } from "./TaskCard.styles";
+import { useTaskUtility } from "../../context";
 
 interface TaskCardProps {
   readonly task: PreparationTask;
   readonly showTags: boolean;
   readonly enableDragDrop: boolean;
   readonly onEdit: (task: PreparationTask) => void;
-  readonly onDelete: (taskId: string) => void;
-  readonly onToggleDone: (taskId: string) => void;
   readonly onViewNotes: (task: PreparationTask) => void;
 }
 
@@ -45,8 +44,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   showTags,
   enableDragDrop,
   onEdit,
-  onDelete,
-  onToggleDone,
   onViewNotes,
 }) => {
   const {
@@ -57,6 +54,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     transition,
     isDragging,
   } = useSortable({ id: task.id, disabled: !enableDragDrop });
+  const { deleteTask, updateTask } = useTaskUtility();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -73,7 +71,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const linkClassName = task.isDone ? taskLinkDoneStyles : taskLinkStyles;
 
-  const isExternalLink = task.link.startsWith("http");
+  const isExternalLink = task.link?.startsWith("http");
+
+  const handleDeleteTask = useCallback(() => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      deleteTask(task.id);
+    }
+  }, [deleteTask, task]);
+
+  const handleToggleTaskDone= useCallback(() => {
+   updateTask({ ...task, isDone: !task.isDone });
+  }, [task, updateTask]);
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -88,15 +96,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <div className={taskLinkContainerStyles}>
               {isExternalLink ? (
                 <a
-                  href={task.link}
+                  href={task.link ?? undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={linkClassName}
                 >
-                  {task.link}
+                  {task.title} #{task.order}
                 </a>
               ) : (
-                <span className={linkClassName}>{task.link}</span>
+                <span className={linkClassName}>
+                  {task.title} #{task.order}
+                </span>
               )}
             </div>
             {showTags && task.tags.length > 0 && (
@@ -117,7 +127,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               className={
                 task.isDone ? iconButtonStyles : iconButtonSuccessStyles
               }
-              onClick={() => onToggleDone(task.id)}
+              onClick={handleToggleTaskDone}
               title={task.isDone ? "Mark as undone" : "Mark as done"}
             >
               {task.isDone ? <FiX size={16} /> : <FiCheck size={16} />}
@@ -140,13 +150,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </button>
             <button
               className={iconButtonDangerStyles}
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you want to delete this task?")
-                ) {
-                  onDelete(task.id);
-                }
-              }}
+              onClick={handleDeleteTask}
               title="Delete task"
             >
               <FiTrash2 size={16} />

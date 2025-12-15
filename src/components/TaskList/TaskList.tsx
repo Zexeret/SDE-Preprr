@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FiX, FiEye, FiEyeOff, FiEdit2 } from "react-icons/fi";
 import {
   DndContext,
@@ -19,30 +19,27 @@ import type { PreparationTask } from "../../model";
 import { TaskCard } from "../TaskCard";
 import { ButtonSecondary } from "../../sharedStyles";
 import {
-  emptyStateStyles,
   taskListControlsStyles,
   tasksGridStyles,
   groupHeaderStyles,
   groupCountStyles,
+  EmptyListContainer,
 } from "./TaskList.styles";
+import { useTaskUtility } from "../../context";
 
 interface TaskListProps {
   readonly tasks: ReadonlyArray<PreparationTask>;
   readonly onEdit: (task: PreparationTask) => void;
-  readonly onDelete: (taskId: string) => void;
-  readonly onToggleDone: (taskId: string) => void;
-  readonly onReorder?: (tasks: ReadonlyArray<PreparationTask>) => void;
   readonly enableDragDrop?: boolean;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
   onEdit,
-  onDelete,
-  onToggleDone,
-  onReorder,
   enableDragDrop = false,
 }) => {
+  const { reorderTasks } = useTaskUtility();
+
   const [showTags, setShowTags] = useState(false);
   const [notesModalTask, setNotesModalTask] = useState<PreparationTask | null>(
     null
@@ -55,40 +52,31 @@ export const TaskList: React.FC<TaskListProps> = ({
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-    if (over && active.id !== over.id && onReorder) {
-      const oldIndex = tasks.findIndex((t) => t.id === active.id);
-      const newIndex = tasks.findIndex((t) => t.id === over.id);
-
-      const reorderedTasks = arrayMove([...tasks], oldIndex, newIndex).map(
-        (task, index) => ({
-          ...task,
-          order: index,
-        })
-      );
-
-      onReorder(reorderedTasks);
-    }
-  };
+      if (over && active.id !== over.id && reorderTasks) {
+        reorderTasks(active.id as string, over.id as string);
+      }
+    },
+    [reorderTasks]
+  );
 
   if (tasks.length === 0) {
     return (
-      <div className={emptyStateStyles}>
+      <EmptyListContainer>
         <FiX />
         <h3>No tasks found</h3>
         <p>Add your first preparation task to get started!</p>
-      </div>
+      </EmptyListContainer>
     );
   }
 
   const tasksList = (
     <>
       <div className={taskListControlsStyles}>
-        <ButtonSecondary
-          onClick={() => setShowTags(!showTags)}
-        >
+        <ButtonSecondary onClick={() => setShowTags(!showTags)}>
           {showTags ? <FiEyeOff size={16} /> : <FiEye size={16} />}
           {showTags ? "Hide Tags" : "Show Tags"}
         </ButtonSecondary>
@@ -101,8 +89,6 @@ export const TaskList: React.FC<TaskListProps> = ({
             showTags={showTags}
             enableDragDrop={enableDragDrop}
             onEdit={onEdit}
-            onDelete={onDelete}
-            onToggleDone={onToggleDone}
             onViewNotes={setNotesModalTask}
           />
         ))}

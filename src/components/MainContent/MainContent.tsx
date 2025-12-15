@@ -1,44 +1,43 @@
-import  { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { ContentHeader } from "./ContentHeader";
 import { MainContentContainer } from "./MainContent.styles";
-import { PREDEFINED_GROUPS } from "../../constants";
 import { useTaskUtility } from "../../context";
 import { Stats } from "../Stats";
 import { CardGlass } from "../../styles";
-import { FilterBar } from "../FilterBar";
+import {
+  DEFAULT_FILTER_TO_APPLY,
+  FilterBar,
+  getFilteredTasks,
+  type FilterToApplyType,
+} from "../FilterBar";
+import { TaskList } from "../TaskList";
+import type { PreparationTask } from "../../model";
 
 type MainContentProps = {
-  readonly openAddTaskModal: () => void;
+  readonly openAddTaskModal: (task : PreparationTask | null) => void;
 };
 
 export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
-  const { customGroups, selectedGroupId } = useTaskUtility();
+  const { tasks, selectedGroupId } = useTaskUtility();
+  const [currentFilterToApply, setCurrentFilterToApply] =
+    useState<FilterToApplyType>(DEFAULT_FILTER_TO_APPLY);
 
-  const allGroups = useMemo(
-    () => [...PREDEFINED_GROUPS, ...customGroups],
-    [customGroups]
-  );
+  const filteredAndSortedTasks = useMemo<ReadonlyArray<PreparationTask>>(() => {
+    if (!selectedGroupId) return [];
+    return getFilteredTasks(tasks, selectedGroupId, currentFilterToApply);
+  }, [currentFilterToApply, selectedGroupId, tasks]);
 
-  const currentSelectedGroup = useMemo(
-    () =>
-      selectedGroupId ? allGroups.find((g) => g.id === selectedGroupId) : null,
-    [allGroups, selectedGroupId]
-  );
-
-  if (!currentSelectedGroup) {
-    return null;
-  }
   return (
     <MainContentContainer>
-      <ContentHeader
-        currentSelectedGroup={currentSelectedGroup}
-        openAddTaskModal={openAddTaskModal}
-      />
+      <ContentHeader openAddTaskModal={openAddTaskModal} />
 
       <Stats />
 
       <CardGlass>
-        <FilterBar />
+        <FilterBar
+          currentFilterToApply={currentFilterToApply}
+          setCurrentFilterToApply={setCurrentFilterToApply}
+        />
         {/* {groupTasks.length > 0 &&
           (groupByTag ? (
             Object.entries(groupedTasks).map(([tagName, tagTasks]) => (
@@ -65,6 +64,11 @@ export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
               enableDragDrop={shouldUseCustomOrder}
             />
           ))} */}
+        <TaskList
+          tasks={filteredAndSortedTasks}
+          onEdit={openAddTaskModal}
+          enableDragDrop={true}
+        />
       </CardGlass>
 
       {/* {groupTasks.length === 0 && (
