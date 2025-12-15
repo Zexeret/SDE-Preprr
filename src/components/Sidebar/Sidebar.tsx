@@ -49,7 +49,7 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
       <SidebarHeader>
         <SidebarTitle>
           <CodeIcon size={24} />
-          DSA Manager
+          SDE Preprr
         </SidebarTitle>
       </SidebarHeader>
 

@@ -12,8 +12,8 @@ export const FilterContextProvider: React.FC<{
   readonly children: ReactNode;
 }> = ({ children }) => {
   const { tasks, selectedGroupId } = useTaskUtility();
-  const [showTags, setShowTags] = useState<boolean>(true);
-  const [showDifficulty, setShowDifficulty] = useState<boolean>(true);
+  const [showTags, setShowTags] = useState<boolean>(false);
+  const [showDifficulty, setShowDifficulty] = useState<boolean>(false);
   const [currentFilterToApply, setCurrentFilterToApply] =
     useState<FilterToApplyType>(DEFAULT_FILTER_TO_APPLY);
 

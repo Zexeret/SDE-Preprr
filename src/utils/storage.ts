@@ -1,10 +1,10 @@
 import { PredefinedGroupId } from "../constants";
 import type { PreparationTask, Tag, Group } from "../model";
 
-const TASKS_STORAGE_KEY = "sde-preper-tasks";
-const CUSTOM_TAGS_STORAGE_KEY = "sde-preper-custom-tags";
-const CUSTOM_GROUPS_STORAGE_KEY = "sde-preper-custom-groups";
-const SELECTED_GROUP_STORAGE_KEY = "sde-preper-selected-group";
+const TASKS_STORAGE_KEY = "sde-preprr-tasks";
+const CUSTOM_TAGS_STORAGE_KEY = "sde-preprr-custom-tags";
+const CUSTOM_GROUPS_STORAGE_KEY = "sde-preprr-custom-groups";
+const SELECTED_GROUP_STORAGE_KEY = "sde-preprr-selected-group";
 
 export const loadTasks = (): ReadonlyArray<PreparationTask> => {
   try {
