@@ -6,6 +6,7 @@ import { Stats } from "../Stats";
 import {
   DEFAULT_FILTER_TO_APPLY,
   FilterBar,
+  FilterContextProvider,
   getFilteredTasks,
   type FilterToApplyType,
 } from "../FilterBar";
@@ -14,31 +15,20 @@ import type { PreparationTask } from "../../model";
 import { CardGlass } from "../../sharedStyles";
 
 type MainContentProps = {
-  readonly openAddTaskModal: (task : PreparationTask | null) => void;
+  readonly openAddTaskModal: (task: PreparationTask | null) => void;
 };
 
 export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
-  const { tasks, selectedGroupId } = useTaskUtility();
-  const [currentFilterToApply, setCurrentFilterToApply] =
-    useState<FilterToApplyType>(DEFAULT_FILTER_TO_APPLY);
-
-  const filteredAndSortedTasks = useMemo<ReadonlyArray<PreparationTask>>(() => {
-    if (!selectedGroupId) return [];
-    return getFilteredTasks(tasks, selectedGroupId, currentFilterToApply);
-  }, [currentFilterToApply, selectedGroupId, tasks]);
-
   return (
-    <MainContentContainer>
-      <ContentHeader openAddTaskModal={openAddTaskModal} />
+    <FilterContextProvider>
+      <MainContentContainer>
+        <ContentHeader openAddTaskModal={openAddTaskModal} />
 
-      <Stats />
+        <Stats />
 
-      <CardGlass>
-        <FilterBar
-          currentFilterToApply={currentFilterToApply}
-          setCurrentFilterToApply={setCurrentFilterToApply}
-        />
-        {/* {groupTasks.length > 0 &&
+        <CardGlass>
+          <FilterBar />
+          {/* {groupTasks.length > 0 &&
           (groupByTag ? (
             Object.entries(groupedTasks).map(([tagName, tagTasks]) => (
               <div key={tagName}>
@@ -64,14 +54,13 @@ export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
               enableDragDrop={shouldUseCustomOrder}
             />
           ))} */}
-        <TaskList
-          tasks={filteredAndSortedTasks}
-          onEdit={openAddTaskModal}
-          enableDragDrop={true}
-        />
-      </CardGlass>
+          <TaskList
+            onEdit={openAddTaskModal}
+            enableDragDrop={true}
+          />
+        </CardGlass>
 
-      {/* {groupTasks.length === 0 && (
+        {/* {groupTasks.length === 0 && (
         <CardGlass>
           <TaskList
             tasks={[]}
@@ -82,6 +71,7 @@ export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
           />
         </CardGlass>
       )}  */}
-    </MainContentContainer>
+      </MainContentContainer>
+    </FilterContextProvider>
   );
 });

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { FiX, FiEye, FiEyeOff } from "react-icons/fi";
+import React, { useCallback } from "react";
+import { FiX  } from "react-icons/fi";
 import {
   DndContext,
   closestCenter,
@@ -16,28 +16,31 @@ import {
 } from "@dnd-kit/sortable";
 import type { PreparationTask } from "../../model";
 import { TaskCard } from "../TaskCard";
-import { ButtonSecondary } from "../../sharedStyles";
 import {
   EmptyListContainer,
-  TaskListControls,
   TasksGrid,
 } from "./TaskList.styles";
 import { useTaskUtility } from "../../context";
+import { useFilterContext } from "../FilterBar";
 
 interface TaskListProps {
-  readonly tasks: ReadonlyArray<PreparationTask>;
   readonly onEdit: (task: PreparationTask) => void;
   readonly enableDragDrop?: boolean;
 }
 
+
 export const TaskList: React.FC<TaskListProps> = ({
-  tasks,
   onEdit,
   enableDragDrop = false,
 }) => {
   const { reorderTasks } = useTaskUtility();
-
-  const [showTags, setShowTags] = useState(false);
+  const {
+    filteredAndSortedTasks: tasks,
+    setShowTags,
+    setShowDifficulty,
+    showDifficulty,
+    showTags,
+  } = useFilterContext();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -69,18 +72,13 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const tasksList = (
     <>
-      <TaskListControls>
-        <ButtonSecondary onClick={() => setShowTags(!showTags)}>
-          {showTags ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-          {showTags ? "Hide Tags" : "Show Tags"}
-        </ButtonSecondary>
-      </TaskListControls>
       <TasksGrid>
         {tasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
             showTags={showTags}
+            showDifficulty={showDifficulty}
             enableDragDrop={enableDragDrop}
             onEdit={onEdit}
           />

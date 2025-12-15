@@ -1,12 +1,14 @@
 import React, { useCallback } from "react";
-import { FiEdit2, FiTrash2, FiCheck, FiX, FiMenu } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiCheck, FiX, FiMenu, FiExternalLink } from "react-icons/fi";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { PreparationTask } from "../../model";
+import {
+  DIFFICULTY_TAGS,
+  type DifficultyTagId,
+  type PreparationTask,
+} from "../../model";
 import {
   TaskCardBase,
-  TaskCardDone,
-  TaskCardDragging,
   TaskHeader,
   TaskContent,
   TaskLinkContainer,
@@ -19,6 +21,8 @@ import {
   DragHandle,
   TagsContainer,
   Tag,
+  SeparatingDot,
+  DifficultyTag,
 } from "./TaskCard.styles";
 import { useTaskUtility } from "../../context";
 
@@ -26,13 +30,18 @@ interface TaskCardProps {
   readonly task: PreparationTask;
   readonly showTags: boolean;
   readonly enableDragDrop: boolean;
+  readonly showDifficulty: boolean;
   readonly onEdit: (task: PreparationTask) => void;
 }
+
+const getDifficultyName = (id: DifficultyTagId) =>
+  DIFFICULTY_TAGS.find((tag) => tag.id === id)?.name || id;
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   showTags,
   enableDragDrop,
+  showDifficulty,
   onEdit,
 }) => {
   const {
@@ -41,7 +50,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     setNodeRef,
     transform,
     transition,
-    isDragging,
   } = useSortable({ id: task.id, disabled: !enableDragDrop });
   const { deleteTask, updateTask } = useTaskUtility();
 
@@ -49,14 +57,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
   };
-
-  const CardComponent = isDragging
-    ? TaskCardDragging
-    : task.isDone
-    ? TaskCardDone
-    : TaskCardBase;
-
-  const isExternalLink = task.link?.startsWith("http");
 
   const handleDeleteTask = useCallback(() => {
     if (window.confirm("Are you sure you want to delete this task?")) {
@@ -70,7 +70,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <CardComponent>
+      <TaskCardBase>
         <TaskHeader>
           {enableDragDrop && (
             <DragHandle {...attributes} {...listeners}>
@@ -79,44 +79,45 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           )}
           <TaskContent>
             <TaskLinkContainer>
-              {isExternalLink ? (
-                <TaskLink
-                  href={task.link ?? undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  $isDone={task.isDone}
-                >
-                  {task.title} #{task.order}
-                </TaskLink>
-              ) : (
-                <TaskLinkSpan $isDone={task.isDone}>
-                  {task.title} #{task.order}
-                </TaskLinkSpan>
-              )}
+              <TaskLinkSpan $isDone={task.isDone}>
+                {task.title} #{task.order}
+              </TaskLinkSpan>
+              <TaskLink
+                href={task.link ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                $isDone={task.isDone}
+              >
+                <FiExternalLink size={18} />
+              </TaskLink>
             </TaskLinkContainer>
             {showTags && task.tags.length > 0 && (
               <TagsContainer>
-                {task.tags.map((tag) => (
-                  <Tag key={tag.id} $isCustom={tag.isCustom}>
-                    {tag.name}
-                  </Tag>
+                {task.tags.map((tag, index) => (
+                  <>
+                    <Tag key={tag.id} $isCustom={tag.isCustom}>
+                      {tag.name}
+                    </Tag>
+                    {index < task.tags.length - 1 && <SeparatingDot />}
+                  </>
                 ))}
               </TagsContainer>
             )}
           </TaskContent>
           <TaskActions>
-            {task.isDone ? (
-              <IconButton onClick={handleToggleTaskDone} title="Mark as undone">
-                <FiX size={16} />
-              </IconButton>
-            ) : (
+            {showDifficulty && task.difficulty && (
+              <DifficultyTag difficulty={task.difficulty}>
+                {getDifficultyName(task.difficulty)}
+              </DifficultyTag>
+            )}
               <IconButtonSuccess
                 onClick={handleToggleTaskDone}
                 title="Mark as done"
+                isDone={task.isDone}
               >
                 <FiCheck size={16} />
               </IconButtonSuccess>
-            )}
+            
             <IconButton onClick={() => onEdit(task)} title="Edit task">
               <FiEdit2 size={16} />
             </IconButton>
@@ -125,7 +126,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </IconButtonDanger>
           </TaskActions>
         </TaskHeader>
-      </CardComponent>
+      </TaskCardBase>
     </div>
   );
 };

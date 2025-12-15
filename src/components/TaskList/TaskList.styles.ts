@@ -25,13 +25,9 @@ export const EmptyListContainer = styled.div`
   }
 `;
 
-export const TaskListControls = styled.div`
-  margin-bottom: 1rem;
-`;
-
 export const TasksGrid = styled.div`
   display: grid;
-  gap: 1rem;
+  gap: 1px;
 `;
 
 export const GroupHeader = styled.div`

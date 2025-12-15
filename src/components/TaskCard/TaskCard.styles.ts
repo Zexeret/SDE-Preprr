@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import type { DifficultyTagId } from "../../model";
 
 export const TaskCardBase = styled.div`
   background: ${({ theme }) => theme.surface};
@@ -10,25 +11,15 @@ export const TaskCardBase = styled.div`
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ theme }) => theme.surfaceElevated};
     border-color: ${({ theme }) => theme.primary};
-    box-shadow: 0 4px 12px ${({ theme }) => `${theme.primary}30`};
+    box-shadow: 0 0px 5px ${({ theme }) => `${theme.primary}30`};
   }
-`;
-
-export const TaskCardDone = styled(TaskCardBase)`
-  opacity: 0.7;
-`;
-
-export const TaskCardDragging = styled(TaskCardBase)`
-  box-shadow: 0 8px 24px ${({ theme }) => `${theme.primary}30`};
-  transform: rotate(2deg);
 `;
 
 export const TaskHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
 `;
 
@@ -45,10 +36,12 @@ export const TaskLinkContainer = styled.div`
 `;
 
 export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
-  color: ${({ theme }) => theme.primary};
-  text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
+  color: ${({ theme }) => theme.text.secondary};
   font-weight: 500;
   word-break: break-all;
+  display: flex;
+  cursor: pointer;
+  margin-left: 1%;
 
   &:hover {
     text-decoration: underline;
@@ -57,9 +50,10 @@ export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
 `;
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.text.primary}e3;
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
+  font-size: 0.9rem;
   word-break: break-all;
 `;
 
@@ -87,10 +81,17 @@ export const IconButton = styled.button`
   }
 `;
 
-export const IconButtonSuccess = styled(IconButton)`
+export const IconButtonSuccess = styled(IconButton)<{
+  readonly isDone: boolean;
+}>`
+  background: ${(props) =>
+    props.isDone ? props.theme.success : props.theme.background};
+  color: ${(props) =>
+    props.isDone ? 'white' : props.theme.text.secondary};
+
   &:hover {
-    background: ${({ theme }) => theme.success};
-    color: white;
+    background: ${({ theme }) => theme.primary};
+    color: ${props => props.theme.text.primary};
   }
 `;
 
@@ -122,21 +123,25 @@ export const DragHandle = styled.div`
 
 export const TagsContainer = styled.div`
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.75rem;
 `;
 
+export const SeparatingDot = styled.div`
+  width: 4px;
+  height: 4px;
+  background: ${({ theme }) => theme.text.secondary};
+  border-radius: 50%;
+`;
+
 export const Tag = styled.span<{ readonly $isCustom?: boolean }>`
-  padding: 0.375rem 0.75rem;
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${({ theme }) => theme.background};
   color: ${(props) =>
-    props.$isCustom ? props.theme.primary : props.theme.text.secondary};
-  border: 1px solid
-    ${(props) => (props.$isCustom ? props.theme.primary : props.theme.border)};
+    props.$isCustom ? props.theme.primary + "ab" : props.theme.text.secondary};
 `;
 
 export const EmptyState = styled.div`
@@ -167,4 +172,27 @@ export const TaskListControls = styled.div`
 export const TasksGrid = styled.div`
   display: grid;
   gap: 1rem;
+`;
+
+export const DifficultyTag = styled.button<{
+  readonly difficulty: DifficultyTagId;
+}>`
+  ${({ theme, difficulty }) => {
+    const tagMap: Record<DifficultyTagId, string> = {
+      EASY: theme.success,
+      MEDIUM: theme.warning,
+      HARD: theme.error,
+    };
+
+    const tagColor = tagMap[difficulty];
+
+    return `  
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-right: 1.25rem;
+    border:1px solid ${tagColor};
+    color: ${tagColor};
+    background: ${tagColor}14;
+  `;
+  }}
 `;

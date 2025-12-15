@@ -11,7 +11,7 @@ export const darkTheme: Theme = {
     },
     primary: "#0061ff",            // Blue (buttons, highlights)
     primaryHover: "#2a7bff",       // Lighter blue for hover
-    success: "#22C55E",            // Green (success)
+    success: "#127637",            // Green (success)
     error: "#EF4444",              // Red (error)
     warning: "#F59E42",            // Orange (warning)
     overlay: "rgba(24, 26, 32, 0.7)", // Overlay for modals
