@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { FiSettings, FiFolder, FiPlus, FiCode } from "react-icons/fi";
+import { FiSettings, FiFolder, FiPlus } from "react-icons/fi";
 import {
   SideBarContainer,
   SidebarHeader,
@@ -12,6 +12,7 @@ import {
   SidebarMenuItemBadge,
   SidebarFooter,
   AddGroupButton,
+  CodeIcon,
 } from "./Sidebar.styles";
 import { useTaskUtility } from "../../context";
 import { PREDEFINED_GROUPS } from "../../constants";
@@ -47,7 +48,7 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
     <SideBarContainer>
       <SidebarHeader>
         <SidebarTitle>
-          <FiCode size={24} />
+          <CodeIcon size={24} />
           DSA Manager
         </SidebarTitle>
       </SidebarHeader>

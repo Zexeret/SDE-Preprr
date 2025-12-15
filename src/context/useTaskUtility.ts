@@ -4,6 +4,7 @@ import type { ThemeName } from "../theme";
 
 export interface TaskUtilityContextType {
   readonly tasks: ReadonlyArray<PreparationTask>;
+  readonly themeName : ThemeName;
   readonly customTags: ReadonlyArray<Tag>;
   readonly customGroups: ReadonlyArray<Group>;
   readonly selectedGroupId: string | null;

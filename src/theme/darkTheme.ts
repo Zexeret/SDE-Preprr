@@ -1,18 +1,19 @@
 import type { Theme } from "./Theme";
 
 export const darkTheme: Theme = {
-  background: "#0a0a0a",
-  surface: "#1a1a1a",
-  border: "#262626",
-  text: {
-    primary: "#f8fafc",
-    secondary: "#94a3b8",
-  },
-  primary: "#dc2626",
-  primaryHover: "#b91c1c",
-  success: "#16a34a",
-  error: "#dc2626",
-  warning: "#ea580c",
-  overlay: "rgba(0, 0, 0, 0.5)",
-  shadow: "rgba(0, 0, 0, 0.3)",
-};
+    background: "#0D0F14",         // Main background (very dark blue-gray)
+    surface: "#111319",            // Card/sidebar background (dark blue-gray)
+    surfaceElevated: "#232634",    // Modals, dropdowns, hover states (slightly lighter)
+    border: "#25272f",             // Subtle border
+    text: {
+      primary: "#F4F6FB",          // Main text (almost white)
+      secondary: "#A3A8B8",        // Secondary text (muted blue-gray)
+    },
+    primary: "#0061ff",            // Blue (buttons, highlights)
+    primaryHover: "#2a7bff",       // Lighter blue for hover
+    success: "#22C55E",            // Green (success)
+    error: "#EF4444",              // Red (error)
+    warning: "#F59E42",            // Orange (warning)
+    overlay: "rgba(24, 26, 32, 0.7)", // Overlay for modals
+    shadow: "rgba(0, 0, 0, 0.5)",     // Stronger shadow for depth
+  };

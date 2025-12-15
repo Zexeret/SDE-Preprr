@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 
-
 export const TaskCardBase = styled.div`
   background: ${({ theme }) => theme.surface};
   backdrop-filter: blur(10px);
@@ -11,6 +10,7 @@ export const TaskCardBase = styled.div`
   transition: all 0.2s;
 
   &:hover {
+    background: ${({ theme }) => theme.surfaceElevated};
     border-color: ${({ theme }) => theme.primary};
     box-shadow: 0 4px 12px ${({ theme }) => `${theme.primary}30`};
   }
@@ -73,7 +73,7 @@ export const IconButton = styled.button`
   padding: 0.5rem;
   border-radius: 0.375rem;
   border: none;
-  background: ${({ theme }) => theme.surface};
+  background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text.secondary};
   cursor: pointer;
   display: flex;
@@ -132,7 +132,7 @@ export const Tag = styled.span<{ readonly $isCustom?: boolean }>`
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${({ theme }) => theme.surface};
+  background: ${({ theme }) => theme.background};
   color: ${(props) =>
     props.$isCustom ? props.theme.primary : props.theme.text.secondary};
   border: 1px solid

@@ -42,11 +42,13 @@ export const ContentHeader = memo<ContentHeaderProps>(
 
     return (
       <ContentHeaderContainer>
-        <ContentTitle>{currentSelectedGroup.name}</ContentTitle>
-        <ContentSubtitle>
-          Manage your {currentSelectedGroup.name.toLowerCase()} preparation
-          tasks
-        </ContentSubtitle>
+        <div>
+          <ContentTitle>{currentSelectedGroup.name}</ContentTitle>
+          <ContentSubtitle>
+            Manage your {currentSelectedGroup.name.toLowerCase()} preparation
+            tasks
+          </ContentSubtitle>
+        </div>
         <ContentActions>
           <ButtonPrimary onClick={handleAddTask}>
             <FiPlus size={16} />

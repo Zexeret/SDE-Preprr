@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { TaskUtilityProvider, useTaskUtility } from "./context";
 import type { PreparationTask } from "./model";
-import { ThemeProvider, type ThemeName } from "./theme";
+import { ThemeProvider, useTheme, type ThemeName } from "./theme";
 import {
   Sidebar,
   Settings,
@@ -17,6 +17,7 @@ import {
 
 function AppContent() {
   const { selectedGroupId } = useTaskUtility();
+  const theme = useTheme();
 
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -32,6 +33,20 @@ function AppContent() {
     setShowTaskModal(false);
     setCurrentTaskInFormModal(null);
   }, []);
+
+  useEffect(() => {
+    // Set CSS custom properties when theme changes for editor
+    const root = document.documentElement;
+    root.style.setProperty("--theme-bg-primary", theme.primary);
+    root.style.setProperty("--theme-bg-secondary", theme.surface);
+    root.style.setProperty("--theme-bg-elevated", theme.surfaceElevated);
+    root.style.setProperty("--theme-border-primary", theme.border);
+    root.style.setProperty("--theme-border-secondary", theme.border + "54");
+    root.style.setProperty("--theme-text-primary", theme.text.primary);
+    root.style.setProperty("--theme-text-secondary", theme.text.secondary);
+    root.style.setProperty("--theme-text-muted", theme.text.secondary);
+    root.style.setProperty("--theme-primary-main", theme.primary);
+  }, [theme]);
 
   return (
     <AppContainer>
@@ -64,9 +79,10 @@ function AppContent() {
 
 const App = () => {
   const [themeName, setThemeName] = useState<ThemeName>("dark");
+
   return (
-    <ThemeProvider themeName={themeName}>
-      <TaskUtilityProvider setTheme={setThemeName}>
+    <ThemeProvider themeName={themeName} >
+      <TaskUtilityProvider setTheme={setThemeName} themeName={themeName}>
         <AppContent />
       </TaskUtilityProvider>
     </ThemeProvider>

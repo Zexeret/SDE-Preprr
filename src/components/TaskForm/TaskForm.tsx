@@ -15,9 +15,17 @@ import {
 } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";
 import { Editor } from "primereact/editor";
-import { StyledTag, TagsContainer } from "./TaskForm.styles";
+import {
+  FooterActionContainer,
+  FormContainer,
+  StyledCloseButton,
+  StyledTag,
+  TagsContainer,
+  TaskFormHeading,
+} from "./TaskForm.styles";
 import { AddCustomTag } from "./AddCustomTag";
 import { FiX } from "react-icons/fi";
+import { css } from "@emotion/css";
 
 interface TaskFormProps {
   readonly selectedGroupId: string;
@@ -43,8 +51,14 @@ export const TaskForm = memo<TaskFormProps>(
       currentTaskInFormModal?.tags || []
     );
 
-    const { tasks, customTags, deleteCustomTag, updateTask, addTask } =
-      useTaskUtility();
+    const {
+      tasks,
+      customTags,
+      deleteCustomTag,
+      updateTask,
+      addTask,
+      deleteTask,
+    } = useTaskUtility();
 
     const isNewTaskBeingAdded = !currentTaskInFormModal;
 
@@ -54,6 +68,19 @@ export const TaskForm = memo<TaskFormProps>(
         ...customTags.filter((tag) => tag.groupId === selectedGroupId),
       ];
     }, [customTags, selectedGroupId]);
+
+    const handleDelete = useCallback(() => {
+      if (currentTaskInFormModal) {
+        if (
+          window.confirm(
+            "Are you sure you want to delete this task? This action cannot be undone."
+          )
+        ) {
+          deleteTask(currentTaskInFormModal.id);
+          onClose();
+        }
+      }
+    }, [currentTaskInFormModal, deleteTask, onClose]);
 
     const handleTagToggle = (tag: Tag) => {
       setSelectedTags((prev) => {
@@ -155,92 +182,116 @@ export const TaskForm = memo<TaskFormProps>(
 
     return (
       <ModalOverlay onClick={onClose}>
-        <ModalContent onClick={(e) => e.stopPropagation()}>
-          <h2>{isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}</h2>
-          <form onSubmit={handleSubmit}>
-            <FormGroup>
-              <label htmlFor="task-title">Title *</label>
-              <input
-                id="task-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Binary Search or Max Depth of Binary Tree"
-                required
-              />
-            </FormGroup>
+        <ModalContent
+          onClick={(e) => e.stopPropagation()}
+          className={css`
+            height: 100%;
+          `}
+        >
+          <TaskFormHeading>
+            {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}
+            <StyledCloseButton
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className={css`
+                background: none;
+              `}
+            >
+              <FiX size={16} />
+            </StyledCloseButton>
+          </TaskFormHeading>
+          <FormContainer>
+            <form>
+              <FormGroup>
+                <label htmlFor="task-title">Title *</label>
+                <input
+                  id="task-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Binary Search or Max Depth of Binary Tree"
+                  required
+                />
+              </FormGroup>
 
-            <FormGroup>
-              <label htmlFor="task-link">Link</label>
-              <input
-                id="task-link"
-                type="text"
-                value={link ?? ""}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="https://leetcode.com/problems/..."
-              />
-            </FormGroup>
+              <FormGroup>
+                <label htmlFor="task-link">Link</label>
+                <input
+                  id="task-link"
+                  type="text"
+                  value={link ?? ""}
+                  onChange={(e) => setLink(e.target.value)}
+                  placeholder="https://leetcode.com/problems/..."
+                />
+              </FormGroup>
 
-            <FormGroup>
-              <label>Difficulty Level *</label>
-              <TagsContainer>
-                {DIFFICULTY_TAGS.map((tag) => (
-                  <StyledTag
-                    key={tag.id}
-                    selected={difficulty === tag.id}
-                    isCustom={tag.isCustom}
-                    onClick={() => handleDifficultyTagToggle(tag)}
-                  >
-                    {tag.name}
-                  </StyledTag>
-                ))}
-              </TagsContainer>
-            </FormGroup>
+              <FormGroup>
+                <label>Difficulty Level *</label>
+                <TagsContainer>
+                  {DIFFICULTY_TAGS.map((tag) => (
+                    <StyledTag
+                      key={tag.id}
+                      selected={difficulty === tag.id}
+                      isCustom={tag.isCustom}
+                      onClick={() => handleDifficultyTagToggle(tag)}
+                    >
+                      {tag.name}
+                    </StyledTag>
+                  ))}
+                </TagsContainer>
+              </FormGroup>
 
-            <FormGroup>
-              <label>Tags</label>
-              <TagsContainer>
-                {tagsByGroup.map((tag) => (
-                  <StyledTag
-                    key={tag.id}
-                    selected={selectedTags.some((t) => t.id === tag.id)}
-                    isCustom={tag.isCustom}
-                    onClick={() => handleTagToggle(tag)}
-                  >
-                    {tag.name}
-                    {tag.isCustom && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag.id)}
-                      >
-                        <FiX size={14} />
-                      </button>
-                    )}
-                  </StyledTag>
-                ))}
-              </TagsContainer>
+              <FormGroup>
+                <label>Tags</label>
+                <TagsContainer>
+                  {tagsByGroup.map((tag) => (
+                    <StyledTag
+                      key={tag.id}
+                      selected={selectedTags.some((t) => t.id === tag.id)}
+                      isCustom={tag.isCustom}
+                      onClick={() => handleTagToggle(tag)}
+                    >
+                      {tag.name}
+                      {tag.isCustom && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag.id)}
+                        >
+                          <FiX size={14} />
+                        </button>
+                      )}
+                    </StyledTag>
+                  ))}
+                </TagsContainer>
 
-              <AddCustomTag />
-            </FormGroup>
+                <AddCustomTag />
+              </FormGroup>
 
-            <FormGroup>
-              <label>Notes</label>
-              <Editor
-                value={notes}
-                onTextChange={(e) => setNotes(e.htmlValue || "")}
-                style={{ height: "300px" }}
-              />
-            </FormGroup>
-
-            <ModalActions>
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
+              <FormGroup>
+                <label>Notes</label>
+                <Editor
+                  value={notes}
+                  onTextChange={(e) => setNotes(e.htmlValue || "")}
+                  style={{ height: "300px" }}
+                />
+              </FormGroup>
+            </form>
+          </FormContainer>
+          <FooterActionContainer>
+            <ModalActions
+              className={css`
+                margin: 0;
+              `}
+            >
+              <Button type="button" variant="danger" onClick={handleDelete}>
+                Delete
               </Button>
-              <Button type="submit" variant="primary">
+              <Button type="submit" variant="primary" onClick={handleSubmit}>
                 {isNewTaskBeingAdded ? "Add Task" : "Update Task"}
               </Button>
             </ModalActions>
-          </form>
+          </FooterActionContainer>
         </ModalContent>
       </ModalOverlay>
     );

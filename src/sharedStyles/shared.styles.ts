@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 
-
 export const CardGlass = styled.div`
   background: ${({ theme }) => theme.surface};
   backdrop-filter: blur(10px);
@@ -14,7 +13,7 @@ export const Select = styled.select`
   padding: 0.625rem 1rem;
   border-radius: 0.5rem;
   border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.surface};
+  background: ${({ theme }) => theme.surfaceElevated};
   color: ${({ theme }) => theme.text.primary};
   font-family: inherit;
   font-size: 0.875rem;
@@ -28,7 +27,7 @@ export const Select = styled.select`
   }
 
   option {
-    background: ${({ theme }) => theme.surface};
+    background: ${({ theme }) => theme.surfaceElevated};
   }
 `;
 
@@ -62,11 +61,11 @@ export const Button = styled.button<{
         `;
       case "secondary":
         return `
-          background: ${theme.surface};
+          background: ${theme.surfaceElevated};
           color: ${theme.text.primary};
           border: 1px solid ${theme.border};
           &:hover {
-            background: ${theme.background};
+            background: ${theme.surface};
             border-color: ${theme.primary};
           }
         `;
@@ -124,17 +123,19 @@ export const ModalContent = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 1rem;
   padding: 2rem;
-  max-width: 42rem;
+  max-width: 65vw;
   width: 100%;
+  height: fit-content;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px ${({ theme }) => theme.shadow};
+  scrollbar-width: none;
 
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    color: ${({ theme }) => theme.primary};
+    color: ${({ theme }) => theme.text.primary};
   }
 `;
 
@@ -148,6 +149,7 @@ export const ModalActions = styled.div`
 export const ButtonBase = styled.button`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
@@ -167,12 +169,11 @@ export const ButtonBase = styled.button`
 export const ButtonPrimary = styled(ButtonBase)`
   background: ${({ theme }) => theme.primary};
   color: white;
-  box-shadow: 0 4px 12px ${({ theme }) => `${theme.primary}40`};
+  box-shadow: 0 0px 5px ${({ theme }) => `${theme.primary}40`};
 
   &:hover:not(:disabled) {
     background: ${({ theme }) => theme.primaryHover};
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px ${({ theme }) => `${theme.primary}50`};
+    box-shadow: 0 0px 10px ${({ theme }) => `${theme.primary}50`};
   }
 
   &:active:not(:disabled) {
@@ -181,12 +182,12 @@ export const ButtonPrimary = styled(ButtonBase)`
 `;
 
 export const ButtonSecondary = styled(ButtonBase)`
-  background: ${({ theme }) => theme.surface};
+  background: ${({ theme }) => theme.surfaceElevated};
   color: ${({ theme }) => theme.text.primary};
   border: 1px solid ${({ theme }) => theme.border};
 
   &:hover:not(:disabled) {
-    background: ${({ theme }) => theme.background};
+    background: ${({ theme }) => theme.surface};
     border-color: ${({ theme }) => theme.primary};
   }
 `;
@@ -197,7 +198,6 @@ export const ButtonDanger = styled(ButtonBase)`
   box-shadow: 0 4px 12px ${({ theme }) => `${theme.error}40`};
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
     box-shadow: 0 6px 20px ${({ theme }) => `${theme.error}50`};
   }
 
@@ -220,7 +220,7 @@ export const ButtonIcon = styled.button`
 
   &:hover {
     color: ${({ theme }) => theme.text.primary};
-    background: ${({ theme }) => theme.surface};
+    background: ${({ theme }) => theme.surfaceElevated};
   }
 `;
 
@@ -240,7 +240,7 @@ export const FormGroup = styled.div`
   textarea,
   select {
     padding: 0.75rem;
-    background: ${({ theme }) => theme.background};
+    background: ${({ theme }) => theme.surfaceElevated};
     border: 1px solid ${({ theme }) => theme.border};
     border-radius: 0.5rem;
     color: ${({ theme }) => theme.text.primary};

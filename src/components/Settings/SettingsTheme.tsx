@@ -6,12 +6,20 @@ import {
   ThemeOption,
   ThemeOptionName,
   ThemeOptions,
-  ThemePreview,
-  ThemePreviewColor,
 } from "./Settings.styles";
 import { FiDroplet } from "react-icons/fi";
+import { useTaskUtility } from "../../context";
+import type { ThemeName } from "../../theme";
+import { ButtonPrimary } from "../../sharedStyles";
+
+const themeOptions: ReadonlyArray<{ readonly value: ThemeName; readonly label: string }> = [
+  { value: "dark", label: "Dark" },
+  { value: "light", label: "Light" },
+];
 
 export const SettingsTheme = memo(() => {
+  const { setTheme, themeName } = useTaskUtility();
+
   return (
     <SettingsSection>
       <SettingsSectionTitle>
@@ -19,33 +27,19 @@ export const SettingsTheme = memo(() => {
         Theme
       </SettingsSectionTitle>
       <SettingsSectionDescription>
-        Choose your preferred color theme (Coming Soon)
+        Choose your preferred color theme
       </SettingsSectionDescription>
       <ThemeOptions>
-        <ThemeOption $active={true}>
-          <ThemePreview>
-            <ThemePreviewColor $color="#6366f1" />
-            <ThemePreviewColor $color="#8b5cf6" />
-            <ThemePreviewColor $color="#0f172a" />
-          </ThemePreview>
-          <ThemeOptionName>Dark (Default)</ThemeOptionName>
-        </ThemeOption>
-        <ThemeOption $active={false}>
-          <ThemePreview>
-            <ThemePreviewColor $color="#3b82f6" />
-            <ThemePreviewColor $color="#06b6d4" />
-            <ThemePreviewColor $color="#1e293b" />
-          </ThemePreview>
-          <ThemeOptionName>Blue</ThemeOptionName>
-        </ThemeOption>
-        <ThemeOption $active={false}>
-          <ThemePreview>
-            <ThemePreviewColor $color="#10b981" />
-            <ThemePreviewColor $color="#059669" />
-            <ThemePreviewColor $color="#064e3b" />
-          </ThemePreview>
-          <ThemeOptionName>Green</ThemeOptionName>
-        </ThemeOption>
+        {themeOptions.map(({ value, label }) => {
+          const isSelected = themeName === value;
+          const ButtonComponent = isSelected ? ButtonPrimary : ThemeOption;
+          
+          return (
+            <ButtonComponent key={value} onClick={() => setTheme(value)}>
+              <ThemeOptionName>{label}</ThemeOptionName>
+            </ButtonComponent>
+          );
+        })}
       </ThemeOptions>
     </SettingsSection>
   );

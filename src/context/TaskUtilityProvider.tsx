@@ -24,7 +24,8 @@ import { PredefinedGroupId } from "../constants";
 export const TaskUtilityProvider: React.FC<{
   readonly children: ReactNode;
   readonly setTheme: (themeName: ThemeName) => void;
-}> = ({ children, setTheme }) => {
+  readonly themeName : ThemeName;
+}> = ({ children, setTheme , themeName}) => {
   const [tasks, setTasksState] = useState<ReadonlyArray<PreparationTask>>([]);
   const [customTags, setCustomTagsState] = useState<ReadonlyArray<Tag>>([]);
   const [customGroups, setCustomGroupsState] = useState<ReadonlyArray<Group>>(
@@ -174,6 +175,7 @@ export const TaskUtilityProvider: React.FC<{
 
   const value: TaskUtilityContextType = {
     tasks,
+    themeName,
     customTags,
     customGroups,
     selectedGroupId,

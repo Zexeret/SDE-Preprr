@@ -1,11 +1,22 @@
 import styled from "@emotion/styled";
-
+import { Button } from "../../sharedStyles";
 
 export const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+`;
+
+export const TaskFormHeading = styled.h2`
+  && {
+    top: 0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+        display: flex;
+    justify-content: space-between;
+  }
 `;
 
 export const StyledTag = styled.span<{
@@ -23,6 +34,7 @@ export const StyledTag = styled.span<{
   color: white;
   transition: all 0.2s;
   border: 1px solid;
+  cursor: pointer;
 
   button {
     background: none;
@@ -49,9 +61,9 @@ export const StyledTag = styled.span<{
       `;
     } else if (isCustom) {
       return `
-        background: ${theme.surface};
-        color: ${theme.primary};
-        border-color: ${theme.primary};
+        background: ${theme.surfaceElevated};
+        color: ${theme.text.primary};
+        border-color: ${theme.border};
         &:hover {
           background: ${theme.primary};
           color: white;
@@ -59,11 +71,11 @@ export const StyledTag = styled.span<{
       `;
     } else {
       return `
-        background: ${theme.surface};
+        background: ${theme.background};
         color: ${theme.text.secondary};
         border-color: ${theme.border};
         &:hover {
-          background: ${theme.surface};
+          background: ${theme.surfaceElevated};
           border-color: ${theme.primary};
         }
       `;
@@ -76,3 +88,24 @@ export const AddCustomTagContainer = styled.div`
   display: flex;
   gap: 0.5rem;
 `;
+
+export const FormContainer = styled.div`
+  height: 86%;
+  overflow-y: scroll;
+  scrollbar-width: none;
+`;
+
+export const FooterActionContainer = styled.div`
+  height: fit-content;
+  margin-top: 2%;
+  padding-top: 2%;
+`;
+
+export const StyledCloseButton = styled(Button)`
+  background: none;
+  border: none;
+
+  &&:hover {
+  background: ${props => props.theme.surfaceElevated}
+  }
+`

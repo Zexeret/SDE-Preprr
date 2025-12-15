@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-
+import { FiCode } from "react-icons/fi";
+import { ButtonPrimary } from "../../sharedStyles";
 
 export const SideBarContainer = styled.div`
   height: 100%;
@@ -13,11 +14,15 @@ export const SidebarHeader = styled.div`
   margin-bottom: 2rem;
 `;
 
+export const CodeIcon = styled(FiCode)`
+  color: ${(props) => props.theme.primary};
+`;
+
 export const SidebarTitle = styled.h1`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: ${(props) => props.theme.primary};
+  color: ${(props) => props.theme.text.primary};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -48,22 +53,19 @@ export const SidebarMenuItem = styled.button<{ readonly $isActive?: boolean }>`
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid
-    ${(props) => (props.$isActive ? props.theme.primary : "transparent")};
+    ${(props) => (props.$isActive ? props.theme.primary + "54" : "transparent")};
   background: ${(props) =>
     props.$isActive ? `${props.theme.primary}15` : "transparent"};
   width: 100%;
   text-align: left;
   font-size: 0.875rem;
   box-shadow: ${(props) =>
-    props.$isActive ? `0 4px 12px ${props.theme.primary}40` : "none"};
+    props.$isActive ? `0 0px 6px ${props.theme.primary}40` : "none"};
 
   &:hover {
-    background: ${(props) =>
-      props.$isActive ? `${props.theme.primary}25` : props.theme.surface};
     color: ${(props) =>
       props.$isActive ? props.theme.primary : props.theme.text.primary};
-    border-color: ${(props) =>
-      props.$isActive ? props.theme.primaryHover : "transparent"};
+    border-color: ${(props) => props.theme.primary + "54"};
   }
 `;
 
@@ -88,32 +90,10 @@ export const SidebarMenuItemBadge = styled.span`
   font-weight: 600;
 `;
 
-export const AddGroupButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background: ${(props) => props.theme.primary};
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.2s;
+export const AddGroupButton = styled(ButtonPrimary)`
   width: 100%;
-  box-shadow: 0 4px 12px ${(props) => `${props.theme.primary}40`};
-
-  &:hover {
-    transform: translateY(-2px);
-    background: ${(props) => props.theme.primaryHover};
-    box-shadow: 0 6px 20px ${(props) => `${props.theme.primary}50`};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
+  display: flex;
+  justify-content: center;
 `;
 
 export const SidebarFooter = styled.div`
