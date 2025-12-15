@@ -17,20 +17,20 @@ export const colors = {
 };
 
 export const CardGlass = styled.div`
-  background: rgba(255, 255, 255, 0.03);
+  background: ${({ theme }) => theme.rgba.white003};
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${({ theme }) => theme.rgba.white01};
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ theme }) => theme.shadows.card};
 `;
 
 export const Select = styled.select`
   padding: 0.625rem 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${colors.border};
-  background: ${colors.surface};
-  color: ${colors.text};
+  border: 1px solid ${({ theme }) => theme.secondaryBorder};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.text.primary};
   font-family: inherit;
   font-size: 0.875rem;
   cursor: pointer;
@@ -38,11 +38,11 @@ export const Select = styled.select`
 
   &:focus {
     outline: none;
-    border-color: ${colors.primary};
+    border-color: ${({ theme }) => theme.colors.primary};
   }
 
   option {
-    background: ${colors.surface};
+    background: ${({ theme }) => theme.colors.surface};
   }
 `;
 
@@ -61,30 +61,32 @@ export const Button = styled.button<{
   transition: all 0.2s;
   font-family: inherit;
 
-  ${({ variant = "primary" }) => {
+  ${({ variant = "primary", theme }) => {
     switch (variant) {
       case "primary":
         return `
-          background: ${colors.primary};
+          background: ${theme.colors.primary};
           color: white;
           &:hover {
-            background: ${colors.primaryHover};
+            background: ${theme.colors.primaryHover};
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px ${
+              theme.rgba.primary04 ?? "rgba(99, 102, 241, 0.4)"
+            };
           }
         `;
       case "secondary":
         return `
-          background: ${colors.surface};
-          color: ${colors.text};
-          border: 1px solid ${colors.border};
+          background: ${theme.colors.surface};
+          color: ${theme.text.primary};
+          border: 1px solid ${theme.secondaryBorder};
           &:hover {
-            background: ${colors.surfaceHover};
+            background: ${theme.colors.surfaceHover};
           }
         `;
       case "danger":
         return `
-          background: ${colors.danger};
+          background: ${theme.actions.error};
           color: white;
           &:hover {
             background: #dc2626;
@@ -93,7 +95,7 @@ export const Button = styled.button<{
         `;
       case "success":
         return `
-          background: ${colors.success};
+          background: ${theme.actions.success};
           color: white;
           &:hover {
             background: #059669;
@@ -118,7 +120,7 @@ export const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: ${({ theme }) => theme.rgba.black07};
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -128,21 +130,25 @@ export const ModalOverlay = styled.div`
 `;
 
 export const ModalContent = styled.div`
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.surface} 0%,
+    ${({ theme }) => theme.background} 100%
+  );
+  border: 1px solid ${({ theme }) => theme.rgba.white01};
   border-radius: 1rem;
   padding: 2rem;
   max-width: 42rem;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: ${({ theme }) => theme.shadows.modal};
 
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    color: #f1f5f9;
+    color: ${({ theme }) => theme.text.primary};
   }
 `;
 
@@ -153,7 +159,6 @@ export const ModalActions = styled.div`
   margin-top: 1.5rem;
 `;
 
-// Styled Components
 export const ButtonBase = styled.button`
   display: flex;
   align-items: center;
@@ -174,13 +179,17 @@ export const ButtonBase = styled.button`
 `;
 
 export const ButtonPrimary = styled(ButtonBase)`
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.primary} 0%,
+    ${({ theme }) => theme.colors.secondary} 100%
+  );
   color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: ${({ theme }) => theme.shadows.buttonPrimary};
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: ${({ theme }) => theme.shadows.buttonPrimaryHover};
   }
 
   &:active:not(:disabled) {
@@ -189,24 +198,28 @@ export const ButtonPrimary = styled(ButtonBase)`
 `;
 
 export const ButtonSecondary = styled(ButtonBase)`
-  background: rgba(255, 255, 255, 0.05);
+  background: ${({ theme }) => theme.rgba.white005};
   color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${({ theme }) => theme.rgba.white01};
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: ${({ theme }) => theme.rgba.white01};
+    border-color: ${({ theme }) => theme.rgba.white02};
   }
 `;
 
 export const ButtonDanger = styled(ButtonBase)`
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.actions.error} 0%,
+    #dc2626 100%
+  );
   color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  box-shadow: ${({ theme }) => theme.shadows.buttonDanger};
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    box-shadow: ${({ theme }) => theme.shadows.buttonDangerHover};
   }
 
   &:active:not(:disabled) {
@@ -221,14 +234,14 @@ export const ButtonIcon = styled.button`
   padding: 0.5rem;
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: ${({ theme }) => theme.text.secondary};
   cursor: pointer;
   border-radius: 0.375rem;
   transition: all 0.2s ease;
 
   &:hover {
     color: #e2e8f0;
-    background: rgba(255, 255, 255, 0.05);
+    background: ${({ theme }) => theme.rgba.white005};
   }
 `;
 
@@ -248,8 +261,8 @@ export const FormGroup = styled.div`
   textarea,
   select {
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: ${({ theme }) => theme.rgba.white005};
+    border: 1px solid ${({ theme }) => theme.rgba.white01};
     border-radius: 0.5rem;
     color: #e2e8f0;
     font-size: 0.875rem;
@@ -257,12 +270,12 @@ export const FormGroup = styled.div`
 
     &:focus {
       outline: none;
-      border-color: #6366f1;
-      background: rgba(255, 255, 255, 0.08);
+      border-color: ${({ theme }) => theme.colors.primary};
+      background: ${({ theme }) => theme.rgba.white008};
     }
 
     &::placeholder {
-      color: #64748b;
+      color: ${({ theme }) => theme.text.muted};
     }
   }
 
