@@ -1,9 +1,8 @@
-import React from "react";
+import  { memo, useCallback, useMemo } from "react";
 import { FiSettings, FiFolder, FiPlus, FiCode } from "react-icons/fi";
 import { cx } from "@emotion/css";
-import type { Group } from "../../model";
 import {
-  sidebarStyles,
+  SideBarContainer,
   sidebarHeaderStyles,
   sidebarTitleStyles,
   sidebarSectionStyles,
@@ -16,24 +15,40 @@ import {
   sidebarFooterStyles,
   addGroupButtonStyles,
 } from "./Sidebar.styles";
+import { useTaskUtility } from "../../context";
+import { PREDEFINED_GROUPS } from "../../constants";
 
-interface SidebarProps {
-  readonly groups: ReadonlyArray<Group>;
-  readonly selectedGroupId: string | null;
-  readonly onGroupSelect: (groupId: string | null) => void;
-  readonly onNewGroup: () => void;
-  readonly getGroupTaskCount: (groupId: string) => number;
+type SidebarProps = {
+  readonly onNewGroupButtonClick: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  groups,
-  selectedGroupId,
-  onGroupSelect,
-  onNewGroup,
-  getGroupTaskCount,
+export const Sidebar = memo<SidebarProps>(({
+  onNewGroupButtonClick,
 }) => {
+  const { tasks, customGroups, selectedGroupId, setSelectedGroupId } =
+    useTaskUtility();
+
+  const allGroups = useMemo(
+    () => [...PREDEFINED_GROUPS, ...customGroups],
+    [customGroups]
+  );
+
+  const handleMenuItemClick = useCallback(
+    (groupId: string | null) => {
+      setSelectedGroupId(groupId);
+    },
+    [setSelectedGroupId]
+  );
+
+  const getGroupTaskCount = useCallback(
+    (groupId: string): number => {
+      return tasks.filter((t) => t.groupId === groupId).length;
+    },
+    [tasks]
+  );
+
   return (
-    <aside className={sidebarStyles}>
+    <SideBarContainer>
       <div className={sidebarHeaderStyles}>
         <h1 className={sidebarTitleStyles}>
           <FiCode size={24} />
@@ -49,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ? sidebarMenuItemActiveStyles
               : sidebarMenuItemStyles
           )}
-          onClick={() => onGroupSelect(null)}
+          onClick={() => handleMenuItemClick(null)}
         >
           <span className={sidebarMenuItemIconStyles}>
             <FiSettings size={18} />
@@ -60,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className={sidebarSectionStyles}>
         <div className={sidebarSectionTitleStyles}>Groups</div>
-        {groups.map((group) => {
+        {allGroups.map((group) => {
           const taskCount = getGroupTaskCount(group.id);
           return (
             <button
@@ -70,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   ? sidebarMenuItemActiveStyles
                   : sidebarMenuItemStyles
               )}
-              onClick={() => onGroupSelect(group.id)}
+              onClick={() => handleMenuItemClick(group.id)}
             >
               <span className={sidebarMenuItemIconStyles}>
                 <FiFolder size={18} />
@@ -85,11 +100,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className={sidebarFooterStyles}>
-        <button className={addGroupButtonStyles} onClick={onNewGroup}>
+        <button className={addGroupButtonStyles} onClick={onNewGroupButtonClick}>
           <FiPlus size={18} />
           New Group
         </button>
       </div>
-    </aside>
+    </SideBarContainer>
   );
-};
+});

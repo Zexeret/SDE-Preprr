@@ -1,42 +1,34 @@
-import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 
-export const statsBarStyles = css`
+export const StatCard = styled.div`
+  ${({ theme: { background, text, secondaryBorder } }) => `
+      flex: 1;
+  min-width: 150px;
+  background: ${background};
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid ${secondaryBorder};
+
+  .label {
+    color: ${text.secondary};
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: ${text.primary};
+  }
+    
+    `}
+`;
+
+export const StatsBar = styled.div`
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-`;
-
-export const statCardStyles = css`
-  flex: 1;
-  min-width: 150px;
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-`;
-
-export const statLabelStyles = css`
-  color: #94a3b8;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-`;
-
-export const statValueStyles = css`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #f1f5f9;
-`;
-
-export const statValueSuccessStyles = css`
-  ${statValueStyles}
-  color: #10b981;
-`;
-
-export const statValueWarningStyles = css`
-  ${statValueStyles}
-  color: #f59e0b;
+  margin-bottom: 1.5rem;
 `;

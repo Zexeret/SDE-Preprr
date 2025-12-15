@@ -1,43 +1,38 @@
-import React from "react";
-import type { PreparationTask } from "../../model";
-import { calculateCompletionRate } from "../../utils";
-import {
-  statsBarStyles,
-  statCardStyles,
-  statLabelStyles,
-  statValueStyles,
-  statValueSuccessStyles,
-  statValueWarningStyles,
-} from "./Stats.styles";
+import  { memo } from "react";
+import { StatCard, StatsBar } from "./Stats.styles";
+import { useTaskUtility } from "../../context";
 
-interface StatsProps {
-  readonly tasks: ReadonlyArray<PreparationTask>;
-}
+export const Stats = memo(() => {
+  const {tasks} = useTaskUtility() ;
 
-export const Stats: React.FC<StatsProps> = ({ tasks }) => {
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.isDone).length;
   const pendingTasks = totalTasks - completedTasks;
-  const completionRate = calculateCompletionRate(completedTasks, totalTasks);
+  const completionRate =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
-    <div className={statsBarStyles}>
-      <div className={statCardStyles}>
-        <div className={statLabelStyles}>Total Tasks</div>
-        <div className={statValueStyles}>{totalTasks}</div>
-      </div>
-      <div className={statCardStyles}>
-        <div className={statLabelStyles}>Completed</div>
-        <div className={statValueSuccessStyles}>{completedTasks}</div>
-      </div>
-      <div className={statCardStyles}>
-        <div className={statLabelStyles}>Pending</div>
-        <div className={statValueWarningStyles}>{pendingTasks}</div>
-      </div>
-      <div className={statCardStyles}>
-        <div className={statLabelStyles}>Completion Rate</div>
-        <div className={statValueStyles}>{completionRate}%</div>
-      </div>
-    </div>
+    <StatsBar>
+      <StatCard>
+        <div className="label">Total Tasks</div>
+        <div className="value">{totalTasks}</div>
+      </StatCard>
+      <StatCard>
+        <div className="label">Completed</div>
+        <div className="value" style={{ color: "#10b981" }}>
+          {completedTasks}
+        </div>
+      </StatCard>
+      <StatCard>
+        <div className="label">Pending</div>
+        <div className="value" style={{ color: "#f59e0b" }}>
+          {pendingTasks}
+        </div>
+      </StatCard>
+      <StatCard>
+        <div className="label">Completion Rate</div>
+        <div className="value">{completionRate}%</div>
+      </StatCard>
+    </StatsBar>
   );
-};
+});

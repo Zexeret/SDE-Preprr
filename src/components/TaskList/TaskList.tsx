@@ -17,12 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import type { PreparationTask } from "../../model";
 import { TaskCard } from "../TaskCard";
-import {
-  buttonSecondaryStyles,
-  buttonPrimaryStyles,
-  modalOverlayStyles,
-  modalContentStyles,
-} from "../../styles";
+import { ButtonSecondary } from "../../sharedStyles";
 import {
   emptyStateStyles,
   taskListControlsStyles,
@@ -91,13 +86,12 @@ export const TaskList: React.FC<TaskListProps> = ({
   const tasksList = (
     <>
       <div className={taskListControlsStyles}>
-        <button
-          className={buttonSecondaryStyles}
+        <ButtonSecondary
           onClick={() => setShowTags(!showTags)}
         >
           {showTags ? <FiEyeOff size={16} /> : <FiEye size={16} />}
           {showTags ? "Hide Tags" : "Show Tags"}
-        </button>
+        </ButtonSecondary>
       </div>
       <div className={tasksGridStyles}>
         {tasks.map((task) => (
@@ -133,39 +127,6 @@ export const TaskList: React.FC<TaskListProps> = ({
         </DndContext>
       ) : (
         tasksList
-      )}
-
-      {notesModalTask && (
-        <div
-          className={modalOverlayStyles}
-          onClick={() => setNotesModalTask(null)}
-        >
-          <div
-            className={modalContentStyles}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2>Notes</h2>
-            <div dangerouslySetInnerHTML={{ __html: notesModalTask.notes }} />
-            <div>
-              <button
-                className={buttonSecondaryStyles}
-                onClick={() => setNotesModalTask(null)}
-              >
-                Close
-              </button>
-              <button
-                className={buttonPrimaryStyles}
-                onClick={() => {
-                  onEdit(notesModalTask);
-                  setNotesModalTask(null);
-                }}
-              >
-                <FiEdit2 size={16} />
-                Edit Task
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </>
   );

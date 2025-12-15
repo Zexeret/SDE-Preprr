@@ -1,7 +1,10 @@
-import type { PreparationTask, Tag, Group, ExportData } from "../model";
-
-const APP_VERSION = "1.0.0";
-const DEFAULT_GROUP_ID = "dsa";
+import {
+  type PreparationTask,
+  type Tag,
+  type Group,
+  type ExportData,
+  CURRENT_MODEL_VERSION,
+} from "../model";
 
 export const exportData = (
   tasks: ReadonlyArray<PreparationTask>,
@@ -9,7 +12,7 @@ export const exportData = (
   customGroups: ReadonlyArray<Group>
 ): void => {
   const data: ExportData = {
-    version: APP_VERSION,
+    version: CURRENT_MODEL_VERSION,
     tasks,
     customTags,
     customGroups,
@@ -22,7 +25,7 @@ export const exportData = (
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `dsa-manager-backup-${
+  link.download = `sde-preper-save-${
     new Date().toISOString().split("T")[0]
   }.json`;
   document.body.appendChild(link);
@@ -38,23 +41,15 @@ export const importData = (file: File): Promise<ExportData> => {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string) as ExportData;
-        const tasks = data.tasks || data.problems || [];
+        const tasks = data.tasks || [];
 
         if (!Array.isArray(tasks)) {
           throw new Error("Invalid file format");
         }
 
-        const tasksWithGroup = tasks.map((task: any) => ({
-          ...task,
-          groupId: task.groupId || DEFAULT_GROUP_ID,
-        }));
-
-        resolve({
-          ...data,
-          tasks: tasksWithGroup,
-          customGroups: data.customGroups || [],
-        });
+        resolve(data);
       } catch (error) {
+        console.error("Failed to parse file:", error);
         reject(
           new Error(
             "Failed to parse file. Please ensure it's a valid DSA Manager backup file."

@@ -1,9 +1,10 @@
+import { PredefinedGroupId } from "../constants";
 import type { PreparationTask, Tag, Group } from "../model";
 
-const TASKS_STORAGE_KEY = "dsa-manager-tasks";
-const CUSTOM_TAGS_STORAGE_KEY = "dsa-manager-custom-tags";
-const CUSTOM_GROUPS_STORAGE_KEY = "dsa-manager-custom-groups";
-const SELECTED_GROUP_STORAGE_KEY = "dsa-manager-selected-group";
+const TASKS_STORAGE_KEY = "sde-preper-tasks";
+const CUSTOM_TAGS_STORAGE_KEY = "sde-preper-custom-tags";
+const CUSTOM_GROUPS_STORAGE_KEY = "sde-preper-custom-groups";
+const SELECTED_GROUP_STORAGE_KEY = "sde-preper-selected-group";
 
 export const loadTasks = (): ReadonlyArray<PreparationTask> => {
   try {
@@ -59,9 +60,9 @@ export const saveCustomGroups = (groups: ReadonlyArray<Group>): void => {
 export const loadSelectedGroup = (): string | null => {
   try {
     const stored = localStorage.getItem(SELECTED_GROUP_STORAGE_KEY);
-    return stored || "dsa";
+    return stored || PredefinedGroupId.DSA;
   } catch {
-    return "dsa";
+    return PredefinedGroupId.DSA;
   }
 };
 

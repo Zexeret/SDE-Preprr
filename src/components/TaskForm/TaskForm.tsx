@@ -1,260 +1,236 @@
-import React, { useState } from "react";
-import { FiPlus, FiX, FiCheck } from "react-icons/fi";
-import styled from "@emotion/styled";
-import type { PreparationTask, Tag } from "../../model";
-import { DIFFICULTY_TAGS } from "../../constants/index";
-import { type Theme } from "../../theme";
+import React, { memo, useCallback, useMemo, useState } from "react";
 import {
-  ButtonPrimary,
-  ButtonSecondary,
-  ButtonIcon,
+  DIFFICULTY_TAGS,
+  DifficultyTagId,
+  type PreparationTask,
+  type Tag,
+} from "../../model";
+import { DSA_SPECIFIC_TAGS } from "../../constants";
+import {
+  Button,
   FormGroup,
   ModalActions,
-} from "../../styles";
-
-const FormContainer = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-`;
-
-const TagsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-`;
-
-const TagButton = styled.button<{
-  theme: Theme;
-  color?: string;
-  selected?: boolean;
-}>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.375rem 0.625rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border: 1px solid;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) =>
-    props.selected ? props.color || props.theme.colors.primary : "transparent"};
-  color: ${(props) =>
-    props.selected ? "white" : props.color || props.theme.colors.primary};
-  border-color: ${(props) => props.color || props.theme.colors.primary};
-
-  &:hover {
-    background: ${(props) => props.color || props.theme.colors.primary};
-    color: white;
-  }
-`;
-
-const CustomTagInput = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-end;
-`;
+  ModalContent,
+  ModalOverlay,
+} from "../../sharedStyles";
+import { useTaskUtility } from "../../context";
+import { Editor } from "primereact/editor";
+import { StyledTag, TagsContainer } from "./TaskForm.styles";
+import { AddCustomTag } from "./AddCustomTag";
+import { FiX } from "react-icons/fi";
 
 interface TaskFormProps {
-  readonly task?: PreparationTask;
-  readonly customTags: ReadonlyArray<Tag>;
-  readonly groupId: string;
+  readonly selectedGroupId: string;
+  readonly currentTaskInFormModal: PreparationTask | null;
   readonly onSubmit: (task: PreparationTask) => void;
-  readonly onCancel: () => void;
-  readonly onAddCustomTag: (tag: Tag) => void;
-  readonly onDeleteCustomTag: (tagId: string) => void;
+  readonly onClose: () => void;
 }
 
-export const TaskForm: React.FC<TaskFormProps> = ({
-  task,
-  customTags,
-  groupId,
-  onSubmit,
-  onCancel,
-  onAddCustomTag,
-  onDeleteCustomTag,
-}) => {
-  const [title, setTitle] = useState(task?.link || "");
-  const [description, setDescription] = useState(task?.notes || "");
-  const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
-    task?.tags || []
-  );
-  const [newTagName, setNewTagName] = useState("");
-
-  const handleToggleTag = (tag: Tag) => {
-    setSelectedTags((prev) => {
-      const exists = prev.find((t) => t.id === tag.id);
-      if (exists) {
-        return prev.filter((t) => t.id !== tag.id);
-      } else {
-        return [...prev, tag];
-      }
-    });
-  };
-
-  const handleDeleteCustomTag = (tagId: string) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this tag? It will be removed from all tasks in this group."
-      )
-    ) {
-      onDeleteCustomTag(tagId);
-      setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
-    }
-  };
-
-  const handleAddTag = () => {
-    if (!newTagName.trim()) return;
-
-    const tagId = newTagName.toLowerCase().replace(/\s+/g, "-");
-    const newTag: Tag = {
-      id: `custom-${tagId}-${Date.now()}`,
-      name: newTagName.trim(),
-      isCustom: true,
-      groupId: groupId,
-    };
-
-    onAddCustomTag(newTag);
-    setSelectedTags((prev) => [...prev, newTag]);
-    setNewTagName("");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim()) {
-      alert("Please enter a task title");
-      return;
-    }
-
-    const hasDifficultyTag = selectedTags.some((tag) =>
-      DIFFICULTY_TAGS.some((difficultyTag) => difficultyTag.id === tag.id)
+export const TaskForm = memo<TaskFormProps>(
+  ({ currentTaskInFormModal, onSubmit, onClose, selectedGroupId }) => {
+    const [title, setTitle] = useState<string>(
+      currentTaskInFormModal?.title || ""
+    );
+    const [link, setLink] = useState<string | null>(
+      currentTaskInFormModal?.link || null
+    );
+    const [notes, setNotes] = useState<string>(
+      currentTaskInFormModal?.notes || ""
+    );
+    const [difficulty, setDifficulty] = useState<DifficultyTagId>(
+      currentTaskInFormModal?.difficulty || DifficultyTagId.EASY
+    );
+    const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
+      currentTaskInFormModal?.tags || []
     );
 
-    if (!hasDifficultyTag) {
-      alert(
-        "Please select at least one difficulty level (Easy, Medium, or Hard)"
-      );
-      return;
-    }
+    const { tasks, customTags, deleteCustomTag } = useTaskUtility();
 
-    const now = Date.now();
-    const taskData: PreparationTask = {
-      id: task?.id || `${groupId}-${Date.now()}`,
-      groupId: task?.groupId || groupId,
-      link: title.trim(),
-      tags: selectedTags,
-      notes: description,
-      isDone: task?.isDone || false,
-      createdAt: task?.createdAt || now,
-      updatedAt: now,
-      order: task?.order || 0,
+    const isNewTaskBeingAdded = !currentTaskInFormModal;
+
+    const tagsByGroup: ReadonlyArray<Tag> = useMemo(() => {
+      return [
+        ...DSA_SPECIFIC_TAGS,
+        ...customTags.filter((tag) => tag.groupId === selectedGroupId),
+      ];
+    }, [customTags, selectedGroupId]);
+
+    const handleTagToggle = (tag: Tag) => {
+      setSelectedTags((prev) => {
+        const exists = prev.find((t) => t.id === tag.id);
+        if (exists) {
+          return prev.filter((t) => t.id !== tag.id);
+        } else {
+          return [...prev, tag];
+        }
+      });
     };
 
-    onSubmit(taskData);
-  };
+    const handleDifficultyTagToggle = (tag: Tag<DifficultyTagId>) => {
+      setDifficulty(tag.id);
+    };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <FormGroup>
-        <label>Title *</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g., Implement Binary Search"
-          required
-        />
-      </FormGroup>
+    const handleRemoveTag = useCallback(
+      (tagId: string) => {
+        if (
+          window.confirm(
+            "Are you sure you want to delete this tag? It will be removed from all tasks in this group."
+          )
+        ) {
+          deleteCustomTag(tagId);
+          setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
+        }
+      },
+      [deleteCustomTag]
+    );
 
-      <FormGroup>
-        <label>Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Add details about this task..."
-        />
-      </FormGroup>
+    const handleSubmit = useCallback(
+      (e: React.FormEvent) => {
+        e.preventDefault();
 
-      <FormGroup>
-        <label>Notes (Optional)</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add implementation notes, tips, or resources..."
-        />
-      </FormGroup>
+        if (!title.trim()) {
+          alert("Please enter a task title");
+          return;
+        }
 
-      <FormGroup>
-        <label>Resources (Optional)</label>
-        <input
-          type="text"
-          value={newResource}
-          onChange={(e) => setNewResource(e.target.value)}
-          onKeyPress={handleResourceKeyPress}
-          placeholder="Add URL or resource (press Enter)"
-        />
-        {resources.length > 0 && (
-          <div className={resourceListStyles}>
-            {resources.map((resource, index) => (
-              <div key={index} className={resourceItemStyles}>
-                <span>{resource}</span>
-                <ButtonIcon
-                  type="button"
-                  onClick={() => handleRemoveResource(index)}
-                  aria-label="Remove resource"
-                >
-                  <FiX size={14} />
-                </ButtonIcon>
-              </div>
-            ))}
-          </div>
-        )}
-      </FormGroup>
+        const now = Date.now();
+        let taskData: PreparationTask;
+        if (isNewTaskBeingAdded) {
+          taskData = {
+            id: `${selectedGroupId}-${Date.now()}`,
+            groupId: selectedGroupId,
+            title: title.trim(),
+            link: link,
+            difficulty,
+            tags: selectedTags,
+            notes: notes,
+            isDone: false,
+            createdAt: now,
+            updatedAt: now,
+            order: tasks.length,
+          };
+        } else {
+          taskData = {
+            id: currentTaskInFormModal.id,
+            groupId: selectedGroupId,
+            title: title.trim(),
+            difficulty,
+            link: link,
+            tags: selectedTags,
+            notes: notes,
+            isDone: currentTaskInFormModal.isDone || false,
+            createdAt: currentTaskInFormModal.createdAt,
+            updatedAt: now,
+            order: currentTaskInFormModal.order,
+          };
+        }
 
-      <FormGroup>
-        <label>Tags</label>
-        <div className={tagSelectorStyles}>
-          <div className={tagListStyles}>
-            {availableTags.map((tag) => (
-              <button
-                key={tag.id}
-                type="button"
-                onClick={() => handleToggleTag(tag)}
-                className={cx(
-                  tagOptionStyles,
-                  selectedTags.some((t) => t.id === tag.id) &&
-                    tagOptionSelectedStyles
-                )}
-              >
-                {tag.name}
-              </button>
-            ))}
-          </div>
-          <div className={customTagInputContainerStyles}>
-            <input
-              type="text"
-              value={newCustomTag}
-              onChange={(e) => setNewCustomTag(e.target.value)}
-              onKeyPress={handleCustomTagKeyPress}
-              placeholder="Add custom tag (press Enter)"
-              className={customTagInputStyles}
-            />
-          </div>
-        </div>
-      </FormGroup>
+        onSubmit(taskData);
+      },
+      [
+        currentTaskInFormModal,
+        isNewTaskBeingAdded,
+        notes,
+        onSubmit,
+        selectedGroupId,
+        selectedTags,
+        tasks.length,
+        title,
+        link,
+        difficulty,
+      ]
+    );
 
-      <ModalActions>
-        <ButtonSecondary type="button" onClick={onCancel}>
-          Cancel
-        </ButtonSecondary>
-        <ButtonPrimary type="submit">
-          {task ? "Update Task" : "Add Task"}
-        </ButtonPrimary>
-      </ModalActions>
-    </form>
-  );
-};
+    return (
+      <ModalOverlay onClick={onClose}>
+        <ModalContent onClick={(e) => e.stopPropagation()}>
+          <h2>{isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}</h2>
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <label htmlFor="task-title">Title *</label>
+              <input
+                id="task-title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Binary Search or Max Depth of Binary Tree"
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="task-link">Link</label>
+              <input
+                id="task-link"
+                type="text"
+                value={link ?? ""}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://leetcode.com/problems/..."
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label>Difficulty Level *</label>
+              <TagsContainer>
+                {DIFFICULTY_TAGS.map((tag) => (
+                  <StyledTag
+                    key={tag.id}
+                    selected={difficulty === tag.id}
+                    isCustom={tag.isCustom}
+                    onClick={() => handleDifficultyTagToggle(tag)}
+                  >
+                    {tag.name}
+                  </StyledTag>
+                ))}
+              </TagsContainer>
+            </FormGroup>
+
+            <FormGroup>
+              <label>Tags</label>
+              <TagsContainer>
+                {tagsByGroup.map((tag) => (
+                  <StyledTag
+                    key={tag.id}
+                    selected={selectedTags.some((t) => t.id === tag.id)}
+                    isCustom={tag.isCustom}
+                    onClick={() => handleTagToggle(tag)}
+                  >
+                    {tag.name}
+                    {tag.isCustom && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag.id)}
+                      >
+                        <FiX size={14} />
+                      </button>
+                    )}
+                  </StyledTag>
+                ))}
+              </TagsContainer>
+
+              <AddCustomTag />
+            </FormGroup>
+
+            <FormGroup>
+              <label>Notes</label>
+              <Editor
+                value={notes}
+                onTextChange={(e) => setNotes(e.htmlValue || "")}
+                style={{ height: "300px" }}
+              />
+            </FormGroup>
+
+            <ModalActions>
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                {isNewTaskBeingAdded ? "Add Task" : "Update Task"}
+              </Button>
+            </ModalActions>
+          </form>
+        </ModalContent>
+      </ModalOverlay>
+    );
+  }
+);

@@ -134,3 +134,28 @@ export const StatValueSettings = styled.div`
   -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
+
+
+export const FileInputLabel = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+export const FileInputHidden = styled.input`
+  display: none;
+`;

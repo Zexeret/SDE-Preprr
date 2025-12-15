@@ -1,3 +1,4 @@
+import type { DifficultyTagId } from "./Difficulty";
 import type { Tag } from "./Tag";
 
 export type Group = {
@@ -10,7 +11,9 @@ export type Group = {
 export type PreparationTask = {
   readonly id: string;
   readonly groupId: string;
-  readonly link: string;
+  readonly title: string;
+  readonly link: string | null;
+  readonly difficulty : DifficultyTagId ;
   readonly tags: ReadonlyArray<Tag>;
   readonly notes: string;
   readonly isDone: boolean;
@@ -23,10 +26,11 @@ export type SortBy = "dateAdded" | "dateUpdated" | "status" | "name";
 export type SortOrder = "asc" | "desc";
 
 export interface ExportData {
-  readonly version: string;
+  readonly version: number;
   readonly tasks: ReadonlyArray<PreparationTask>;
-  readonly problems?: ReadonlyArray<PreparationTask>;
   readonly customTags: ReadonlyArray<Tag>;
   readonly customGroups: ReadonlyArray<Group>;
   readonly exportedAt: number;
 }
+
+export const CURRENT_MODEL_VERSION = 1;

@@ -2,6 +2,8 @@ import type { Theme } from "./Theme";
 
 export const darkTheme : Theme = {
     background: "#0f172a",
+    primaryBorder: "#1f2937",
+    secondaryBorder:  "#334155",
     text: {
         primary: "#F8FAFC",
         secondary: "#94A3B8",

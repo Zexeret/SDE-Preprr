@@ -1,90 +1,129 @@
-import React, { useMemo } from "react";
+import React, { memo, useCallback, useMemo, useState } from "react";
 import { FiFilter } from "react-icons/fi";
-import type { Tag, SortBy, SortOrder, PreparationTask } from "../../model";
-import { DIFFICULTY_TAGS, DSA_SPECIFIC_TAGS } from "../../constants/index";
-import { buttonSecondaryStyles } from "../../styles";
-import { filterBarContainerStyles, selectStyles } from "./FilterBar.styles";
+import { DIFFICULTY_TAGS, DifficultyTagId, type Tag } from "../../model";
+import {
+  DSA_SPECIFIC_TAGS,
+} from "../../constants";
+import { FilterBarContainer } from "./FilterBar.styles";
+import { Button, Select } from "../../sharedStyles";
+import { useTaskUtility } from "../../context";
+import {
+  DEFAULT_FILTER_TO_APPLY,
+  type FilterToApplyType,
+} from "./FilterToApplyType";
 
-interface FilterBarProps {
-  readonly customTags: ReadonlyArray<Tag>;
-  readonly selectedFilterTags: ReadonlyArray<string>;
-  readonly sortBy: SortBy;
-  readonly sortOrder: SortOrder;
-  readonly groupByTag: boolean;
-  readonly showDoneOnly: boolean;
-  readonly showUndoneOnly: boolean;
-  readonly tasks: ReadonlyArray<PreparationTask>;
-  readonly selectedDifficulty: ReadonlyArray<string>;
-  readonly selectedGroupId: string;
-  readonly onFilterTagsChange: (tags: ReadonlyArray<string>) => void;
-  readonly onSortByChange: (sortBy: SortBy) => void;
-  readonly onSortOrderChange: (sortOrder: SortOrder) => void;
-  readonly onGroupByTagChange: (group: boolean) => void;
-  readonly onShowDoneOnlyChange: (show: boolean) => void;
-  readonly onShowUndoneOnlyChange: (show: boolean) => void;
-  readonly onDifficultyChange: (difficulty: ReadonlyArray<string>) => void;
-  readonly onClearFilters: () => void;
-}
+interface FilterBarProps {}
 
-export const FilterBar: React.FC<FilterBarProps> = ({
-  customTags,
-  selectedFilterTags,
-  sortBy,
-  sortOrder,
-  groupByTag,
-  showDoneOnly,
-  showUndoneOnly,
-  tasks,
-  selectedDifficulty,
-  selectedGroupId,
-  onFilterTagsChange,
-  onSortByChange,
-  onSortOrderChange,
-  onGroupByTagChange,
-  onShowDoneOnlyChange,
-  onShowUndoneOnlyChange,
-  onDifficultyChange,
-  onClearFilters,
-}) => {
-  // Get topic tags based on selected group
-  const topicTags = useMemo(() => {
-    const groupCustomTags = customTags.filter(
-      (tag) => tag.groupId === selectedGroupId
+const ALL_DIFFICULTY_TAG_ID = "All";
+const DIFFICULTY_FILTER_SOURCE: ReadonlyArray<Tag> = [
+  { id: ALL_DIFFICULTY_TAG_ID, name: "All Difficulties", isCustom: false },
+  ...DIFFICULTY_TAGS,
+];
+
+export const FilterBar = memo<FilterBarProps>(() => {
+  const { tasks, customTags, selectedGroupId } = useTaskUtility();
+  const [currentFilterToApply, setCurrentFilterToApply] =
+    useState<FilterToApplyType>(DEFAULT_FILTER_TO_APPLY);
+
+  const tagsByGroupSource: ReadonlyArray<Tag> = useMemo(
+    () => [
+      { id: ALL_DIFFICULTY_TAG_ID, name: "All Topics", isCustom: false },
+      ...DSA_SPECIFIC_TAGS.filter((tag) => tag.groupId === selectedGroupId),
+      ...customTags.filter((tag) => tag.groupId === selectedGroupId),
+    ],
+    [customTags, selectedGroupId]
+  );
+
+  const tasksByGroup = useMemo(
+    () => tasks.filter((task) => task.groupId === selectedGroupId),
+    [tasks, selectedGroupId]
+  );
+
+  // Calculate task count for each tag
+  const getTagCount = useCallback(
+    (tagId: string): number => {
+      if (tagId === ALL_DIFFICULTY_TAG_ID) return tasksByGroup.length;
+
+      return tasksByGroup.filter((task) =>
+        task.tags.some((tag) => tag.id === tagId)
+      ).length;
+    },
+    [tasksByGroup]
+  );
+
+    // Calculate task count for each difficulty
+    const getDifficultyCount = useCallback(
+      (tagId: string): number => {
+        if (tagId === ALL_DIFFICULTY_TAG_ID) return tasksByGroup.length;
+  
+        return tasksByGroup.filter((task) =>
+          task.difficulty === tagId
+        ).length;
+      },
+      [tasksByGroup]
     );
 
-    if (selectedGroupId === "dsa") {
-      return [...DSA_SPECIFIC_TAGS, ...groupCustomTags];
-    }
+  const handleDifficultyFilterSelect = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const selectedDifficultyId = event.target.value;
+      if (selectedDifficultyId === ALL_DIFFICULTY_TAG_ID) {
+        setCurrentFilterToApply((prev) => ({
+          ...prev,
+          difficultyId: null,
+        }));
+      } else {
+        setCurrentFilterToApply((prev) => ({
+          ...prev,
+          difficultyId: selectedDifficultyId as DifficultyTagId,
+        }));
+      }
+    },
+    []
+  );
 
-    return groupCustomTags;
-  }, [customTags, selectedGroupId]);
+  const handleTagFilterSelect = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const seletedTagId = event.target.value;
+      if (seletedTagId === ALL_DIFFICULTY_TAG_ID) {
+        setCurrentFilterToApply((prev) => ({
+          ...prev,
+          tagId: null,
+        }));
+      } else {
+        setCurrentFilterToApply((prev) => ({
+          ...prev,
+          tagId: seletedTagId,
+        }));
+      }
+    },
+    []
+  );
 
-  const hasActiveFilters =
-    selectedFilterTags.length > 0 ||
-    showDoneOnly ||
-    showUndoneOnly ||
-    selectedDifficulty.length > 0;
-
-  const getTagCount = (tagId: string): number => {
-    return tasks.filter((task) => task.tags.some((tag) => tag.id === tagId))
-      .length;
-  };
+  const handleClearFilters = useCallback(() => {
+    setCurrentFilterToApply(DEFAULT_FILTER_TO_APPLY);
+  }, []);
 
   return (
-    <div className={filterBarContainerStyles}>
-      <select
-        className={selectStyles}
-        value={selectedDifficulty[0] || ""}
-        onChange={(e) => {
-          if (e.target.value) {
-            onDifficultyChange([e.target.value]);
-          } else {
-            onDifficultyChange([]);
-          }
-        }}
+    <FilterBarContainer>
+      <Select
+        value={currentFilterToApply.difficultyId ?? ALL_DIFFICULTY_TAG_ID}
+        onChange={handleDifficultyFilterSelect}
       >
-        <option value="">All Difficulties ({tasks.length})</option>
-        {DIFFICULTY_TAGS.map((tag) => {
+        {DIFFICULTY_FILTER_SOURCE.map((tag) => {
+          const count = getDifficultyCount(tag.id);
+          return (
+            <option key={tag.id} value={tag.id}>
+              {tag.name} ({count})
+            </option>
+          );
+        })}
+      </Select>
+
+      <Select
+        value={currentFilterToApply.tagId ?? ALL_DIFFICULTY_TAG_ID}
+        onChange={handleTagFilterSelect}
+      >
+        {tagsByGroupSource.map((tag) => {
           const count = getTagCount(tag.id);
           return (
             <option key={tag.id} value={tag.id}>
@@ -92,53 +131,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </option>
           );
         })}
-      </select>
+      </Select>
 
-      {topicTags.length > 0 && (
-        <select
-          className={selectStyles}
-          value={selectedFilterTags[0] || ""}
-          onChange={(e) => {
-            if (e.target.value) {
-              onFilterTagsChange([e.target.value]);
-            } else {
-              onFilterTagsChange([]);
-            }
-          }}
-        >
-          <option value="">All Topics ({tasks.length})</option>
-          {topicTags.map((tag) => {
-            const count = getTagCount(tag.id);
-            return (
-              <option key={tag.id} value={tag.id}>
-                {tag.name} ({count})
-              </option>
-            );
-          })}
-        </select>
-      )}
-
-      <select
-        className={selectStyles}
-        value={sortBy}
-        onChange={(e) => onSortByChange(e.target.value as SortBy)}
-      >
-        <option value="dateAdded">Date Added</option>
-        <option value="dateUpdated">Last Updated</option>
-        <option value="status">Status</option>
-      </select>
-
-      <select
-        className={selectStyles}
-        value={sortOrder}
-        onChange={(e) => onSortOrderChange(e.target.value as SortOrder)}
-      >
-        <option value="desc">Descending</option>
-        <option value="asc">Ascending</option>
-      </select>
-
-      <select
-        className={selectStyles}
+      {/* <Select
         value={showDoneOnly ? "done" : showUndoneOnly ? "undone" : "all"}
         onChange={(e) => {
           onShowDoneOnlyChange(e.target.value === "done");
@@ -148,25 +143,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <option value="all">All Tasks</option>
         <option value="done">Completed Only</option>
         <option value="undone">Pending Only</option>
-      </select>
+      </Select> */}
 
-      {topicTags.length > 0 && (
-        <select
-          className={selectStyles}
-          value={groupByTag ? "yes" : "no"}
-          onChange={(e) => onGroupByTagChange(e.target.value === "yes")}
-        >
-          <option value="no">No Grouping</option>
-          <option value="yes">Group by Tag</option>
-        </select>
-      )}
+      {/* <Select
+        value={groupByTag ? "yes" : "no"}
+        onChange={(e) => onGroupByTagChange(e.target.value === "yes")}
+      >
+        <option value="no">No Grouping</option>
+        <option value="yes">Group by Tag</option>
+      </Select> */}
 
-      {hasActiveFilters && (
-        <button className={buttonSecondaryStyles} onClick={onClearFilters}>
-          <FiFilter size={16} />
-          Clear Filters
-        </button>
-      )}
-    </div>
+      <Button variant="secondary" onClick={handleClearFilters}>
+        <FiFilter size={16} />
+        Clear Filters
+      </Button>
+    </FilterBarContainer>
   );
-};
+});

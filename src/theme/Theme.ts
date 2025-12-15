@@ -14,6 +14,8 @@ export const useTheme = () => {
 
 export type Theme = {
     readonly background: string; 
+    readonly primaryBorder: string;
+    readonly secondaryBorder: string;
     readonly text :  {
         readonly primary: string;
         readonly secondary: string;

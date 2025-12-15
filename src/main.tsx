@@ -5,12 +5,18 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "./index.css";
 import App from "./App.tsx";
-import { AppProvider } from "./context";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppProvider>
-      <App />
-    </AppProvider>
+    <App />
   </StrictMode>
 );
+
+/*
+TODO Tasks
+- Convert window.confirm into a styled model
+- Fix classes and theme
+- Update theme to move away from purple theme
+
+
+*/

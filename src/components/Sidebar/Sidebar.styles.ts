@@ -1,26 +1,12 @@
 import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 
-export const sidebarStyles = css`
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: 280px;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
+export const SideBarContainer = styled.div`
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  z-index: 100;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    height: auto;
-    position: relative;
-  }
 `;
 
 export const sidebarHeaderStyles = css`

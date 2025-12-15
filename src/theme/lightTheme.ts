@@ -2,6 +2,8 @@ import type { Theme } from "./Theme";
 
 export const lightTheme : Theme = {
     background: "#F1F5F9",
+    primaryBorder: "#E2E8F0",
+    secondaryBorder: "#CBD5E1",
     text: {
         primary: "#0F172A",
         secondary: "#64748B",

@@ -1,6 +1,4 @@
 import React, {
-  createContext,
-  useContext,
   useState,
   useCallback,
   useEffect,
@@ -18,48 +16,22 @@ import {
   loadSelectedGroup,
   saveSelectedGroup,
 } from "../utils";
-import { DEFAULT_GROUP_ID } from "../constants";
+import { TaskUtilityContext, type TaskUtilityContextType } from "./useTaskUtility";
+import type { ThemeName } from "../theme";
+import { PredefinedGroupId } from "../constants";
 
-interface AppContextType {
-  readonly tasks: ReadonlyArray<PreparationTask>;
-  readonly customTags: ReadonlyArray<Tag>;
-  readonly customGroups: ReadonlyArray<Group>;
-  readonly selectedGroupId: string | null;
-  readonly addTask: (task: PreparationTask) => void;
-  readonly updateTask: (task: PreparationTask) => void;
-  readonly deleteTask: (taskId: string) => void;
-  readonly toggleTaskDone: (taskId: string) => void;
-  readonly reorderTasks: (tasks: ReadonlyArray<PreparationTask>) => void;
-  readonly addCustomTag: (tag: Tag) => void;
-  readonly deleteCustomTag: (tagId: string) => void;
-  readonly addCustomGroup: (group: Group) => void;
-  readonly setSelectedGroupId: (groupId: string | null) => void;
-  readonly resetGroupProgress: () => void;
-  readonly setTasks: (tasks: ReadonlyArray<PreparationTask>) => void;
-  readonly setCustomTags: (tags: ReadonlyArray<Tag>) => void;
-  readonly setCustomGroups: (groups: ReadonlyArray<Group>) => void;
-}
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-export const useApp = (): AppContextType => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useApp must be used within AppProvider");
-  }
-  return context;
-};
-
-export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
-  children,
-}) => {
+export const TaskUtilityProvider: React.FC<{
+  readonly children: ReactNode;
+  readonly setTheme: (themeName: ThemeName) => void;
+}> = ({ children, setTheme }) => {
   const [tasks, setTasksState] = useState<ReadonlyArray<PreparationTask>>([]);
   const [customTags, setCustomTagsState] = useState<ReadonlyArray<Tag>>([]);
   const [customGroups, setCustomGroupsState] = useState<ReadonlyArray<Group>>(
     []
   );
   const [selectedGroupId, setSelectedGroupIdState] = useState<string | null>(
-    DEFAULT_GROUP_ID
+    PredefinedGroupId.DSA
   );
   const isInitialMount = useRef(true);
 
@@ -193,7 +165,7 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
     );
   }, [selectedGroupId]);
 
-  const value: AppContextType = {
+  const value: TaskUtilityContextType = {
     tasks,
     customTags,
     customGroups,
@@ -211,7 +183,8 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
     setTasks,
     setCustomTags,
     setCustomGroups,
+    setTheme
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return <TaskUtilityContext.Provider value={value}>{children}</TaskUtilityContext.Provider>;
 };
