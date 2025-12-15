@@ -1,30 +1,26 @@
-import  { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { FiSettings, FiFolder, FiPlus, FiCode } from "react-icons/fi";
-import { cx } from "@emotion/css";
 import {
   SideBarContainer,
-  sidebarHeaderStyles,
-  sidebarTitleStyles,
-  sidebarSectionStyles,
-  sidebarSectionTitleStyles,
-  sidebarMenuItemStyles,
-  sidebarMenuItemActiveStyles,
-  sidebarMenuItemIconStyles,
-  sidebarMenuItemTextStyles,
-  sidebarMenuItemBadgeStyles,
-  sidebarFooterStyles,
-  addGroupButtonStyles,
+  SidebarHeader,
+  SidebarTitle,
+  SidebarSection,
+  SidebarSectionTitle,
+  SidebarMenuItem,
+  SidebarMenuItemIcon,
+  SidebarMenuItemText,
+  SidebarMenuItemBadge,
+  SidebarFooter,
+  AddGroupButton,
 } from "./Sidebar.styles";
 import { useTaskUtility } from "../../context";
 import { PREDEFINED_GROUPS } from "../../constants";
 
 type SidebarProps = {
   readonly onNewGroupButtonClick: () => void;
-}
+};
 
-export const Sidebar = memo<SidebarProps>(({
-  onNewGroupButtonClick,
-}) => {
+export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
   const { tasks, customGroups, selectedGroupId, setSelectedGroupId } =
     useTaskUtility();
 
@@ -49,62 +45,54 @@ export const Sidebar = memo<SidebarProps>(({
 
   return (
     <SideBarContainer>
-      <div className={sidebarHeaderStyles}>
-        <h1 className={sidebarTitleStyles}>
+      <SidebarHeader>
+        <SidebarTitle>
           <FiCode size={24} />
           DSA Manager
-        </h1>
-      </div>
+        </SidebarTitle>
+      </SidebarHeader>
 
-      <div className={sidebarSectionStyles}>
-        <div className={sidebarSectionTitleStyles}>General</div>
-        <button
-          className={cx(
-            selectedGroupId === null
-              ? sidebarMenuItemActiveStyles
-              : sidebarMenuItemStyles
-          )}
+      <SidebarSection>
+        <SidebarSectionTitle>General</SidebarSectionTitle>
+        <SidebarMenuItem
+          $isActive={selectedGroupId === null}
           onClick={() => handleMenuItemClick(null)}
         >
-          <span className={sidebarMenuItemIconStyles}>
+          <SidebarMenuItemIcon>
             <FiSettings size={18} />
-          </span>
-          <span className={sidebarMenuItemTextStyles}>Settings</span>
-        </button>
-      </div>
+          </SidebarMenuItemIcon>
+          <SidebarMenuItemText>Settings</SidebarMenuItemText>
+        </SidebarMenuItem>
+      </SidebarSection>
 
-      <div className={sidebarSectionStyles}>
-        <div className={sidebarSectionTitleStyles}>Groups</div>
+      <SidebarSection>
+        <SidebarSectionTitle>Groups</SidebarSectionTitle>
         {allGroups.map((group) => {
           const taskCount = getGroupTaskCount(group.id);
           return (
-            <button
+            <SidebarMenuItem
               key={group.id}
-              className={cx(
-                selectedGroupId === group.id
-                  ? sidebarMenuItemActiveStyles
-                  : sidebarMenuItemStyles
-              )}
+              $isActive={selectedGroupId === group.id}
               onClick={() => handleMenuItemClick(group.id)}
             >
-              <span className={sidebarMenuItemIconStyles}>
+              <SidebarMenuItemIcon>
                 <FiFolder size={18} />
-              </span>
-              <span className={sidebarMenuItemTextStyles}>{group.name}</span>
+              </SidebarMenuItemIcon>
+              <SidebarMenuItemText>{group.name}</SidebarMenuItemText>
               {taskCount > 0 && (
-                <span className={sidebarMenuItemBadgeStyles}>{taskCount}</span>
+                <SidebarMenuItemBadge>{taskCount}</SidebarMenuItemBadge>
               )}
-            </button>
+            </SidebarMenuItem>
           );
         })}
-      </div>
+      </SidebarSection>
 
-      <div className={sidebarFooterStyles}>
-        <button className={addGroupButtonStyles} onClick={onNewGroupButtonClick}>
+      <SidebarFooter>
+        <AddGroupButton onClick={onNewGroupButtonClick}>
           <FiPlus size={18} />
           New Group
-        </button>
-      </div>
+        </AddGroupButton>
+      </SidebarFooter>
     </SideBarContainer>
   );
 });

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { colors } from "../../sharedStyles";
+
 
 export const TagsContainer = styled.div`
   display: flex;
@@ -12,14 +12,14 @@ export const StyledTag = styled.span<{
   readonly selected?: boolean;
   readonly isCustom?: boolean;
 }>`
- display: inline-flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.375rem 0.75rem;
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${colors.primary};
+  background: ${(props) => props.theme.primary};
   color: white;
   transition: all 0.2s;
   border: 1px solid;
@@ -39,31 +39,32 @@ export const StyledTag = styled.span<{
     }
   }
 
-  ${({ selected, isCustom }) => {
+  ${({ selected, isCustom, theme }) => {
     if (selected) {
       return `
-        background: ${colors.primary};
+        background: ${theme.primary};
         color: white;
-        border-color: ${colors.primary};
+        border-color: ${theme.primary};
+        box-shadow: 0 4px 12px ${theme.primary}40;
       `;
     } else if (isCustom) {
       return `
-        background: ${colors.surface};
-        color: ${colors.secondary};
-        border-color: ${colors.secondary};
+        background: ${theme.surface};
+        color: ${theme.primary};
+        border-color: ${theme.primary};
         &:hover {
-          background: ${colors.secondary};
+          background: ${theme.primary};
           color: white;
         }
       `;
     } else {
       return `
-        background: ${colors.surface};
-        color: ${colors.textSecondary};
-        border-color: ${colors.border};
+        background: ${theme.surface};
+        color: ${theme.text.secondary};
+        border-color: ${theme.border};
         &:hover {
-          background: ${colors.surfaceHover};
-          border-color: ${colors.primary};
+          background: ${theme.surface};
+          border-color: ${theme.primary};
         }
       `;
     }

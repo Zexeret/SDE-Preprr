@@ -10,7 +10,7 @@ import {
 import { FiDatabase, FiDownload, FiUpload } from "react-icons/fi";
 import { exportData, importData } from "../../utils";
 import { useTaskUtility } from "../../context";
-import { ButtonPrimary } from "../../styles";
+import { ButtonPrimary } from "../../sharedStyles";
 
 export const SettingsImportExport = memo(() => {
   const {

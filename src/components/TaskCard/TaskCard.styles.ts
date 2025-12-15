@@ -1,18 +1,18 @@
 import styled from "@emotion/styled";
-import type { Theme } from "../../theme/Theme";
+
 
 export const TaskCardBase = styled.div`
-  background: ${({ theme }) => theme.rgba.white005};
+  background: ${({ theme }) => theme.surface};
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  border: 1px solid ${({ theme }) => theme.rgba.white02};
+  border: 1px solid ${({ theme }) => theme.border};
   transition: all 0.2s;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 4px 12px ${({ theme }) => theme.rgba.primary03};
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0 4px 12px ${({ theme }) => `${theme.primary}30`};
   }
 `;
 
@@ -21,7 +21,7 @@ export const TaskCardDone = styled(TaskCardBase)`
 `;
 
 export const TaskCardDragging = styled(TaskCardBase)`
-  box-shadow: 0 8px 24px ${({ theme }) => theme.rgba.primary03};
+  box-shadow: 0 8px 24px ${({ theme }) => `${theme.primary}30`};
   transform: rotate(2deg);
 `;
 
@@ -45,18 +45,19 @@ export const TaskLinkContainer = styled.div`
 `;
 
 export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.primary};
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
   word-break: break-all;
 
   &:hover {
     text-decoration: underline;
+    color: ${({ theme }) => theme.primaryHover};
   }
 `;
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.primary};
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
   word-break: break-all;
@@ -68,12 +69,12 @@ export const TaskActions = styled.div`
   flex-shrink: 0;
 `;
 
-export const IconButton = styled.button<{ readonly theme: Theme }>`
+export const IconButton = styled.button`
   padding: 0.5rem;
   border-radius: 0.375rem;
   border: none;
-  background: ${({ theme }) => theme.colors.surface};
-  color: ${({ theme }) => theme.text.secondary ?? "#94a3b8"};
+  background: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text.secondary};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -81,21 +82,21 @@ export const IconButton = styled.button<{ readonly theme: Theme }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.primary};
     color: white;
   }
 `;
 
 export const IconButtonSuccess = styled(IconButton)`
   &:hover {
-    background: ${({ theme }) => theme.actions.success};
+    background: ${({ theme }) => theme.success};
     color: white;
   }
 `;
 
 export const IconButtonDanger = styled(IconButton)`
   &:hover {
-    background: ${({ theme }) => theme.actions.error};
+    background: ${({ theme }) => theme.error};
     color: white;
   }
 `;
@@ -105,13 +106,13 @@ export const DragHandle = styled.div`
   align-items: center;
   justify-content: center;
   cursor: grab;
-  color: ${({ theme }) => theme.text.muted};
+  color: ${({ theme }) => theme.text.secondary};
   padding: 0.5rem;
   margin-right: 0.5rem;
   transition: color 0.2s;
 
   &:hover {
-    color: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.primary};
   }
 
   &:active {
@@ -131,16 +132,11 @@ export const Tag = styled.span<{ readonly $isCustom?: boolean }>`
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${({ theme }) => theme.colors.surface};
+  background: ${({ theme }) => theme.surface};
   color: ${(props) =>
-    props.$isCustom
-      ? props.theme.colors.secondary
-      : props.theme.text.secondary};
+    props.$isCustom ? props.theme.primary : props.theme.text.secondary};
   border: 1px solid
-    ${(props) =>
-      props.$isCustom
-        ? props.theme.colors.secondary
-        : props.theme.secondaryBorder};
+    ${(props) => (props.$isCustom ? props.theme.primary : props.theme.border)};
 `;
 
 export const EmptyState = styled.div`

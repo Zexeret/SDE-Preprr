@@ -16,7 +16,7 @@ export const SideBarContainer = styled.div`
   display: block;
   position: static;
   flex-grow: 0.05;
-  border: 1px solid ${({ theme }) => theme.primaryBorder};
+  border: 1px solid ${({ theme }) => theme.border};
 `;
 
 export const MainContentWithSidebar = styled.main`

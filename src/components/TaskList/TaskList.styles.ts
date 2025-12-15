@@ -40,7 +40,7 @@ export const GroupHeader = styled.div`
   color: ${({ theme }) => theme.text.primary};
   margin: 2rem 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid ${({ theme }) => theme.secondaryBorder};
+  border-bottom: 2px solid ${({ theme }) => theme.border};
   display: flex;
   align-items: center;
   gap: 0.5rem;

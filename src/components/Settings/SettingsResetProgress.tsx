@@ -6,8 +6,8 @@ import {
   SettingsSectionTitle,
 } from "./Settings.styles";
 import { FiRefreshCw } from "react-icons/fi";
-import { ButtonDanger } from "../../styles";
 import { useTaskUtility } from "../../context";
+import { ButtonDanger } from "../../sharedStyles";
 
 export const SettingsResetProgress = () => {
   const { tasks, setTasks } = useTaskUtility();
