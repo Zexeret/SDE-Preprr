@@ -1,127 +1,46 @@
-import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 
-export const appContainerStyles = css`
+export const AppContainer = styled.div`
   min-height: 100vh;
-  width: 100vw;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #e2e8f0;
   display: flex;
 `;
 
-export const mainContentWithSidebarStyles = css`
-  margin-left: 280px;
-  padding: 2rem;
-  min-height: 100vh;
+export const MainContentWithSidebar = styled.main`
   flex: 1;
-
-  @media (max-width: 768px) {
-    margin-left: 0;
-    padding: 1rem;
-  }
+  overflow-y: auto;
+  height: 100vh;
 `;
 
-export const pageHeaderStyles = css`
+export const PageHeader = styled.header`
   margin-bottom: 2rem;
 `;
 
-export const pageTitleStyles = css`
+export const PageTitle = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #f1f5f9;
-  margin: 0 0 0.5rem;
-`;
-
-export const pageSubtitleStyles = css`
-  color: #94a3b8;
-  margin: 0;
-`;
-
-export const pageActionsStyles = css`
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-`;
-
-export const contentSectionStyles = css`
-  display: grid;
-  gap: 2rem;
-`;
-
-export const headerStyles = css`
-  max-width: 1400px;
-  margin: 0 auto 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 1.5rem;
-    }
-  }
-`;
-
-export const titleStyles = css`
-  font-size: 2rem;
-  margin: 0;
+  margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
 
-export const headerActionsStyles = css`
+export const PageSubtitle = styled.p`
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+`;
+
+export const PageActions = styled.div`
   display: flex;
   gap: 0.75rem;
-  align-items: center;
   flex-wrap: wrap;
 `;
 
-export const mainContentStyles = css`
+export const ContentSection = styled.div`
+  padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  display: grid;
-  gap: 2rem;
-`;
-
-export const formGroupStyles = css`
-  margin-bottom: 1.5rem;
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #f1f5f9;
-  }
-
-  input {
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid #334155;
-    background: #0f172a;
-    color: #f1f5f9;
-    font-family: inherit;
-    font-size: 0.875rem;
-    transition: border-color 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #6366f1;
-    }
-
-    &::placeholder {
-      color: #64748b;
-    }
-  }
-`;
-
-export const modalActionsStyles = css`
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
 `;

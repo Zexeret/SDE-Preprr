@@ -1,9 +1,8 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { FiPlus } from "react-icons/fi";
-import { cx } from "@emotion/css";
 import { useApp } from "./context";
 import { PREDEFINED_GROUPS } from "./constants";
-import type { Group, PreparationTask, SortBy, SortOrder } from "./model";
+import type { Group, PreparationTask, SortBy, SortOrder, Tag } from "./model";
 import { ThemeProvider, type ThemeName } from "./theme";
 import {
   Sidebar,
@@ -14,22 +13,22 @@ import {
   TaskForm,
 } from "./components";
 import {
-  buttonPrimaryStyles,
-  buttonSecondaryStyles,
-  modalOverlayStyles,
-  modalContentStyles,
-  cardGlassStyles,
+  ButtonPrimary,
+  ButtonSecondary,
+  ModalOverlay,
+  ModalContent,
+  ModalActions,
+  CardGlass,
+  FormGroup,
 } from "./styles";
 import {
-  appContainerStyles,
-  mainContentWithSidebarStyles,
-  pageHeaderStyles,
-  pageTitleStyles,
-  pageSubtitleStyles,
-  pageActionsStyles,
-  contentSectionStyles,
-  formGroupStyles,
-  modalActionsStyles,
+  AppContainer,
+  MainContentWithSidebar,
+  PageHeader,
+  PageTitle,
+  PageSubtitle,
+  PageActions,
+  ContentSection,
 } from "./App.styles";
 
 function App() {
@@ -239,7 +238,7 @@ function App() {
 
   return (
     <ThemeProvider themeName={themeName}>
-      <div className={cx(appContainerStyles)}>
+      <AppContainer>
         <Sidebar
           groups={allGroups}
           selectedGroupId={selectedGroupId}
@@ -248,7 +247,7 @@ function App() {
           getGroupTaskCount={getGroupTaskCount}
         />
 
-        <main className={mainContentWithSidebarStyles}>
+        <MainContentWithSidebar>
           {selectedGroupId === null ? (
             <Settings
               tasks={tasks}
@@ -258,28 +257,25 @@ function App() {
               onResetAll={handleResetAllProgress}
             />
           ) : (
-            <div className={contentSectionStyles}>
-              <div className={pageHeaderStyles}>
-                <h1 className={pageTitleStyles}>{currentGroup?.name}</h1>
-                <p className={pageSubtitleStyles}>
+            <ContentSection>
+              <PageHeader>
+                <PageTitle>{currentGroup?.name}</PageTitle>
+                <PageSubtitle>
                   Manage your {currentGroup?.name.toLowerCase()} preparation
                   tasks
-                </p>
-                <div className={pageActionsStyles}>
-                  <button
-                    className={buttonPrimaryStyles}
-                    onClick={handleOpenAddModal}
-                  >
+                </PageSubtitle>
+                <PageActions>
+                  <ButtonPrimary onClick={handleOpenAddModal}>
                     <FiPlus size={16} />
                     Add Task
-                  </button>
-                </div>
-              </div>
+                  </ButtonPrimary>
+                </PageActions>
+              </PageHeader>
 
               <Stats tasks={groupTasks} />
 
               {groupTasks.length > 0 && (
-                <div className={cardGlassStyles}>
+                <CardGlass>
                   <FilterBar
                     customTags={customTags}
                     selectedFilterTags={selectedFilterTags}
@@ -326,11 +322,11 @@ function App() {
                       enableDragDrop={shouldUseCustomOrder}
                     />
                   )}
-                </div>
+                </CardGlass>
               )}
 
               {groupTasks.length === 0 && (
-                <div className={cardGlassStyles}>
+                <CardGlass>
                   <TaskList
                     tasks={[]}
                     onEdit={handleOpenEditModal}
@@ -338,18 +334,15 @@ function App() {
                     onToggleDone={toggleTaskDone}
                     enableDragDrop={false}
                   />
-                </div>
+                </CardGlass>
               )}
-            </div>
+            </ContentSection>
           )}
-        </main>
+        </MainContentWithSidebar>
 
         {showTaskModal && selectedGroupId && (
-          <div className={modalOverlayStyles} onClick={handleCloseTaskModal}>
-            <div
-              className={modalContentStyles}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <ModalOverlay onClick={handleCloseTaskModal}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
               <h2>{editingTask ? "Edit Task" : "Add New Task"}</h2>
               <TaskForm
                 task={editingTask}
@@ -360,21 +353,15 @@ function App() {
                 onAddCustomTag={addCustomTag}
                 onDeleteCustomTag={deleteCustomTag}
               />
-            </div>
-          </div>
+            </ModalContent>
+          </ModalOverlay>
         )}
 
         {showGroupModal && (
-          <div
-            className={modalOverlayStyles}
-            onClick={() => setShowGroupModal(false)}
-          >
-            <div
-              className={modalContentStyles}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <ModalOverlay onClick={() => setShowGroupModal(false)}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
               <h2>Create New Group</h2>
-              <div className={formGroupStyles}>
+              <FormGroup>
                 <label>Group Name *</label>
                 <input
                   type="text"
@@ -388,28 +375,24 @@ function App() {
                     }
                   }}
                 />
-              </div>
-              <div className={modalActionsStyles}>
-                <button
-                  className={buttonSecondaryStyles}
+              </FormGroup>
+              <ModalActions>
+                <ButtonSecondary
                   onClick={() => {
                     setShowGroupModal(false);
                     setNewGroupName("");
                   }}
                 >
                   Cancel
-                </button>
-                <button
-                  className={buttonPrimaryStyles}
-                  onClick={handleAddCustomGroup}
-                >
+                </ButtonSecondary>
+                <ButtonPrimary onClick={handleAddCustomGroup}>
                   Create Group
-                </button>
-              </div>
-            </div>
-          </div>
+                </ButtonPrimary>
+              </ModalActions>
+            </ModalContent>
+          </ModalOverlay>
         )}
-      </div>
+      </AppContainer>
     </ThemeProvider>
   );
 }

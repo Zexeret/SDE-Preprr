@@ -1,35 +1,62 @@
-import React, { useState, useMemo } from "react";
-import { Editor } from "primereact/editor";
-import { FiX, FiPlus, FiTrash2 } from "react-icons/fi";
-import { cx } from "@emotion/css";
+import React, { useState } from "react";
+import { FiPlus, FiX, FiCheck } from "react-icons/fi";
+import styled from "@emotion/styled";
 import type { PreparationTask, Tag } from "../../model";
-import { generateId } from "../../utils";
+import { DIFFICULTY_TAGS } from "../../constants/index";
+import { type Theme } from "../../theme";
 import {
-  DIFFICULTY_TAGS,
-  DSA_SPECIFIC_TAGS,
-  DIFFICULTY_TAG_IDS,
-} from "../../constants/index";
-import {
-  buttonPrimaryStyles,
-  buttonSecondaryStyles,
-  buttonDangerStyles,
+  ButtonPrimary,
+  ButtonSecondary,
+  ButtonIcon,
+  FormGroup,
+  ModalActions,
 } from "../../styles";
-import {
-  formGroupStyles,
-  tagsContainerStyles,
-  tagButtonStyles,
-  tagButtonSelectedStyles,
-  tagButtonCustomStyles,
-  tagWithDeleteStyles,
-  tagWithDeleteCustomStyles,
-  customTagInputContainerStyles,
-  selectedTagsSectionStyles,
-  selectedTagsLabelStyles,
-  modalActionsStyles,
-  customTagsHeaderStyles,
-  customTagsLabelContainerStyles,
-  customTagsInfoStyles,
-} from "./TaskForm.styles";
+
+const FormContainer = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+`;
+
+const TagsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const TagButton = styled.button<{
+  theme: Theme;
+  color?: string;
+  selected?: boolean;
+}>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${(props) =>
+    props.selected ? props.color || props.theme.colors.primary : "transparent"};
+  color: ${(props) =>
+    props.selected ? "white" : props.color || props.theme.colors.primary};
+  border-color: ${(props) => props.color || props.theme.colors.primary};
+
+  &:hover {
+    background: ${(props) => props.color || props.theme.colors.primary};
+    color: white;
+  }
+`;
+
+const CustomTagInput = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+`;
 
 interface TaskFormProps {
   readonly task?: PreparationTask;
@@ -50,26 +77,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onAddCustomTag,
   onDeleteCustomTag,
 }) => {
-  const [link, setLink] = useState(task?.link || "");
+  const [title, setTitle] = useState(task?.link || "");
+  const [description, setDescription] = useState(task?.notes || "");
   const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
     task?.tags || []
   );
-  const [notes, setNotes] = useState(task?.notes || "");
   const [newTagName, setNewTagName] = useState("");
-  const [showCustomTagInput, setShowCustomTagInput] = useState(false);
 
-  // Get topic tags based on current group
-  const topicTags = useMemo(() => {
-    const groupCustomTags = customTags.filter((tag) => tag.groupId === groupId);
-
-    if (groupId === "dsa") {
-      return [...DSA_SPECIFIC_TAGS, ...groupCustomTags];
-    }
-
-    return groupCustomTags;
-  }, [customTags, groupId]);
-
-  const handleTagToggle = (tag: Tag) => {
+  const handleToggleTag = (tag: Tag) => {
     setSelectedTags((prev) => {
       const exists = prev.find((t) => t.id === tag.id);
       if (exists) {
@@ -80,10 +95,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     });
   };
 
-  const handleRemoveTag = (tagId: string) => {
-    setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
-  };
-
   const handleDeleteCustomTag = (tagId: string) => {
     if (
       window.confirm(
@@ -91,11 +102,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       )
     ) {
       onDeleteCustomTag(tagId);
-      handleRemoveTag(tagId);
+      setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
     }
   };
 
-  const handleAddCustomTag = () => {
+  const handleAddTag = () => {
     if (!newTagName.trim()) return;
 
     const tagId = newTagName.toLowerCase().replace(/\s+/g, "-");
@@ -109,19 +120,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     onAddCustomTag(newTag);
     setSelectedTags((prev) => [...prev, newTag]);
     setNewTagName("");
-    setShowCustomTagInput(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!link.trim()) {
-      alert("Please enter a task link or title");
+    if (!title.trim()) {
+      alert("Please enter a task title");
       return;
     }
 
     const hasDifficultyTag = selectedTags.some((tag) =>
-      DIFFICULTY_TAG_IDS.includes(tag.id as any)
+      DIFFICULTY_TAGS.some((difficultyTag) => difficultyTag.id === tag.id)
     );
 
     if (!hasDifficultyTag) {
@@ -133,11 +143,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
     const now = Date.now();
     const taskData: PreparationTask = {
-      id: task?.id || generateId(),
+      id: task?.id || `${groupId}-${Date.now()}`,
       groupId: task?.groupId || groupId,
-      link: link.trim(),
+      link: title.trim(),
       tags: selectedTags,
-      notes,
+      notes: description,
       isDone: task?.isDone || false,
       createdAt: task?.createdAt || now,
       updatedAt: now,
@@ -147,197 +157,104 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     onSubmit(taskData);
   };
 
-  const groupCustomTags = topicTags.filter((tag) => tag.isCustom);
-
   return (
     <form onSubmit={handleSubmit}>
-      <div className={formGroupStyles}>
-        <label htmlFor="task-link">Task Link / Title *</label>
+      <FormGroup>
+        <label>Title *</label>
         <input
-          id="task-link"
           type="text"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="https://leetcode.com/problems/... or Theory: Binary Search"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g., Implement Binary Search"
           required
         />
-      </div>
+      </FormGroup>
 
-      <div className={formGroupStyles}>
-        <label>Difficulty Level *</label>
-        <div className={tagsContainerStyles}>
-          {DIFFICULTY_TAGS.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              className={cx(
-                selectedTags.some((t) => t.id === tag.id)
-                  ? tagButtonSelectedStyles
-                  : tagButtonStyles
-              )}
-              onClick={() => handleTagToggle(tag)}
-            >
-              {tag.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <FormGroup>
+        <label>Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Add details about this task..."
+        />
+      </FormGroup>
 
-      <div className={formGroupStyles}>
-        <div className={customTagsHeaderStyles}>
-          <div className={customTagsLabelContainerStyles}>
-            <label>Tags</label>
-            {groupId !== "dsa" && topicTags.length === 0 && (
-              <span className={customTagsInfoStyles}>
-                (Add custom tags for this group)
-              </span>
-            )}
+      <FormGroup>
+        <label>Notes (Optional)</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Add implementation notes, tips, or resources..."
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <label>Resources (Optional)</label>
+        <input
+          type="text"
+          value={newResource}
+          onChange={(e) => setNewResource(e.target.value)}
+          onKeyPress={handleResourceKeyPress}
+          placeholder="Add URL or resource (press Enter)"
+        />
+        {resources.length > 0 && (
+          <div className={resourceListStyles}>
+            {resources.map((resource, index) => (
+              <div key={index} className={resourceItemStyles}>
+                <span>{resource}</span>
+                <ButtonIcon
+                  type="button"
+                  onClick={() => handleRemoveResource(index)}
+                  aria-label="Remove resource"
+                >
+                  <FiX size={14} />
+                </ButtonIcon>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className={tagsContainerStyles}>
-          {topicTags
-            .filter((tag) => !tag.isCustom)
-            .map((tag) => (
+        )}
+      </FormGroup>
+
+      <FormGroup>
+        <label>Tags</label>
+        <div className={tagSelectorStyles}>
+          <div className={tagListStyles}>
+            {availableTags.map((tag) => (
               <button
                 key={tag.id}
                 type="button"
+                onClick={() => handleToggleTag(tag)}
                 className={cx(
-                  selectedTags.some((t) => t.id === tag.id)
-                    ? tagButtonSelectedStyles
-                    : tagButtonStyles
+                  tagOptionStyles,
+                  selectedTags.some((t) => t.id === tag.id) &&
+                    tagOptionSelectedStyles
                 )}
-                onClick={() => handleTagToggle(tag)}
               >
                 {tag.name}
               </button>
             ))}
-          {groupCustomTags.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              className={cx(
-                selectedTags.some((t) => t.id === tag.id)
-                  ? tagButtonSelectedStyles
-                  : tagButtonCustomStyles
-              )}
-              onClick={() => handleTagToggle(tag)}
-            >
-              {tag.name}
-            </button>
-          ))}
-          {!showCustomTagInput && (
-            <button
-              type="button"
-              className={tagButtonStyles}
-              onClick={() => setShowCustomTagInput(true)}
-            >
-              <FiPlus size={12} />
-              Add Custom
-            </button>
-          )}
-        </div>
-
-        {showCustomTagInput && (
+          </div>
           <div className={customTagInputContainerStyles}>
             <input
               type="text"
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              placeholder="Enter custom tag name"
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddCustomTag();
-                }
-              }}
+              value={newCustomTag}
+              onChange={(e) => setNewCustomTag(e.target.value)}
+              onKeyPress={handleCustomTagKeyPress}
+              placeholder="Add custom tag (press Enter)"
+              className={customTagInputStyles}
             />
-            <button
-              type="button"
-              className={buttonPrimaryStyles}
-              onClick={handleAddCustomTag}
-            >
-              Add
-            </button>
-            <button
-              type="button"
-              className={buttonSecondaryStyles}
-              onClick={() => {
-                setShowCustomTagInput(false);
-                setNewTagName("");
-              }}
-            >
-              Cancel
-            </button>
           </div>
-        )}
+        </div>
+      </FormGroup>
 
-        {selectedTags.length > 0 && (
-          <div className={selectedTagsSectionStyles}>
-            <div className={selectedTagsLabelStyles}>Selected Tags:</div>
-            <div className={tagsContainerStyles}>
-              {selectedTags.map((tag) => (
-                <div
-                  key={tag.id}
-                  className={
-                    tag.isCustom
-                      ? tagWithDeleteCustomStyles
-                      : tagWithDeleteStyles
-                  }
-                >
-                  {tag.name}
-                  <button type="button" onClick={() => handleRemoveTag(tag.id)}>
-                    <FiX size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {groupCustomTags.length > 0 && (
-          <div className={selectedTagsSectionStyles}>
-            <div className={selectedTagsLabelStyles}>
-              Manage Custom Tags for this Group:
-            </div>
-            <div className={tagsContainerStyles}>
-              {groupCustomTags.map((tag) => (
-                <div key={tag.id} className={tagWithDeleteCustomStyles}>
-                  {tag.name}
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteCustomTag(tag.id)}
-                    title="Delete this tag permanently"
-                  >
-                    <FiTrash2 size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className={formGroupStyles}>
-        <label>Notes</label>
-        <Editor
-          value={notes}
-          onTextChange={(e) => setNotes(e.htmlValue || "")}
-          style={{ height: "300px" }}
-        />
-      </div>
-
-      <div className={modalActionsStyles}>
-        <button
-          type="button"
-          className={buttonSecondaryStyles}
-          onClick={onCancel}
-        >
+      <ModalActions>
+        <ButtonSecondary type="button" onClick={onCancel}>
           Cancel
-        </button>
-        <button type="submit" className={buttonPrimaryStyles}>
+        </ButtonSecondary>
+        <ButtonPrimary type="submit">
           {task ? "Update Task" : "Add Task"}
-        </button>
-      </div>
+        </ButtonPrimary>
+      </ModalActions>
     </form>
   );
 };

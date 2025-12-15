@@ -10,31 +10,29 @@ import {
 import type { PreparationTask, Tag, Group } from "../../model";
 import { exportData, importData } from "../../utils";
 import {
-  buttonPrimaryStyles,
-  buttonSecondaryStyles,
-  buttonDangerStyles,
-  fileInputHiddenStyles,
-  fileInputLabelStyles,
+  ButtonPrimary,
+  ButtonDanger,
+  FileInputHidden,
+  FileInputLabel,
 } from "../../styles";
 import {
-  settingsPageStyles,
-  settingsHeaderStyles,
-  settingsTitleStyles,
-  settingsSubtitleStyles,
-  settingsSectionStyles,
-  settingsSectionTitleStyles,
-  settingsSectionDescriptionStyles,
-  settingsActionsStyles,
-  themeOptionsStyles,
-  themeOptionStyles,
-  themeOptionActiveStyles,
-  themeOptionNameStyles,
-  themePreviewStyles,
-  themePreviewColorStyles,
-  statsGridStyles,
-  statCardSettingsStyles,
-  statLabelSettingsStyles,
-  statValueSettingsStyles,
+  SettingsPage,
+  SettingsHeader,
+  SettingsTitle,
+  SettingsSubtitle,
+  SettingsSection,
+  SettingsSectionTitle,
+  SettingsSectionDescription,
+  SettingsActions,
+  ThemeOptions,
+  ThemeOption,
+  ThemeOptionName,
+  ThemePreview,
+  ThemePreviewColor,
+  StatsGrid,
+  StatCardSettings,
+  StatLabelSettings,
+  StatValueSettings,
 } from "./Settings.styles";
 
 interface SettingsProps {
@@ -105,157 +103,119 @@ export const Settings: React.FC<SettingsProps> = ({
   const totalCustomTags = customTags.length;
 
   return (
-    <div className={settingsPageStyles}>
-      <div className={settingsHeaderStyles}>
-        <h1 className={settingsTitleStyles}>Settings</h1>
-        <p className={settingsSubtitleStyles}>
-          Manage your preferences and data
-        </p>
-      </div>
+    <SettingsPage>
+      <SettingsHeader>
+        <SettingsTitle>Settings</SettingsTitle>
+        <SettingsSubtitle>Manage your preferences and data</SettingsSubtitle>
+      </SettingsHeader>
 
-      <div className={settingsSectionStyles}>
-        <h2 className={settingsSectionTitleStyles}>
+      <SettingsSection>
+        <SettingsSectionTitle>
           <FiBarChart2 />
           Overview
-        </h2>
-        <div className={statsGridStyles}>
-          <div className={statCardSettingsStyles}>
-            <div className={statLabelSettingsStyles}>Total Tasks</div>
-            <div className={statValueSettingsStyles}>{totalTasks}</div>
-          </div>
-          <div className={statCardSettingsStyles}>
-            <div className={statLabelSettingsStyles}>Completed</div>
-            <div className={statValueSettingsStyles}>{completedTasks}</div>
-          </div>
-          <div className={statCardSettingsStyles}>
-            <div className={statLabelSettingsStyles}>Groups</div>
-            <div className={statValueSettingsStyles}>{totalGroups}</div>
-          </div>
-          <div className={statCardSettingsStyles}>
-            <div className={statLabelSettingsStyles}>Custom Tags</div>
-            <div className={statValueSettingsStyles}>{totalCustomTags}</div>
-          </div>
-        </div>
-      </div>
+        </SettingsSectionTitle>
+        <StatsGrid>
+          <StatCardSettings>
+            <StatLabelSettings>Total Tasks</StatLabelSettings>
+            <StatValueSettings>{totalTasks}</StatValueSettings>
+          </StatCardSettings>
+          <StatCardSettings>
+            <StatLabelSettings>Completed</StatLabelSettings>
+            <StatValueSettings>{completedTasks}</StatValueSettings>
+          </StatCardSettings>
+          <StatCardSettings>
+            <StatLabelSettings>Groups</StatLabelSettings>
+            <StatValueSettings>{totalGroups}</StatValueSettings>
+          </StatCardSettings>
+          <StatCardSettings>
+            <StatLabelSettings>Custom Tags</StatLabelSettings>
+            <StatValueSettings>{totalCustomTags}</StatValueSettings>
+          </StatCardSettings>
+        </StatsGrid>
+      </SettingsSection>
 
-      <div className={settingsSectionStyles}>
-        <h2 className={settingsSectionTitleStyles}>
+      <SettingsSection>
+        <SettingsSectionTitle>
           <FiDroplet />
           Theme
-        </h2>
-        <p className={settingsSectionDescriptionStyles}>
+        </SettingsSectionTitle>
+        <SettingsSectionDescription>
           Choose your preferred color theme (Coming Soon)
-        </p>
-        <div className={themeOptionsStyles}>
-          <div className={themeOptionActiveStyles}>
-            <div className={themePreviewStyles}>
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#6366f1" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#8b5cf6" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#0f172a" }}
-              />
-            </div>
-            <div className={themeOptionNameStyles}>Dark (Default)</div>
-          </div>
-          <div className={themeOptionStyles}>
-            <div className={themePreviewStyles}>
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#3b82f6" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#06b6d4" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#1e293b" }}
-              />
-            </div>
-            <div className={themeOptionNameStyles}>Blue</div>
-          </div>
-          <div className={themeOptionStyles}>
-            <div className={themePreviewStyles}>
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#10b981" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#059669" }}
-              />
-              <span
-                className={themePreviewColorStyles}
-                style={{ background: "#064e3b" }}
-              />
-            </div>
-            <div className={themeOptionNameStyles}>Green</div>
-          </div>
-        </div>
-      </div>
+        </SettingsSectionDescription>
+        <ThemeOptions>
+          <ThemeOption $active={true}>
+            <ThemePreview>
+              <ThemePreviewColor $color="#6366f1" />
+              <ThemePreviewColor $color="#8b5cf6" />
+              <ThemePreviewColor $color="#0f172a" />
+            </ThemePreview>
+            <ThemeOptionName>Dark (Default)</ThemeOptionName>
+          </ThemeOption>
+          <ThemeOption $active={false}>
+            <ThemePreview>
+              <ThemePreviewColor $color="#3b82f6" />
+              <ThemePreviewColor $color="#06b6d4" />
+              <ThemePreviewColor $color="#1e293b" />
+            </ThemePreview>
+            <ThemeOptionName>Blue</ThemeOptionName>
+          </ThemeOption>
+          <ThemeOption $active={false}>
+            <ThemePreview>
+              <ThemePreviewColor $color="#10b981" />
+              <ThemePreviewColor $color="#059669" />
+              <ThemePreviewColor $color="#064e3b" />
+            </ThemePreview>
+            <ThemeOptionName>Green</ThemeOptionName>
+          </ThemeOption>
+        </ThemeOptions>
+      </SettingsSection>
 
-      <div className={settingsSectionStyles}>
-        <h2 className={settingsSectionTitleStyles}>
+      <SettingsSection>
+        <SettingsSectionTitle>
           <FiDatabase />
           Data Management
-        </h2>
-        <p className={settingsSectionDescriptionStyles}>
+        </SettingsSectionTitle>
+        <SettingsSectionDescription>
           Export your data as JSON or import from a previous backup
-        </p>
-        <div className={settingsActionsStyles}>
-          <button
-            className={buttonPrimaryStyles}
-            onClick={handleExport}
-            disabled={tasks.length === 0}
-          >
+        </SettingsSectionDescription>
+        <SettingsActions>
+          <ButtonPrimary onClick={handleExport} disabled={tasks.length === 0}>
             <FiDownload size={16} />
             Export Data
-          </button>
-          <label
-            htmlFor="import-file-settings"
-            className={fileInputLabelStyles}
-          >
+          </ButtonPrimary>
+          <FileInputLabel htmlFor="import-file-settings">
             <FiUpload size={16} />
             Import Data
-          </label>
-          <input
+          </FileInputLabel>
+          <FileInputHidden
             id="import-file-settings"
             type="file"
             accept=".json"
             ref={fileInputRef}
             onChange={handleImportChange}
-            className={fileInputHiddenStyles}
           />
-        </div>
-      </div>
+        </SettingsActions>
+      </SettingsSection>
 
-      <div className={settingsSectionStyles}>
-        <h2 className={settingsSectionTitleStyles}>
+      <SettingsSection>
+        <SettingsSectionTitle>
           <FiRefreshCw />
           Reset Progress
-        </h2>
-        <p className={settingsSectionDescriptionStyles}>
+        </SettingsSectionTitle>
+        <SettingsSectionDescription>
           Mark all tasks across all groups as undone. This action cannot be
           undone.
-        </p>
-        <div className={settingsActionsStyles}>
-          <button
-            className={buttonDangerStyles}
+        </SettingsSectionDescription>
+        <SettingsActions>
+          <ButtonDanger
             onClick={handleResetAll}
             disabled={tasks.length === 0 || !tasks.some((t) => t.isDone)}
           >
             <FiRefreshCw size={16} />
             Reset All Progress
-          </button>
-        </div>
-      </div>
-    </div>
+          </ButtonDanger>
+        </SettingsActions>
+      </SettingsSection>
+    </SettingsPage>
   );
 };
