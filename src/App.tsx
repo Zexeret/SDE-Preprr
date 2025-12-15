@@ -1,13 +1,13 @@
 import { useState, useRef, useMemo, useCallback } from "react";
-import { FiPlus, FiDownload, FiUpload, FiRefreshCw } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import { cx } from "@emotion/css";
 import { useApp } from "./context";
-import { exportData, importData } from "./utils";
 import { PREDEFINED_GROUPS } from "./constants";
 import type { Group, PreparationTask, SortBy, SortOrder } from "./model";
 import { ThemeProvider, type ThemeName } from "./theme";
 import {
-  GroupSelector,
+  Sidebar,
+  Settings,
   Stats,
   FilterBar,
   TaskList,
@@ -16,19 +16,18 @@ import {
 import {
   buttonPrimaryStyles,
   buttonSecondaryStyles,
-  buttonDangerStyles,
-  fileInputHiddenStyles,
-  fileInputLabelStyles,
   modalOverlayStyles,
   modalContentStyles,
   cardGlassStyles,
 } from "./styles";
 import {
   appContainerStyles,
-  headerStyles,
-  titleStyles,
-  headerActionsStyles,
-  mainContentStyles,
+  mainContentWithSidebarStyles,
+  pageHeaderStyles,
+  pageTitleStyles,
+  pageSubtitleStyles,
+  pageActionsStyles,
+  contentSectionStyles,
   formGroupStyles,
   modalActionsStyles,
 } from "./App.styles";
@@ -69,7 +68,6 @@ function App() {
   const [groupByTag, setGroupByTag] = useState(false);
   const [showDoneOnly, setShowDoneOnly] = useState(false);
   const [showUndoneOnly, setShowUndoneOnly] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const allGroups = useMemo(
     () => [...PREDEFINED_GROUPS, ...customGroups],
@@ -77,12 +75,16 @@ function App() {
   );
 
   const currentGroup = useMemo(
-    () => allGroups.find((g) => g.id === selectedGroupId),
+    () =>
+      selectedGroupId ? allGroups.find((g) => g.id === selectedGroupId) : null,
     [allGroups, selectedGroupId]
   );
 
   const groupTasks = useMemo(
-    () => tasks.filter((task) => task.groupId === selectedGroupId),
+    () =>
+      selectedGroupId
+        ? tasks.filter((task) => task.groupId === selectedGroupId)
+        : [],
     [tasks, selectedGroupId]
   );
 
@@ -110,47 +112,35 @@ function App() {
     setShowGroupModal(false);
   };
 
-  const handleResetProgress = () => {
+  const handleResetGroupProgress = () => {
+    if (!currentGroup) return;
     if (
       window.confirm(
-        `Are you sure you want to mark all tasks in "${currentGroup?.name}" as undone?`
+        `Are you sure you want to mark all tasks in "${currentGroup.name}" as undone?`
       )
     ) {
       resetGroupProgress();
     }
   };
 
-  const handleExport = () => {
-    exportData(tasks, customTags, customGroups);
+  const handleResetAllProgress = () => {
+    setTasks(
+      tasks.map((task) => ({
+        ...task,
+        isDone: false,
+        updatedAt: Date.now(),
+      }))
+    );
   };
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const data = await importData(file);
-
-      if (
-        window.confirm(
-          `This will import ${data.tasks.length} tasks, ${
-            data.customTags?.length || 0
-          } custom tags, and ${
-            data.customGroups?.length || 0
-          } custom groups. Continue?`
-        )
-      ) {
-        setTasks(data.tasks);
-        setCustomTags(data.customTags || []);
-        setCustomGroups(data.customGroups || []);
-      }
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to import data");
-    }
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  const handleImport = (data: {
+    tasks: Array<PreparationTask>;
+    customTags?: Array<Tag>;
+    customGroups?: Array<Group>;
+  }) => {
+    setTasks(data.tasks);
+    setCustomTags(data.customTags || []);
+    setCustomGroups(data.customGroups || []);
   };
 
   const handleOpenAddModal = () => {
@@ -250,125 +240,111 @@ function App() {
   return (
     <ThemeProvider themeName={themeName}>
       <div className={cx(appContainerStyles)}>
-        <header className={headerStyles}>
-          <h1 className={titleStyles}>🚀 DSA Manager</h1>
-          <div className={headerActionsStyles}>
-            <button
-              className={buttonPrimaryStyles}
-              onClick={handleOpenAddModal}
-            >
-              <FiPlus size={16} />
-              Add Task
-            </button>
-            <button
-              className={buttonSecondaryStyles}
-              onClick={handleExport}
-              disabled={tasks.length === 0}
-            >
-              <FiDownload size={16} />
-              Export
-            </button>
-            <label htmlFor="import-file" className={fileInputLabelStyles}>
-              <FiUpload size={16} />
-              Import
-            </label>
-            <input
-              id="import-file"
-              type="file"
-              accept=".json"
-              ref={fileInputRef}
-              onChange={handleImport}
-              className={fileInputHiddenStyles}
+        <Sidebar
+          groups={allGroups}
+          selectedGroupId={selectedGroupId}
+          onGroupSelect={setSelectedGroupId}
+          onNewGroup={() => setShowGroupModal(true)}
+          getGroupTaskCount={getGroupTaskCount}
+        />
+
+        <main className={mainContentWithSidebarStyles}>
+          {selectedGroupId === null ? (
+            <Settings
+              tasks={tasks}
+              customTags={customTags}
+              customGroups={customGroups}
+              onImport={handleImport}
+              onResetAll={handleResetAllProgress}
             />
-            <button
-              className={buttonDangerStyles}
-              onClick={handleResetProgress}
-              disabled={
-                groupTasks.length === 0 || !groupTasks.some((t) => t.isDone)
-              }
-            >
-              <FiRefreshCw size={16} />
-              Reset Progress
-            </button>
-          </div>
-        </header>
+          ) : (
+            <div className={contentSectionStyles}>
+              <div className={pageHeaderStyles}>
+                <h1 className={pageTitleStyles}>{currentGroup?.name}</h1>
+                <p className={pageSubtitleStyles}>
+                  Manage your {currentGroup?.name.toLowerCase()} preparation
+                  tasks
+                </p>
+                <div className={pageActionsStyles}>
+                  <button
+                    className={buttonPrimaryStyles}
+                    onClick={handleOpenAddModal}
+                  >
+                    <FiPlus size={16} />
+                    Add Task
+                  </button>
+                </div>
+              </div>
 
-        <main className={mainContentStyles}>
-          <GroupSelector
-            groups={allGroups}
-            selectedGroupId={selectedGroupId}
-            onGroupSelect={setSelectedGroupId}
-            onNewGroup={() => setShowGroupModal(true)}
-            getGroupTaskCount={getGroupTaskCount}
-          />
+              <Stats tasks={groupTasks} />
 
-          <Stats tasks={groupTasks} />
+              {groupTasks.length > 0 && (
+                <div className={cardGlassStyles}>
+                  <FilterBar
+                    customTags={customTags}
+                    selectedFilterTags={selectedFilterTags}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    groupByTag={groupByTag}
+                    showDoneOnly={showDoneOnly}
+                    showUndoneOnly={showUndoneOnly}
+                    tasks={groupTasks}
+                    selectedDifficulty={selectedDifficulty}
+                    selectedGroupId={selectedGroupId}
+                    onFilterTagsChange={setSelectedFilterTags}
+                    onSortByChange={setSortBy}
+                    onSortOrderChange={setSortOrder}
+                    onGroupByTagChange={setGroupByTag}
+                    onShowDoneOnlyChange={setShowDoneOnly}
+                    onShowUndoneOnlyChange={setShowUndoneOnly}
+                    onDifficultyChange={setSelectedDifficulty}
+                    onClearFilters={handleClearFilters}
+                  />
 
-          {groupTasks.length > 0 && (
-            <div className={cardGlassStyles}>
-              <FilterBar
-                customTags={customTags}
-                selectedFilterTags={selectedFilterTags}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                groupByTag={groupByTag}
-                showDoneOnly={showDoneOnly}
-                showUndoneOnly={showUndoneOnly}
-                tasks={groupTasks}
-                selectedDifficulty={selectedDifficulty}
-                selectedGroupId={selectedGroupId}
-                onFilterTagsChange={setSelectedFilterTags}
-                onSortByChange={setSortBy}
-                onSortOrderChange={setSortOrder}
-                onGroupByTagChange={setGroupByTag}
-                onShowDoneOnlyChange={setShowDoneOnly}
-                onShowUndoneOnlyChange={setShowUndoneOnly}
-                onDifficultyChange={setSelectedDifficulty}
-                onClearFilters={handleClearFilters}
-              />
-
-              {groupByTag ? (
-                Object.entries(groupedTasks).map(([tagName, tagTasks]) => (
-                  <div key={tagName}>
-                    <h3>
-                      {tagName} <span>({tagTasks.length})</span>
-                    </h3>
+                  {groupByTag ? (
+                    Object.entries(groupedTasks).map(([tagName, tagTasks]) => (
+                      <div key={tagName}>
+                        <h3>
+                          {tagName} <span>({tagTasks.length})</span>
+                        </h3>
+                        <TaskList
+                          tasks={tagTasks}
+                          onEdit={handleOpenEditModal}
+                          onDelete={deleteTask}
+                          onToggleDone={toggleTaskDone}
+                          enableDragDrop={false}
+                        />
+                      </div>
+                    ))
+                  ) : (
                     <TaskList
-                      tasks={tagTasks}
+                      tasks={filteredTasks}
                       onEdit={handleOpenEditModal}
                       onDelete={deleteTask}
                       onToggleDone={toggleTaskDone}
-                      enableDragDrop={false}
+                      onReorder={reorderTasks}
+                      enableDragDrop={shouldUseCustomOrder}
                     />
-                  </div>
-                ))
-              ) : (
-                <TaskList
-                  tasks={filteredTasks}
-                  onEdit={handleOpenEditModal}
-                  onDelete={deleteTask}
-                  onToggleDone={toggleTaskDone}
-                  onReorder={reorderTasks}
-                  enableDragDrop={shouldUseCustomOrder}
-                />
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {groupTasks.length === 0 && (
-            <div className={cardGlassStyles}>
-              <TaskList
-                tasks={[]}
-                onEdit={handleOpenEditModal}
-                onDelete={deleteTask}
-                onToggleDone={toggleTaskDone}
-                enableDragDrop={false}
-              />
+              {groupTasks.length === 0 && (
+                <div className={cardGlassStyles}>
+                  <TaskList
+                    tasks={[]}
+                    onEdit={handleOpenEditModal}
+                    onDelete={deleteTask}
+                    onToggleDone={toggleTaskDone}
+                    enableDragDrop={false}
+                  />
+                </div>
+              )}
             </div>
           )}
         </main>
 
-        {showTaskModal && (
+        {showTaskModal && selectedGroupId && (
           <div className={modalOverlayStyles} onClick={handleCloseTaskModal}>
             <div
               className={modalContentStyles}

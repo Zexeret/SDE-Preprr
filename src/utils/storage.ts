@@ -1,98 +1,78 @@
-import type { PreparationTask, Tag, Group, ExportData } from "../model";
+import type { PreparationTask, Tag, Group } from "../model";
 
-export const STORAGE_KEYS = {
-  PROBLEMS: "dsa-manager-problems",
-  TASKS: "dsa-manager-tasks",
-  CUSTOM_TAGS: "dsa-manager-custom-tags",
-  CUSTOM_GROUPS: "dsa-manager-custom-groups",
-  SELECTED_GROUP: "dsa-manager-selected-group",
-} as const;
-
-const DEFAULT_GROUP_ID = "dsa";
+const TASKS_STORAGE_KEY = "dsa-manager-tasks";
+const CUSTOM_TAGS_STORAGE_KEY = "dsa-manager-custom-tags";
+const CUSTOM_GROUPS_STORAGE_KEY = "dsa-manager-custom-groups";
+const SELECTED_GROUP_STORAGE_KEY = "dsa-manager-selected-group";
 
 export const loadTasks = (): ReadonlyArray<PreparationTask> => {
   try {
-    let data = localStorage.getItem(STORAGE_KEYS.TASKS);
-
-    if (!data) {
-      data = localStorage.getItem(STORAGE_KEYS.PROBLEMS);
-      if (data) {
-        const oldProblems = JSON.parse(data);
-        const migratedTasks = oldProblems.map((problem: any) => ({
-          ...problem,
-          groupId: problem.groupId || DEFAULT_GROUP_ID,
-        }));
-        saveTasks(migratedTasks);
-        return migratedTasks;
-      }
-    }
-
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error("Error loading tasks:", error);
+    const stored = localStorage.getItem(TASKS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
     return [];
   }
 };
 
 export const saveTasks = (tasks: ReadonlyArray<PreparationTask>): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+    localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
   } catch (error) {
-    console.error("Error saving tasks:", error);
+    console.error("Failed to save tasks:", error);
   }
 };
 
 export const loadCustomTags = (): ReadonlyArray<Tag> => {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.CUSTOM_TAGS);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error("Error loading custom tags:", error);
+    const stored = localStorage.getItem(CUSTOM_TAGS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
     return [];
   }
 };
 
 export const saveCustomTags = (tags: ReadonlyArray<Tag>): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(tags));
+    localStorage.setItem(CUSTOM_TAGS_STORAGE_KEY, JSON.stringify(tags));
   } catch (error) {
-    console.error("Error saving custom tags:", error);
+    console.error("Failed to save custom tags:", error);
   }
 };
 
 export const loadCustomGroups = (): ReadonlyArray<Group> => {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.CUSTOM_GROUPS);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error("Error loading custom groups:", error);
+    const stored = localStorage.getItem(CUSTOM_GROUPS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
     return [];
   }
 };
 
 export const saveCustomGroups = (groups: ReadonlyArray<Group>): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.CUSTOM_GROUPS, JSON.stringify(groups));
+    localStorage.setItem(CUSTOM_GROUPS_STORAGE_KEY, JSON.stringify(groups));
   } catch (error) {
-    console.error("Error saving custom groups:", error);
+    console.error("Failed to save custom groups:", error);
   }
 };
 
-export const loadSelectedGroup = (): string => {
+export const loadSelectedGroup = (): string | null => {
   try {
-    return (
-      localStorage.getItem(STORAGE_KEYS.SELECTED_GROUP) || DEFAULT_GROUP_ID
-    );
-  } catch (error) {
-    console.error("Error loading selected group:", error);
-    return DEFAULT_GROUP_ID;
+    const stored = localStorage.getItem(SELECTED_GROUP_STORAGE_KEY);
+    return stored || "dsa";
+  } catch {
+    return "dsa";
   }
 };
 
-export const saveSelectedGroup = (groupId: string): void => {
+export const saveSelectedGroup = (groupId: string | null): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.SELECTED_GROUP, groupId);
+    if (groupId === null) {
+      localStorage.removeItem(SELECTED_GROUP_STORAGE_KEY);
+    } else {
+      localStorage.setItem(SELECTED_GROUP_STORAGE_KEY, groupId);
+    }
   } catch (error) {
-    console.error("Error saving selected group:", error);
+    console.error("Failed to save selected group:", error);
   }
 };

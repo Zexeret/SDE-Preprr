@@ -3,11 +3,48 @@ import { css } from "@emotion/css";
 export const appContainerStyles = css`
   min-height: 100vh;
   width: 100vw;
+  display: flex;
+`;
+
+export const mainContentWithSidebarStyles = css`
+  margin-left: 280px;
   padding: 2rem;
+  min-height: 100vh;
+  flex: 1;
 
   @media (max-width: 768px) {
+    margin-left: 0;
     padding: 1rem;
   }
+`;
+
+export const pageHeaderStyles = css`
+  margin-bottom: 2rem;
+`;
+
+export const pageTitleStyles = css`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 0.5rem;
+`;
+
+export const pageSubtitleStyles = css`
+  color: #94a3b8;
+  margin: 0;
+`;
+
+export const pageActionsStyles = css`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+`;
+
+export const contentSectionStyles = css`
+  display: grid;
+  gap: 2rem;
 `;
 
 export const headerStyles = css`

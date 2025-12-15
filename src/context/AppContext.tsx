@@ -24,7 +24,7 @@ interface AppContextType {
   readonly tasks: ReadonlyArray<PreparationTask>;
   readonly customTags: ReadonlyArray<Tag>;
   readonly customGroups: ReadonlyArray<Group>;
-  readonly selectedGroupId: string;
+  readonly selectedGroupId: string | null;
   readonly addTask: (task: PreparationTask) => void;
   readonly updateTask: (task: PreparationTask) => void;
   readonly deleteTask: (taskId: string) => void;
@@ -33,7 +33,7 @@ interface AppContextType {
   readonly addCustomTag: (tag: Tag) => void;
   readonly deleteCustomTag: (tagId: string) => void;
   readonly addCustomGroup: (group: Group) => void;
-  readonly setSelectedGroupId: (groupId: string) => void;
+  readonly setSelectedGroupId: (groupId: string | null) => void;
   readonly resetGroupProgress: () => void;
   readonly setTasks: (tasks: ReadonlyArray<PreparationTask>) => void;
   readonly setCustomTags: (tags: ReadonlyArray<Tag>) => void;
@@ -58,8 +58,9 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
   const [customGroups, setCustomGroupsState] = useState<ReadonlyArray<Group>>(
     []
   );
-  const [selectedGroupId, setSelectedGroupIdState] =
-    useState<string>(DEFAULT_GROUP_ID);
+  const [selectedGroupId, setSelectedGroupIdState] = useState<string | null>(
+    DEFAULT_GROUP_ID
+  );
   const isInitialMount = useRef(true);
 
   useEffect(() => {
@@ -119,7 +120,7 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
     setCustomGroupsState(newGroups);
   }, []);
 
-  const setSelectedGroupId = useCallback((groupId: string) => {
+  const setSelectedGroupId = useCallback((groupId: string | null) => {
     setSelectedGroupIdState(groupId);
   }, []);
 
@@ -181,6 +182,8 @@ export const AppProvider: React.FC<{ readonly children: ReactNode }> = ({
   }, []);
 
   const resetGroupProgress = useCallback(() => {
+    if (!selectedGroupId) return;
+
     setTasksState((prev) =>
       prev.map((t) =>
         t.groupId === selectedGroupId
