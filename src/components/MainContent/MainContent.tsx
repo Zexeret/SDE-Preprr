@@ -3,7 +3,6 @@ import { ContentHeader } from "./ContentHeader";
 import { MainContentContainer } from "./MainContent.styles";
 import { useTaskUtility } from "../../context";
 import { Stats } from "../Stats";
-import { CardGlass } from "../../styles";
 import {
   DEFAULT_FILTER_TO_APPLY,
   FilterBar,
@@ -12,6 +11,7 @@ import {
 } from "../FilterBar";
 import { TaskList } from "../TaskList";
 import type { PreparationTask } from "../../model";
+import { CardGlass } from "../../sharedStyles";
 
 type MainContentProps = {
   readonly openAddTaskModal: (task : PreparationTask | null) => void;

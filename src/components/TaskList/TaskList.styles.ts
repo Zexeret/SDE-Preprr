@@ -1,7 +1,6 @@
-import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 
-export const taskListContainerStyles = css`
+export const TaskListContainer = styled.div`
   /* Container for the entire task list */
 `;
 
@@ -26,16 +25,16 @@ export const EmptyListContainer = styled.div`
   }
 `;
 
-export const taskListControlsStyles = css`
+export const TaskListControls = styled.div`
   margin-bottom: 1rem;
 `;
 
-export const tasksGridStyles = css`
+export const TasksGrid = styled.div`
   display: grid;
   gap: 1rem;
 `;
 
-export const groupHeaderStyles = css`
+export const GroupHeader = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
   color: #f1f5f9;
@@ -51,7 +50,7 @@ export const groupHeaderStyles = css`
   }
 `;
 
-export const groupCountStyles = css`
+export const GroupCount = styled.span`
   font-size: 0.875rem;
   color: #94a3b8;
   font-weight: 400;

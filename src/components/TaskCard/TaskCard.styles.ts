@@ -1,6 +1,6 @@
-import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 
-export const taskCardStyles = css`
+export const TaskCardBase = styled.div`
   background: rgba(30, 41, 59, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -15,39 +15,37 @@ export const taskCardStyles = css`
   }
 `;
 
-export const taskCardDoneStyles = css`
-  ${taskCardStyles}
+export const TaskCardDone = styled(TaskCardBase)`
   opacity: 0.7;
 `;
 
-export const taskCardDraggingStyles = css`
-  ${taskCardStyles}
+export const TaskCardDragging = styled(TaskCardBase)`
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
   transform: rotate(2deg);
 `;
 
-export const taskHeaderStyles = css`
+export const TaskHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
 `;
 
-export const taskContentStyles = css`
+export const TaskContent = styled.div`
   flex: 1;
   min-width: 0;
 `;
 
-export const taskLinkContainerStyles = css`
+export const TaskLinkContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 `;
 
-export const taskLinkStyles = css`
+export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
   color: #6366f1;
-  text-decoration: none;
+  text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
   word-break: break-all;
 
@@ -56,18 +54,20 @@ export const taskLinkStyles = css`
   }
 `;
 
-export const taskLinkDoneStyles = css`
-  ${taskLinkStyles}
-  text-decoration: line-through;
+export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
+  color: #6366f1;
+  text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
+  font-weight: 500;
+  word-break: break-all;
 `;
 
-export const taskActionsStyles = css`
+export const TaskActions = styled.div`
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
 `;
 
-export const iconButtonStyles = css`
+export const IconButton = styled.button`
   padding: 0.5rem;
   border-radius: 0.375rem;
   border: none;
@@ -85,23 +85,21 @@ export const iconButtonStyles = css`
   }
 `;
 
-export const iconButtonSuccessStyles = css`
-  ${iconButtonStyles}
+export const IconButtonSuccess = styled(IconButton)`
   &:hover {
     background: #10b981;
     color: white;
   }
 `;
 
-export const iconButtonDangerStyles = css`
-  ${iconButtonStyles}
+export const IconButtonDanger = styled(IconButton)`
   &:hover {
     background: #ef4444;
     color: white;
   }
 `;
 
-export const dragHandleStyles = css`
+export const DragHandle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,30 +118,24 @@ export const dragHandleStyles = css`
   }
 `;
 
-export const tagsContainerStyles = css`
+export const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.75rem;
 `;
 
-export const tagStyles = css`
+export const Tag = styled.span<{ readonly $isCustom?: boolean }>`
   padding: 0.375rem 0.75rem;
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 500;
   background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
+  color: ${(props) => (props.$isCustom ? "#8b5cf6" : "#94a3b8")};
+  border: 1px solid ${(props) => (props.$isCustom ? "#8b5cf6" : "#334155")};
 `;
 
-export const tagCustomStyles = css`
-  ${tagStyles}
-  color: #8b5cf6;
-  border-color: #8b5cf6;
-`;
-
-export const emptyStateStyles = css`
+export const EmptyState = styled.div`
   text-align: center;
   padding: 4rem 2rem;
   color: #94a3b8;
@@ -164,11 +156,11 @@ export const emptyStateStyles = css`
   }
 `;
 
-export const taskListControlsStyles = css`
+export const TaskListControls = styled.div`
   margin-bottom: 1rem;
 `;
 
-export const tasksGridStyles = css`
+export const TasksGrid = styled.div`
   display: grid;
   gap: 1rem;
 `;

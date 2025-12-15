@@ -5,11 +5,11 @@ import {
   ContentSubtitle,
   ContentTitle,
 } from "./ContentHeader.styles";
-import { ButtonPrimary } from "../../styles";
 import { FiPlus } from "react-icons/fi";
 import { PREDEFINED_GROUPS } from "../../constants";
 import { useTaskUtility } from "../../context";
 import type { PreparationTask } from "../../model";
+import { ButtonPrimary } from "../../sharedStyles";
 
 type ContentHeaderProps = {
   readonly openAddTaskModal: (task: PreparationTask | null) => void;

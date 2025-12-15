@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { FiX, FiEye, FiEyeOff, FiEdit2 } from "react-icons/fi";
+import { FiX, FiEye, FiEyeOff } from "react-icons/fi";
 import {
   DndContext,
   closestCenter,
@@ -10,7 +10,6 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -19,11 +18,9 @@ import type { PreparationTask } from "../../model";
 import { TaskCard } from "../TaskCard";
 import { ButtonSecondary } from "../../sharedStyles";
 import {
-  taskListControlsStyles,
-  tasksGridStyles,
-  groupHeaderStyles,
-  groupCountStyles,
   EmptyListContainer,
+  TaskListControls,
+  TasksGrid,
 } from "./TaskList.styles";
 import { useTaskUtility } from "../../context";
 
@@ -41,9 +38,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   const { reorderTasks } = useTaskUtility();
 
   const [showTags, setShowTags] = useState(false);
-  const [notesModalTask, setNotesModalTask] = useState<PreparationTask | null>(
-    null
-  );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -75,13 +69,13 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const tasksList = (
     <>
-      <div className={taskListControlsStyles}>
+      <TaskListControls>
         <ButtonSecondary onClick={() => setShowTags(!showTags)}>
           {showTags ? <FiEyeOff size={16} /> : <FiEye size={16} />}
           {showTags ? "Hide Tags" : "Show Tags"}
         </ButtonSecondary>
-      </div>
-      <div className={tasksGridStyles}>
+      </TaskListControls>
+      <TasksGrid>
         {tasks.map((task) => (
           <TaskCard
             key={task.id}
@@ -89,10 +83,9 @@ export const TaskList: React.FC<TaskListProps> = ({
             showTags={showTags}
             enableDragDrop={enableDragDrop}
             onEdit={onEdit}
-            onViewNotes={setNotesModalTask}
           />
         ))}
-      </div>
+      </TasksGrid>
     </>
   );
 
