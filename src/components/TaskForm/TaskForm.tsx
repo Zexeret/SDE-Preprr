@@ -185,9 +185,6 @@ export const TaskForm = memo<TaskFormProps>(
       <ModalOverlay onClick={onClose}>
         <ModalContent
           onClick={(e) => e.stopPropagation()}
-          className={css`
-            height: 100%;
-          `}
         >
           <TaskFormHeading>
             {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}

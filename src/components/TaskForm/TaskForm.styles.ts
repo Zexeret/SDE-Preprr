@@ -90,7 +90,6 @@ export const AddCustomTagContainer = styled.div`
 `;
 
 export const FormContainer = styled.div`
-  height: 86%;
   overflow-y: scroll;
   scrollbar-width: none;
 `;
@@ -98,7 +97,6 @@ export const FormContainer = styled.div`
 export const FooterActionContainer = styled.div`
   height: fit-content;
   margin-top: 2%;
-  padding-top: 2%;
 `;
 
 export const StyledCloseButton = styled(ButtonSecondary)`

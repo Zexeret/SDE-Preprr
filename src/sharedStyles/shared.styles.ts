@@ -51,9 +51,11 @@ export const ModalContent = styled.div`
   background: ${({ theme }) => theme.surface};
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   max-width: 65vw;
   width: 100%;
+      display: flex;
+  flex-direction: column;
   height: fit-content;
   max-height: 90vh;
   overflow-y: auto;
