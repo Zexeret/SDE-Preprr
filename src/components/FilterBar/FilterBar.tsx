@@ -3,7 +3,7 @@ import { FiFilter } from "react-icons/fi";
 import { DIFFICULTY_TAGS, DifficultyTagId, type Tag } from "../../model";
 import { DSA_SPECIFIC_TAGS } from "../../constants";
 import { FilterBarContainer } from "./FilterBar.styles";
-import { Button, Select } from "../../sharedStyles";
+import { ButtonSecondary, Select } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";
 import { DEFAULT_FILTER_TO_APPLY } from "./FilterToApplyType";
 import { useFilterContext } from "./useFilterContext";
@@ -149,10 +149,10 @@ export const FilterBar = memo<FilterBarProps>(() => {
         <option value="yes">Group by Tag</option>
       </Select> */}
 
-      <Button variant="secondary" onClick={handleClearFilters}>
+      <ButtonSecondary onClick={handleClearFilters}>
         <FiFilter size={16} />
         Clear Filters
-      </Button>
+      </ButtonSecondary>
     </FilterBarContainer>
   );
 });

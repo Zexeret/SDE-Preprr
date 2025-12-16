@@ -28,6 +28,21 @@ export const EmptyListContainer = styled.div`
 export const TasksGrid = styled.div`
   display: grid;
   gap: 1px;
+
+  & > div:nth-child(even) {
+    & > div {
+        background: ${props => props.theme.surface}
+    }
+  }
+  
+
+  & > div:nth-child(odd) {
+    & > div {
+        background: ${props => props.theme.background}
+    }
+  }
+
+
 `;
 
 export const GroupHeader = styled.div`

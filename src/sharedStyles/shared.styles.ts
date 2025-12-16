@@ -31,77 +31,6 @@ export const Select = styled.select`
   }
 `;
 
-export const Button = styled.button<{
-  readonly variant?: "primary" | "secondary" | "danger" | "success";
-}>`
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  border: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  font-family: inherit;
-
-  ${({ variant = "primary", theme }) => {
-    switch (variant) {
-      case "primary":
-        return `
-          background: ${theme.primary};
-          color: white;
-          box-shadow: 0 4px 12px ${theme.primary}40;
-          &:hover {
-            background: ${theme.primaryHover};
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px ${theme.primary}50;
-          }
-        `;
-      case "secondary":
-        return `
-          background: ${theme.surfaceElevated};
-          color: ${theme.text.primary};
-          border: 1px solid ${theme.border};
-          &:hover {
-            background: ${theme.surface};
-            border-color: ${theme.primary};
-          }
-        `;
-      case "danger":
-        return `
-          background: ${theme.error};
-          color: white;
-          box-shadow: 0 4px 12px ${theme.error}40;
-          &:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px ${theme.error}50;
-          }
-        `;
-      case "success":
-        return `
-          background: ${theme.success};
-          color: white;
-          box-shadow: 0 4px 12px ${theme.success}40;
-          &:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px ${theme.success}50;
-          }
-        `;
-    }
-  }}
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    &:hover {
-      transform: none;
-    }
-  }
-`;
 
 export const ModalOverlay = styled.div`
   position: fixed;
@@ -187,8 +116,7 @@ export const ButtonSecondary = styled(ButtonBase)`
   border: 1px solid ${({ theme }) => theme.border};
 
   &:hover:not(:disabled) {
-    background: ${({ theme }) => theme.surface};
-    border-color: ${({ theme }) => theme.primary};
+    border-color: ${({ theme }) => theme.primaryHover};
   }
 `;
 

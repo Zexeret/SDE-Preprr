@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Button } from "../../sharedStyles";
+import { ButtonSecondary } from "../../sharedStyles";
 
 export const TagsContainer = styled.div`
   display: flex;
@@ -101,7 +101,7 @@ export const FooterActionContainer = styled.div`
   padding-top: 2%;
 `;
 
-export const StyledCloseButton = styled(Button)`
+export const StyledCloseButton = styled(ButtonSecondary)`
   background: none;
   border: none;
 

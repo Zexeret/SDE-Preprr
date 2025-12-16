@@ -24,4 +24,5 @@ export const MainContentWithSidebar = styled.main`
   flex: 1;
   overflow-y: auto;
   height: 100vh;
+  scrollbar-width: none;
 `;

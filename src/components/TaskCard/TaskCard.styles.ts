@@ -6,13 +6,14 @@ export const TaskCardBase = styled.div`
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 0.75rem;
-  padding: 1.25rem;
-  border: 1px solid ${({ theme }) => theme.border};
+  padding: 0.45rem;
   transition: all 0.2s;
+  position:relative;
 
   &:hover {
+    z-index: 1;
     border-color: ${({ theme }) => theme.primary};
-    box-shadow: 0 0px 5px ${({ theme }) => `${theme.primary}30`};
+    box-shadow: 0 0px 5px ${({ theme }) => `${theme.primary}`};
   }
 `;
 
@@ -26,10 +27,14 @@ export const TaskHeader = styled.div`
 export const TaskContent = styled.div`
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 export const TaskLinkContainer = styled.div`
   display: flex;
+  flex-grow:1;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
@@ -50,10 +55,10 @@ export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
 `;
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
-  color: ${({ theme }) => theme.text.primary}e3;
+  color: ${({ theme, $isDone }) => $isDone ? theme.text.secondary : theme.text.primary}e3;
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   word-break: break-all;
 `;
 
@@ -67,7 +72,7 @@ export const IconButton = styled.button`
   padding: 0.5rem;
   border-radius: 0.375rem;
   border: none;
-  background: ${({ theme }) => theme.background};
+  background: none;
   color: ${({ theme }) => theme.text.secondary};
   cursor: pointer;
   display: flex;
@@ -85,7 +90,7 @@ export const IconButtonSuccess = styled(IconButton)<{
   readonly isDone: boolean;
 }>`
   background: ${(props) =>
-    props.isDone ? props.theme.success : props.theme.background};
+    props.isDone ? props.theme.success : "none"};
   color: ${(props) =>
     props.isDone ? 'white' : props.theme.text.secondary};
 
@@ -126,7 +131,6 @@ export const TagsContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.75rem;
 `;
 
 export const SeparatingDot = styled.div`
@@ -187,9 +191,11 @@ export const DifficultyTag = styled.button<{
     const tagColor = tagMap[difficulty];
 
     return `  
-    padding: 0.5rem;
+    font-size: 0.7rem;
+    width: 65px;
+    padding: 0.4rem 0.5rem;
     border-radius: 0.375rem;
-    margin-right: 1.25rem;
+    margin: 0 1.25rem;
     border:1px solid ${tagColor};
     color: ${tagColor};
     background: ${tagColor}14;

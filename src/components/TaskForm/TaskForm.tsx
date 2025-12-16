@@ -7,7 +7,8 @@ import {
 } from "../../model";
 import { DSA_SPECIFIC_TAGS } from "../../constants";
 import {
-  Button,
+  ButtonDanger,
+  ButtonPrimary,
   FormGroup,
   ModalActions,
   ModalContent,
@@ -284,12 +285,12 @@ export const TaskForm = memo<TaskFormProps>(
                 margin: 0;
               `}
             >
-              <Button type="button" variant="danger" onClick={handleDelete}>
+              <ButtonDanger onClick={handleDelete}>
                 Delete
-              </Button>
-              <Button type="submit" variant="primary" onClick={handleSubmit}>
+              </ButtonDanger>
+              <ButtonPrimary onClick={handleSubmit}>
                 {isNewTaskBeingAdded ? "Add Task" : "Update Task"}
-              </Button>
+              </ButtonPrimary>
             </ModalActions>
           </FooterActionContainer>
         </ModalContent>

@@ -2,9 +2,9 @@ import type { Theme } from "./Theme";
 
 export const darkTheme: Theme = {
     background: "#0D0F14",         // Main background (very dark blue-gray)
-    surface: "#111319",            // Card/sidebar background (dark blue-gray)
-    surfaceElevated: "#232634",    // Modals, dropdowns, hover states (slightly lighter)
-    border: "#25272f",             // Subtle border
+    surface: "#16181e",            // Card/sidebar background (dark blue-gray)
+    surfaceElevated: "#2b2d34ff",    // Modals, dropdowns, hover states (slightly lighter)
+    border: "#2a2d36",             // Subtle border
     text: {
       primary: "#F4F6FB",          // Main text (almost white)
       secondary: "#A3A8B8",        // Secondary text (muted blue-gray)

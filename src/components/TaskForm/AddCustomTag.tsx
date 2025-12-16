@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from "react";
 import { AddCustomTagContainer } from "./TaskForm.styles";
-import { Button } from "../../sharedStyles";
+import { ButtonPrimary } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";
 import type { Tag } from "../../model";
 import { FiPlus } from "react-icons/fi";
@@ -34,10 +34,10 @@ export const AddCustomTag = memo(
           placeholder="Enter custom tag name"
           style={{ flex: 1 }}
         />
-        <Button type="button" variant="primary" onClick={handleAddCustomTag}>
+        <ButtonPrimary onClick={handleAddCustomTag}>
           <FiPlus size={12} style={{ marginRight: "4px" }} />
           Add Custom Tag
-        </Button>
+        </ButtonPrimary>
       </AddCustomTagContainer>
     );
   }

@@ -37,6 +37,8 @@ interface TaskCardProps {
 const getDifficultyName = (id: DifficultyTagId) =>
   DIFFICULTY_TAGS.find((tag) => tag.id === id)?.name || id;
 
+const ICON_SIZE = 14; 
+
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   showTags,
@@ -74,7 +76,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <TaskHeader>
           {enableDragDrop && (
             <DragHandle {...attributes} {...listeners}>
-              <FiMenu size={18} />
+              <FiMenu size={ICON_SIZE} />
             </DragHandle>
           )}
           <TaskContent>
@@ -88,7 +90,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 rel="noopener noreferrer"
                 $isDone={task.isDone}
               >
-                <FiExternalLink size={18} />
+                <FiExternalLink size={ICON_SIZE} />
               </TaskLink>
             </TaskLinkContainer>
             {showTags && task.tags.length > 0 && (
@@ -115,14 +117,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 title="Mark as done"
                 isDone={task.isDone}
               >
-                <FiCheck size={16} />
+                <FiCheck size={ICON_SIZE} />
               </IconButtonSuccess>
             
             <IconButton onClick={() => onEdit(task)} title="Edit task">
-              <FiEdit2 size={16} />
+              <FiEdit2 size={ICON_SIZE} />
             </IconButton>
             <IconButtonDanger onClick={handleDeleteTask} title="Delete task">
-              <FiTrash2 size={16} />
+              <FiTrash2 size={ICON_SIZE} />
             </IconButtonDanger>
           </TaskActions>
         </TaskHeader>
