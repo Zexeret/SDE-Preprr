@@ -52,12 +52,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     setNodeRef,
     transform,
     transition,
+    isDragging
   } = useSortable({ id: task.id, disabled: !enableDragDrop });
   const { deleteTask, updateTask } = useTaskUtility();
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 1 : 'auto',
+    position: 'relative' as const
   };
 
   const handleDeleteTask = useCallback(() => {
