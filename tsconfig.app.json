@@ -10,7 +10,8 @@
     ],
     "module": "ESNext",
     "types": [
-      "vite/client"
+      "vite/client",
+      "node"
     ],
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -19,6 +20,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "skipLibCheck": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

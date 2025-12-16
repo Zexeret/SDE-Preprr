@@ -36,8 +36,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   const { reorderTasks } = useTaskUtility();
   const {
     filteredAndSortedTasks: tasks,
-    setShowTags,
-    setShowDifficulty,
     showDifficulty,
     showTags,
   } = useFilterContext();

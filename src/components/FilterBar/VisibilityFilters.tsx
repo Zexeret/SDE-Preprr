@@ -1,4 +1,3 @@
-import React from "react";
 import { ButtonPrimary, ButtonSecondary } from "../../sharedStyles";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { VisibilityControls } from "./VisibilityFilters.styles";

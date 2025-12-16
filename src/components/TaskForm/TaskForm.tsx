@@ -190,7 +190,6 @@ export const TaskForm = memo<TaskFormProps>(
             {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}
             <StyledCloseButton
               type="button"
-              variant="secondary"
               onClick={onClose}
               className={css`
                 background: none;

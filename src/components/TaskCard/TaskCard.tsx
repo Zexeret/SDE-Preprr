@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { FiEdit2, FiTrash2, FiCheck, FiX, FiMenu, FiExternalLink } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiCheck, FiMenu, FiExternalLink } from "react-icons/fi";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
