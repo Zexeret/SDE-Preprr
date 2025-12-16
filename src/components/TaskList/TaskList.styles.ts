@@ -29,20 +29,17 @@ export const TasksGrid = styled.div`
   display: grid;
   gap: 1px;
 
-  & > div:nth-child(even) {
+  & > div:nth-of-type(even) {
     & > div {
-        background: ${props => props.theme.surface}
-    }
-  }
-  
-
-  & > div:nth-child(odd) {
-    & > div {
-        background: ${props => props.theme.background}
+      background: ${(props) => props.theme.surface};
     }
   }
 
-
+  & > div:nth-of-type(odd) {
+    & > div {
+      background: ${(props) => props.theme.background};
+    }
+  }
 `;
 
 export const GroupHeader = styled.div`

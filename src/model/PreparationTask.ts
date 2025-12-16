@@ -1,5 +1,4 @@
 import type { DifficultyTagId } from "./Difficulty";
-import type { Tag } from "./Tag";
 
 export type PreparationTask = {
   readonly id: string;
@@ -7,7 +6,7 @@ export type PreparationTask = {
   readonly title: string;
   readonly link: string | null;
   readonly difficulty : DifficultyTagId ;
-  readonly tags: ReadonlyArray<Tag>;
+  readonly tags: ReadonlyArray<string>;
   readonly notes: string;
   readonly isDone: boolean;
   readonly createdAt: number;

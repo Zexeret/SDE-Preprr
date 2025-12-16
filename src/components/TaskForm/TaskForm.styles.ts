@@ -39,7 +39,6 @@ export const StyledTag = styled.span<{
   button {
     background: none;
     border: none;
-    color: white;
     cursor: pointer;
     padding: 0;
     display: flex;
@@ -67,6 +66,10 @@ export const StyledTag = styled.span<{
         &:hover {
           background: ${theme.primary};
           color: white;
+
+          button {
+            color: white;
+          }
         }
       `;
     } else {

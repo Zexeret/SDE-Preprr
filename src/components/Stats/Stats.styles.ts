@@ -20,12 +20,6 @@ export const StatCard = styled.div`
     letter-spacing: 0.05em;
   }
 
-  .value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: ${text.primary};
-  }
-    
     `}
 `;
 
@@ -55,7 +49,7 @@ const getTextColor = (
 export const ValueContainer = styled.div<{
   readonly $variant: "success" | "warning" | "danger" | "info";
 }>`
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: ${(props) => getTextColor(props.$variant, props.theme)};
 `;

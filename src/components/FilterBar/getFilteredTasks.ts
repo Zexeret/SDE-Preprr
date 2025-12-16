@@ -6,7 +6,7 @@ export const getFilteredTasks = (tasks: ReadonlyArray<PreparationTask>, groupId:
         const isInGroup = task.groupId === groupId;
         if (!isInGroup) return false;
         
-        const matchesTag = filter.tagId ? task.tags.some(tag => tag.id === filter.tagId) : true;
+        const matchesTag = filter.tagId ? task.tags.some(tag => tag === filter.tagId) : true;
         const matchesDifficulty = filter.difficultyId ? task.difficulty === filter.difficultyId : true;
         const matchesCompletionStatus =
             filter.completionStatus === 'All' ? true :

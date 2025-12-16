@@ -125,7 +125,7 @@ export const TaskUtilityProvider: React.FC<{
     setTasksState((prev) =>
       prev.map((task) => ({
         ...task,
-        tags: task.tags.filter((t) => t.id !== tagId),
+        tags: task.tags.filter((t) => t !== tagId),
         updatedAt: Date.now(),
       }))
     );

@@ -8,7 +8,7 @@ export const TaskCardBase = styled.div`
   border-radius: 0.75rem;
   padding: 0.45rem;
   transition: all 0.2s;
-  position:relative;
+  position: relative;
 
   &:hover {
     z-index: 1;
@@ -34,7 +34,7 @@ export const TaskContent = styled.div`
 
 export const TaskLinkContainer = styled.div`
   display: flex;
-  flex-grow:1;
+  flex-grow: 1;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
@@ -55,7 +55,8 @@ export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
 `;
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
-  color: ${({ theme, $isDone }) => $isDone ? theme.text.secondary : theme.text.primary}e3;
+  color: ${({ theme, $isDone }) =>
+    $isDone ? theme.text.secondary : theme.text.primary}e3;
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
   font-size: 0.8rem;
@@ -89,14 +90,12 @@ export const IconButton = styled.button`
 export const IconButtonSuccess = styled(IconButton)<{
   readonly isDone: boolean;
 }>`
-  background: ${(props) =>
-    props.isDone ? props.theme.success : "none"};
-  color: ${(props) =>
-    props.isDone ? 'white' : props.theme.text.secondary};
+  background: ${(props) => (props.isDone ? props.theme.success : "none")};
+  color: ${(props) => (props.isDone ? "white" : props.theme.text.secondary)};
 
   &:hover {
     background: ${({ theme }) => theme.primary};
-    color: ${props => props.theme.text.primary};
+    color: white;
   }
 `;
 

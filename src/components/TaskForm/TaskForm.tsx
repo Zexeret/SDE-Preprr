@@ -9,6 +9,7 @@ import {
 import {
   ButtonDanger,
   ButtonPrimary,
+  ButtonSecondary,
   FormGroup,
   ModalActions,
   ModalContent,
@@ -48,7 +49,7 @@ export const TaskForm = memo<TaskFormProps>(
     const [difficulty, setDifficulty] = useState<DifficultyTagId>(
       currentTaskInFormModal?.difficulty || DifficultyTagId.EASY
     );
-    const [selectedTags, setSelectedTags] = useState<ReadonlyArray<Tag>>(
+    const [selectedTags, setSelectedTags] = useState<ReadonlyArray<string>>(
       currentTaskInFormModal?.tags || []
     );
 
@@ -85,11 +86,11 @@ export const TaskForm = memo<TaskFormProps>(
 
     const handleTagToggle = (tag: Tag) => {
       setSelectedTags((prev) => {
-        const exists = prev.find((t) => t.id === tag.id);
+        const exists = prev.find((t) => t === tag.id);
         if (exists) {
-          return prev.filter((t) => t.id !== tag.id);
+          return prev.filter((t) => t !== tag.id);
         } else {
-          return [...prev, tag];
+          return [...prev, tag.id];
         }
       });
     };
@@ -106,7 +107,7 @@ export const TaskForm = memo<TaskFormProps>(
           )
         ) {
           deleteCustomTag(tagId);
-          setSelectedTags((prev) => prev.filter((t) => t.id !== tagId));
+          setSelectedTags((prev) => prev.filter((t) => t !== tagId));
         }
       },
       [deleteCustomTag]
@@ -183,9 +184,7 @@ export const TaskForm = memo<TaskFormProps>(
 
     return (
       <ModalOverlay onClick={onClose}>
-        <ModalContent
-          onClick={(e) => e.stopPropagation()}
-        >
+        <ModalContent onClick={(e) => e.stopPropagation()}>
           <TaskFormHeading>
             {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}
             <StyledCloseButton
@@ -245,18 +244,18 @@ export const TaskForm = memo<TaskFormProps>(
                   {tagsByGroup.map((tag) => (
                     <StyledTag
                       key={tag.id}
-                      selected={selectedTags.some((t) => t.id === tag.id)}
+                      selected={selectedTags.some((t) => t === tag.id)}
                       isCustom={tag.isCustom}
                       onClick={() => handleTagToggle(tag)}
                     >
                       {tag.name}
                       {tag.isCustom && (
-                        <button
+                        <ButtonSecondary
                           type="button"
                           onClick={() => handleRemoveTag(tag.id)}
                         >
                           <FiX size={14} />
-                        </button>
+                        </ButtonSecondary>
                       )}
                     </StyledTag>
                   ))}
@@ -281,9 +280,12 @@ export const TaskForm = memo<TaskFormProps>(
                 margin: 0;
               `}
             >
-              <ButtonDanger onClick={handleDelete}>
-                Delete
-              </ButtonDanger>
+              {currentTaskInFormModal ? (
+                <ButtonDanger onClick={handleDelete}>Delete</ButtonDanger>
+              ) : (
+                <ButtonSecondary onClick={onClose}>Cancel</ButtonSecondary>
+              )}
+
               <ButtonPrimary onClick={handleSubmit}>
                 {isNewTaskBeingAdded ? "Add Task" : "Update Task"}
               </ButtonPrimary>

@@ -40,7 +40,7 @@ export const FilterBar = memo<FilterBarProps>(() => {
       if (tagId === ALL_DIFFICULTY_TAG_ID) return tasksByGroup.length;
 
       return tasksByGroup.filter((task) =>
-        task.tags.some((tag) => tag.id === tagId)
+        task.tags.some((tag) => tag === tagId)
       ).length;
     },
     [tasksByGroup]
@@ -127,26 +127,6 @@ export const FilterBar = memo<FilterBarProps>(() => {
       </Select>
 
       <VisibilityFilters />
-
-      {/* <Select
-        value={showDoneOnly ? "done" : showUndoneOnly ? "undone" : "all"}
-        onChange={(e) => {
-          onShowDoneOnlyChange(e.target.value === "done");
-          onShowUndoneOnlyChange(e.target.value === "undone");
-        }}
-      >
-        <option value="all">All Tasks</option>
-        <option value="done">Completed Only</option>
-        <option value="undone">Pending Only</option>
-      </Select> */}
-
-      {/* <Select
-        value={groupByTag ? "yes" : "no"}
-        onChange={(e) => onGroupByTagChange(e.target.value === "yes")}
-      >
-        <option value="no">No Grouping</option>
-        <option value="yes">Group by Tag</option>
-      </Select> */}
 
       <ButtonSecondary onClick={handleClearFilters}>
         <FiFilter size={16} />

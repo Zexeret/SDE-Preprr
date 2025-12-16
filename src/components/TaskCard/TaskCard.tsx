@@ -1,9 +1,16 @@
 import React, { useCallback } from "react";
-import { FiEdit2, FiTrash2, FiCheck, FiMenu, FiExternalLink } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiCheck,
+  FiMenu,
+  FiExternalLink,
+} from "react-icons/fi";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   DIFFICULTY_TAGS,
+  DSA_SPECIFIC_TAGS,
   type DifficultyTagId,
   type PreparationTask,
 } from "../../model";
@@ -25,6 +32,7 @@ import {
   DifficultyTag,
 } from "./TaskCard.styles";
 import { useTaskUtility } from "../../context";
+import { isValidUrl } from "../../utils";
 
 interface TaskCardProps {
   readonly task: PreparationTask;
@@ -37,7 +45,7 @@ interface TaskCardProps {
 const getDifficultyName = (id: DifficultyTagId) =>
   DIFFICULTY_TAGS.find((tag) => tag.id === id)?.name || id;
 
-const ICON_SIZE = 14; 
+const ICON_SIZE = 14;
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
@@ -52,15 +60,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({ id: task.id, disabled: !enableDragDrop });
-  const { deleteTask, updateTask } = useTaskUtility();
+  const { deleteTask, updateTask, customTags } = useTaskUtility();
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 1 : 'auto',
-    position: 'relative' as const
+    zIndex: isDragging ? 1 : "auto",
+    position: "relative" as const,
   };
 
   const handleDeleteTask = useCallback(() => {
@@ -72,6 +80,29 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const handleToggleTaskDone = useCallback(() => {
     updateTask({ ...task, isDone: !task.isDone });
   }, [task, updateTask]);
+
+  const renderTags = useCallback(
+    (tagIds: ReadonlyArray<string>) => {
+      const allTags = [...DSA_SPECIFIC_TAGS, ...customTags];
+      return tagIds.map((tagId, index) => {
+        const tag = allTags.find((tag) => tag.id === tagId);
+        if (tag) {
+          return (
+            <>
+              <Tag key={tag.id} $isCustom={tag.isCustom}>
+                {tag.name}
+              </Tag>
+              {index < task.tags.length - 1 && <SeparatingDot />}
+            </>
+          );
+        }
+        return null;
+      });
+    },
+    [customTags, task.tags.length]
+  );
+
+  const taskLink = task.link && isValidUrl(task.link) ? task.link : undefined;
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -88,7 +119,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 {task.title} #{task.order}
               </TaskLinkSpan>
               <TaskLink
-                href={task.link ?? undefined}
+                href={taskLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 $isDone={task.isDone}
@@ -97,16 +128,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </TaskLink>
             </TaskLinkContainer>
             {showTags && task.tags.length > 0 && (
-              <TagsContainer>
-                {task.tags.map((tag, index) => (
-                  <>
-                    <Tag key={tag.id} $isCustom={tag.isCustom}>
-                      {tag.name}
-                    </Tag>
-                    {index < task.tags.length - 1 && <SeparatingDot />}
-                  </>
-                ))}
-              </TagsContainer>
+              <TagsContainer>{renderTags(task.tags)}</TagsContainer>
             )}
           </TaskContent>
           <TaskActions>
@@ -115,14 +137,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 {getDifficultyName(task.difficulty)}
               </DifficultyTag>
             )}
-              <IconButtonSuccess
-                onClick={handleToggleTaskDone}
-                title="Mark as done"
-                isDone={task.isDone}
-              >
-                <FiCheck size={ICON_SIZE} />
-              </IconButtonSuccess>
-            
+            <IconButtonSuccess
+              onClick={handleToggleTaskDone}
+              title="Mark as done"
+              isDone={task.isDone}
+            >
+              <FiCheck size={ICON_SIZE} />
+            </IconButtonSuccess>
+
             <IconButton onClick={() => onEdit(task)} title="Edit task">
               <FiEdit2 size={ICON_SIZE} />
             </IconButton>
