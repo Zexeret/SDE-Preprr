@@ -2,30 +2,27 @@ import React, {
   useState,
   useCallback,
   useEffect,
-  useRef,
   type ReactNode,
 } from "react";
-import type { PreparationTask, Tag, Group } from "../model";
 import {
-  loadTasks,
-  saveTasks,
-  loadCustomTags,
-  saveCustomTags,
-  loadCustomGroups,
-  saveCustomGroups,
-  loadSelectedGroup,
-  saveSelectedGroup,
-} from "../utils";
-import { TaskUtilityContext, type TaskUtilityContextType } from "./useTaskUtility";
-import type { ThemeName } from "../theme";
-import { PredefinedGroupId } from "../constants";
-
+  type PreparationTask,
+  type Tag,
+  type Group,
+  type ThemeName,
+  PredefinedGroupId,
+} from "../model";
+import {
+  TaskUtilityContext,
+  type TaskUtilityContextType,
+} from "./useTaskUtility";
+import { exportData, importData, loadAppState } from "../utils";
+import { useDebouncedAutoSave } from "../utils";
 
 export const TaskUtilityProvider: React.FC<{
   readonly children: ReactNode;
   readonly setTheme: (themeName: ThemeName) => void;
-  readonly themeName : ThemeName;
-}> = ({ children, setTheme , themeName}) => {
+  readonly themeName: ThemeName;
+}> = ({ children, setTheme, themeName }) => {
   const [tasks, setTasksState] = useState<ReadonlyArray<PreparationTask>>([]);
   const [customTags, setCustomTagsState] = useState<ReadonlyArray<Tag>>([]);
   const [customGroups, setCustomGroupsState] = useState<ReadonlyArray<Group>>(
@@ -34,52 +31,24 @@ export const TaskUtilityProvider: React.FC<{
   const [selectedGroupId, setSelectedGroupIdState] = useState<string | null>(
     PredefinedGroupId.DSA
   );
-  const isInitialMount = useRef(true);
 
+  // Load app state on mount
   useEffect(() => {
-    const loadedTasks = loadTasks();
-    const loadedTags = loadCustomTags();
-    const loadedGroups = loadCustomGroups();
-    const loadedSelectedGroup = loadSelectedGroup();
+    const appState = loadAppState();
+    setTasksState(appState.tasks);
+    setCustomTagsState(appState.customTags);
+    setCustomGroupsState(appState.customGroups);
+    setTheme(appState.selectedTheme);
+    document.documentElement.setAttribute("data-theme", appState.selectedTheme);
+  }, [setTheme]);
 
-    const tasksWithOrder = loadedTasks.map((task, index) => ({
-      ...task,
-      order: task.order !== undefined ? task.order : index,
-    }));
-
-    setTasksState(tasksWithOrder);
-    setCustomTagsState(loadedTags);
-    setCustomGroupsState(loadedGroups);
-    setSelectedGroupIdState(loadedSelectedGroup);
-
-    setTimeout(() => {
-      isInitialMount.current = false;
-    }, 0);
-  }, []);
-
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      saveTasks(tasks);
-    }
-  }, [tasks]);
-
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      saveCustomTags(customTags);
-    }
-  }, [customTags]);
-
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      saveCustomGroups(customGroups);
-    }
-  }, [customGroups]);
-
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      saveSelectedGroup(selectedGroupId);
-    }
-  }, [selectedGroupId]);
+  // Debounced auto-save hook
+  useDebouncedAutoSave(
+    tasks,
+    customTags,
+    customGroups,
+    themeName
+  );
 
   const setTasks = useCallback((newTasks: ReadonlyArray<PreparationTask>) => {
     setTasksState(newTasks);
@@ -98,7 +67,9 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const addTask = useCallback((task: PreparationTask) => {
-    setTasksState((prev) => [...prev, task].map((t, index) => ({ ...t, order: index })));
+    setTasksState((prev) =>
+      [...prev, task].map((t, index) => ({ ...t, order: index }))
+    );
   }, []);
 
   const updateTask = useCallback((updatedTask: PreparationTask) => {
@@ -108,7 +79,11 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const deleteTask = useCallback((taskId: string) => {
-    setTasksState((prev) => prev.filter((t) => t.id !== taskId).map((t, index) => ({ ...t, order: index })));
+    setTasksState((prev) =>
+      prev
+        .filter((t) => t.id !== taskId)
+        .map((t, index) => ({ ...t, order: index }))
+    );
   }, []);
 
   const toggleTaskDone = useCallback((taskId: string) => {
@@ -120,7 +95,7 @@ export const TaskUtilityProvider: React.FC<{
   }, []);
 
   const reorderTasks = useCallback(
-    (activeTaskId : string , overTaskId : string) => {
+    (activeTaskId: string, overTaskId: string) => {
       const activeTaskIndex = tasks.findIndex((t) => t.id === activeTaskId);
       const overTaskIndex = tasks.findIndex((t) => t.id === overTaskId);
       if (activeTaskIndex === -1 || overTaskIndex === -1) return;
@@ -134,7 +109,6 @@ export const TaskUtilityProvider: React.FC<{
           order: index,
         }))
       );
-
     },
     [tasks]
   );
@@ -173,6 +147,63 @@ export const TaskUtilityProvider: React.FC<{
     );
   }, [selectedGroupId]);
 
+  const handleExport = useCallback(() => {
+    try {
+      exportData(tasks, customTags, customGroups, themeName, {
+        compress: true,
+      });
+    } catch (error) {
+      alert(
+        `Export failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }, [customGroups, customTags, tasks, themeName]);
+
+  const handleImport = useCallback(
+    async (file: File): Promise<boolean> => {
+      return new Promise<boolean>((resolve, reject) => {
+        importData(file)
+          .then((data) => {
+            // Update all state from imported data
+            if (
+              window.confirm(
+                `This will import ${data.tasks.length} tasks, ${
+                  data.customTags?.length || 0
+                } custom tags, and ${
+                  data.customGroups?.length || 0
+                } custom groups. Continue?`
+              )
+            ) {
+              setTasks(data.tasks);
+              setCustomTags(data.customTags);
+              setCustomGroups(data.customGroups);
+              setTheme(data.selectedTheme);
+              document.documentElement.setAttribute(
+                "data-theme",
+                data.selectedTheme
+              );
+            }
+
+            alert(
+              `Successfully imported ${data.tasks.length} tasks, ${data.customTags.length} custom tags, ${data.customGroups.length} custom groups, and theme preference!`
+            );
+            resolve(true);
+          })
+          .catch((error) => {
+            alert(
+              `Import failed: ${
+                error instanceof Error ? error.message : "Unknown error"
+              }`
+            );
+            reject(false);
+          });
+      });
+    },
+    [setCustomGroups, setCustomTags, setTasks, setTheme]
+  );
+
   const value: TaskUtilityContextType = {
     tasks,
     themeName,
@@ -192,8 +223,14 @@ export const TaskUtilityProvider: React.FC<{
     setTasks,
     setCustomTags,
     setCustomGroups,
-    setTheme
+    setTheme,
+    handleExport,
+    handleImport,
   };
 
-  return <TaskUtilityContext.Provider value={value}>{children}</TaskUtilityContext.Provider>;
+  return (
+    <TaskUtilityContext.Provider value={value}>
+      {children}
+    </TaskUtilityContext.Provider>
+  );
 };

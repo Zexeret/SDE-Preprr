@@ -15,7 +15,7 @@ import {
   CodeIcon,
 } from "./Sidebar.styles";
 import { useTaskUtility } from "../../context";
-import { PREDEFINED_GROUPS } from "../../constants";
+import { PREDEFINED_GROUPS } from "../../model";
 
 type SidebarProps = {
   readonly onNewGroupButtonClick: () => void;

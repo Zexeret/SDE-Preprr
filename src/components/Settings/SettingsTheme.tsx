@@ -9,8 +9,8 @@ import {
 } from "./Settings.styles";
 import { FiDroplet } from "react-icons/fi";
 import { useTaskUtility } from "../../context";
-import type { ThemeName } from "../../theme";
 import { ButtonPrimary } from "../../sharedStyles";
+import type { ThemeName } from "../../model";
 
 const themeOptions: ReadonlyArray<{ readonly value: ThemeName; readonly label: string }> = [
   { value: "dark", label: "Dark" },

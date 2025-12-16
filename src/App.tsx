@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { TaskUtilityProvider, useTaskUtility } from "./context";
-import type { PreparationTask } from "./model";
-import { ThemeProvider, useTheme, type ThemeName } from "./theme";
+import type { PreparationTask, ThemeName } from "./model";
+import { ThemeProvider, useTheme } from "./theme";
 import {
   Sidebar,
   Settings,

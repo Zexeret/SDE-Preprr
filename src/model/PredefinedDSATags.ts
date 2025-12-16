@@ -1,6 +1,5 @@
-import type { Tag } from "../model";
-import { PredefinedGroupId } from "./predefinedGroups";
-
+import { PredefinedGroupId } from "./Group";
+import type { Tag } from "./Tag";
 
 export const DSA_SPECIFIC_TAGS: ReadonlyArray<Tag> = [
     { id: "array", name: "Array", isCustom: false, groupId: PredefinedGroupId.DSA },

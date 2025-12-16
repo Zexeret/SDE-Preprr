@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Group, PreparationTask, Tag } from "../model";
-import type { ThemeName } from "../theme";
+import type { Group, PreparationTask, Tag, ThemeName } from "../model";
 
 export interface TaskUtilityContextType {
   readonly tasks: ReadonlyArray<PreparationTask>;
@@ -22,6 +21,8 @@ export interface TaskUtilityContextType {
   readonly setCustomTags: (tags: ReadonlyArray<Tag>) => void;
   readonly setCustomGroups: (groups: ReadonlyArray<Group>) => void;
   readonly setTheme: (themeName: ThemeName) => void;
+  readonly handleExport: () => void;
+  readonly handleImport: (file: File) => Promise<boolean>;
 }
 
 export const TaskUtilityContext = createContext<TaskUtilityContextType | undefined>(undefined);

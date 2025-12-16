@@ -1,79 +1,129 @@
-import { PredefinedGroupId } from "../constants";
-import type { PreparationTask, Tag, Group } from "../model";
+import pako from "pako";
+import type {
+  AppState,
+} from "../model";
+import { CURRENT_MODEL_VERSION } from "../model";
 
-const TASKS_STORAGE_KEY = "sde-preprr-tasks";
-const CUSTOM_TAGS_STORAGE_KEY = "sde-preprr-custom-tags";
-const CUSTOM_GROUPS_STORAGE_KEY = "sde-preprr-custom-groups";
-const SELECTED_GROUP_STORAGE_KEY = "sde-preprr-selected-group";
+const APP_STATE_STORAGE_KEY = "sde-preprr-app-state";
 
-export const loadTasks = (): ReadonlyArray<PreparationTask> => {
-  try {
-    const stored = localStorage.getItem(TASKS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
+// Storage wrapper with compression
+interface StorageWrapper {
+  readonly compressed: boolean;
+  readonly checksum: string;
+  readonly version: string;
+  readonly data: ReadonlyArray<number> // compressed data as array
+}
+
+// Generate checksum for integrity
+const generateChecksum = (data: string): string => {
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    const char = data.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
   }
+  return Math.abs(hash).toString(16);
 };
 
-export const saveTasks = (tasks: ReadonlyArray<PreparationTask>): void => {
-  try {
-    localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
-  } catch (error) {
-    console.error("Failed to save tasks:", error);
-  }
-};
+const getDefaultState = (): AppState => ({
+  version: CURRENT_MODEL_VERSION,
+  tasks: [],
+  customTags: [],
+  customGroups: [],
+  selectedTheme: window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light",
+  exportedAt: Date.now(),
+});
 
-export const loadCustomTags = (): ReadonlyArray<Tag> => {
+// Load entire app state from localStorage
+export const loadAppState = (): AppState => {
   try {
-    const stored = localStorage.getItem(CUSTOM_TAGS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
+    const stored = localStorage.getItem(APP_STATE_STORAGE_KEY);
+    if (!stored) return getDefaultState();
 
-export const saveCustomTags = (tags: ReadonlyArray<Tag>): void => {
-  try {
-    localStorage.setItem(CUSTOM_TAGS_STORAGE_KEY, JSON.stringify(tags));
-  } catch (error) {
-    console.error("Failed to save custom tags:", error);
-  }
-};
+    const wrapper: StorageWrapper = JSON.parse(stored);
 
-export const loadCustomGroups = (): ReadonlyArray<Group> => {
-  try {
-    const stored = localStorage.getItem(CUSTOM_GROUPS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
+    // Decompress the data
+    const compressedArray = new Uint8Array(wrapper.data);
+    const decompressed = pako.ungzip(compressedArray, { to: "string" });
 
-export const saveCustomGroups = (groups: ReadonlyArray<Group>): void => {
-  try {
-    localStorage.setItem(CUSTOM_GROUPS_STORAGE_KEY, JSON.stringify(groups));
-  } catch (error) {
-    console.error("Failed to save custom groups:", error);
-  }
-};
-
-export const loadSelectedGroup = (): string | null => {
-  try {
-    const stored = localStorage.getItem(SELECTED_GROUP_STORAGE_KEY);
-    return stored || PredefinedGroupId.DSA;
-  } catch {
-    return PredefinedGroupId.DSA;
-  }
-};
-
-export const saveSelectedGroup = (groupId: string | null): void => {
-  try {
-    if (groupId === null) {
-      localStorage.removeItem(SELECTED_GROUP_STORAGE_KEY);
-    } else {
-      localStorage.setItem(SELECTED_GROUP_STORAGE_KEY, groupId);
+    // Verify checksum
+    const calculatedChecksum = generateChecksum(decompressed);
+    if (wrapper.checksum !== calculatedChecksum) {
+      console.warn("Data integrity check failed. Loading default state.");
+      return getDefaultState();
     }
+
+    const state: AppState = JSON.parse(decompressed);
+    return state;
   } catch (error) {
-    console.error("Failed to save selected group:", error);
+    console.error("Failed to load app state:", error);
+    return getDefaultState();
+  }
+};
+
+// Save entire app state to localStorage
+export const saveAppState = (state: AppState): void => {
+  try {
+    const jsonString = JSON.stringify(state);
+    const checksum = generateChecksum(jsonString);
+
+    // Compress the data
+    const compressed = pako.gzip(jsonString);
+
+    const wrapper: StorageWrapper = {
+      compressed: true,
+      checksum,
+      version: CURRENT_MODEL_VERSION.toString(),
+      data: Array.from(compressed),
+    };
+
+    localStorage.setItem(APP_STATE_STORAGE_KEY, JSON.stringify(wrapper));
+
+    // Log compression stats
+    // const originalSize = new Blob([jsonString]).size;
+    // const compressedSize = new Blob([JSON.stringify(wrapper)]).size;
+    // const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+    // console.log(
+    //   `Saved app state: ${(originalSize / 1024).toFixed(2)} KB → ${(
+    //     compressedSize / 1024
+    //   ).toFixed(2)} KB (${ratio}% reduction)`
+    // );
+  } catch (error) {
+    console.error("Failed to save app state:", error);
+    // If localStorage is full, try to clear and save again
+    if (error instanceof Error && error.name === "QuotaExceededError") {
+      console.warn(
+        "Storage quota exceeded. Consider exporting data to a file."
+      );
+    }
+  }
+};
+
+// Clear all app data
+export const clearAppState = (): void => {
+  try {
+    localStorage.removeItem(APP_STATE_STORAGE_KEY);
+  } catch (error) {
+    console.error("Failed to clear app state:", error);
+  }
+};
+
+// Get storage size estimate
+export const getStorageSize = (): { readonly used: number; readonly estimated: number } => {
+  try {
+    const stored = localStorage.getItem(APP_STATE_STORAGE_KEY);
+    if (!stored) return { used: 0, estimated: 0 };
+
+    const used = new Blob([stored]).size;
+    const wrapper: StorageWrapper = JSON.parse(stored);
+    const compressedArray = new Uint8Array(wrapper.data);
+    const decompressed = pako.ungzip(compressedArray, { to: "string" });
+    const estimated = new Blob([decompressed]).size;
+
+    return { used, estimated };
+  } catch {
+    return { used: 0, estimated: 0 };
   }
 };

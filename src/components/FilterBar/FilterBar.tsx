@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { FiFilter } from "react-icons/fi";
-import { DIFFICULTY_TAGS, DifficultyTagId, type Tag } from "../../model";
-import { DSA_SPECIFIC_TAGS } from "../../constants";
+import { DIFFICULTY_TAGS, DifficultyTagId, DSA_SPECIFIC_TAGS, type Tag } from "../../model";
 import { FilterBarContainer } from "./FilterBar.styles";
 import { ButtonSecondary, Select } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";

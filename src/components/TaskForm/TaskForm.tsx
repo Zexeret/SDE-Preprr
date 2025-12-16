@@ -2,10 +2,10 @@ import React, { memo, useCallback, useMemo, useState } from "react";
 import {
   DIFFICULTY_TAGS,
   DifficultyTagId,
+  DSA_SPECIFIC_TAGS,
   type PreparationTask,
   type Tag,
 } from "../../model";
-import { DSA_SPECIFIC_TAGS } from "../../constants";
 import {
   ButtonDanger,
   ButtonPrimary,

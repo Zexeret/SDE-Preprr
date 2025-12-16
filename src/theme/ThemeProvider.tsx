@@ -1,6 +1,7 @@
+import type { ThemeName } from "../model";
 import { darkTheme } from "./darkTheme";
 import { lightTheme } from "./lightTheme";
-import { ThemeContext, type Theme, type ThemeName } from "./Theme";
+import { ThemeContext, type Theme, } from "./Theme";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 
 const getByThemeName: Record<ThemeName, Theme> = {

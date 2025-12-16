@@ -6,9 +6,8 @@ import {
   ContentTitle,
 } from "./ContentHeader.styles";
 import { FiPlus } from "react-icons/fi";
-import { PREDEFINED_GROUPS } from "../../constants";
 import { useTaskUtility } from "../../context";
-import type { PreparationTask } from "../../model";
+import { PREDEFINED_GROUPS, type PreparationTask } from "../../model";
 import { ButtonPrimary } from "../../sharedStyles";
 
 type ContentHeaderProps = {

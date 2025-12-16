@@ -1,7 +1,5 @@
 import { createContext, useContext } from "react";
 
-export type ThemeName = "light" | "dark";
-
 export const ThemeContext = createContext<Theme | undefined>(undefined);
 
 export const useTheme = () => {

@@ -9,7 +9,7 @@ import {
 } from "./Settings.styles";
 import { FiBarChart2 } from "react-icons/fi";
 import { useTaskUtility } from "../../context";
-import { PREDEFINED_GROUPS } from "../../constants";
+import { PREDEFINED_GROUPS } from "../../model";
 
 export const SettingsOverview = memo(() => {
   const { tasks, customGroups, customTags } = useTaskUtility();

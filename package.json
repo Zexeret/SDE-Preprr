@@ -15,7 +15,8 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.5",  
+    "@emotion/styled": "^11.13.5",
+    "pako": "^2.1.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.4",
     "quill": "^2.0.3",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
+    "@types/pako": "^2.0.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

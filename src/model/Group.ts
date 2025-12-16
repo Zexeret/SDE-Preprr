@@ -1,4 +1,9 @@
-import type { Group } from "../model";
+export type Group = {
+  readonly id: string;
+  readonly name: string;
+  readonly isCustom: boolean;
+  readonly createdAt: number;
+};
 
 export enum PredefinedGroupId {
   DSA = "DSA",
