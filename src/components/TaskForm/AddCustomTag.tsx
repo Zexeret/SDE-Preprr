@@ -4,6 +4,7 @@ import { ButtonPrimary, Input } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";
 import type { Tag } from "../../model";
 import { FiPlus } from "react-icons/fi";
+import { generateId } from "../../utils";
 
 export const AddCustomTag = memo(
   () => {
@@ -13,9 +14,8 @@ export const AddCustomTag = memo(
     const handleAddCustomTag = useCallback(() => {
       if (!newTagName.trim()) return;
 
-      const tagId = newTagName.toLowerCase().replace(/\s+/g, "-");
       const newTag: Tag = {
-        id: `custom-${tagId}-${Date.now()}`,
+        id: generateId('tag'),
         name: newTagName.trim(),
         isCustom: true,
         groupId: selectedGroupId ?? undefined,

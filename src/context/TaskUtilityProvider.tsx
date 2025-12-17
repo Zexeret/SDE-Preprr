@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  type ReactNode,
-} from "react";
+import React, { useState, useCallback, useEffect, type ReactNode } from "react";
 import {
   type PreparationTask,
   type Tag,
@@ -43,12 +38,7 @@ export const TaskUtilityProvider: React.FC<{
   }, [setTheme]);
 
   // Debounced auto-save hook
-  useDebouncedAutoSave(
-    tasks,
-    customTags,
-    customGroups,
-    themeName
-  );
+  useDebouncedAutoSave(tasks, customTags, customGroups, themeName);
 
   const setTasks = useCallback((newTasks: ReadonlyArray<PreparationTask>) => {
     setTasksState(newTasks);
@@ -135,6 +125,29 @@ export const TaskUtilityProvider: React.FC<{
     setCustomGroupsState((prev) => [...prev, group]);
   }, []);
 
+  const deleteCustomGroup = useCallback(
+    (groupId: string) => {
+      const group = customGroups.find((grp) => grp.id === groupId);
+      if (group) {
+        setCustomGroupsState((prev) =>
+          prev.filter((grp) => grp.id !== groupId)
+        );
+        setTasksState((prev) =>
+          prev.filter((task) => task.groupId !== groupId)
+        );
+        setCustomTagsState((prev) =>
+          prev.filter((tag) => tag.groupId !== groupId)
+        );
+      } else {
+        console.error(
+          "No custom group exist for deleting with groupId: ",
+          groupId
+        );
+      }
+    },
+    [customGroups]
+  );
+
   const resetGroupProgress = useCallback(() => {
     if (!selectedGroupId) return;
 
@@ -218,6 +231,7 @@ export const TaskUtilityProvider: React.FC<{
     addCustomTag,
     deleteCustomTag,
     addCustomGroup,
+    deleteCustomGroup,
     setSelectedGroupId,
     resetGroupProgress,
     setTasks,

@@ -15,6 +15,7 @@ export interface TaskUtilityContextType {
   readonly addCustomTag: (tag: Tag) => void;
   readonly deleteCustomTag: (tagId: string) => void;
   readonly addCustomGroup: (group: Group) => void;
+  readonly deleteCustomGroup: (groupId: string) => void;
   readonly setSelectedGroupId: (groupId: string | null) => void;
   readonly resetGroupProgress: () => void;
   readonly setTasks: (tasks: ReadonlyArray<PreparationTask>) => void;

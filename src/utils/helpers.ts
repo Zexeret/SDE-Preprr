@@ -1,5 +1,7 @@
-export const generateId = (): string => {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+import {v4 as uuidv4} from 'uuid';
+
+export const generateId = (prefix: string): string => {
+  return `${prefix}-${uuidv4()}`;
 };
 
 export const stripHtmlTags = (html: string): string => {

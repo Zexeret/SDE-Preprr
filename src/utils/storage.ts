@@ -66,6 +66,7 @@ export const loadAppState = (): AppState => {
 // Save entire app state to localStorage
 export const saveAppState = (state: AppState): void => {
   try {
+    // console.log("Saving app with state: ", state);
     const jsonString = JSON.stringify(state);
     const checksum = generateChecksum(jsonString);
 

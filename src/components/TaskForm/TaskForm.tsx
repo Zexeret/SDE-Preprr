@@ -30,6 +30,7 @@ import {
 } from "./TaskForm.styles";
 import { AddCustomTag } from "./AddCustomTag";
 import { FiX } from "react-icons/fi";
+import { generateId } from "../../utils";
 
 interface TaskFormProps {
   readonly selectedGroupId: string;
@@ -140,7 +141,7 @@ export const TaskForm = memo<TaskFormProps>(
         let taskData: PreparationTask;
         if (isNewTaskBeingAdded) {
           taskData = {
-            id: `${selectedGroupId}-${Date.now()}`,
+            id: generateId("task"),
             groupId: selectedGroupId,
             title: title.trim(),
             link: link,

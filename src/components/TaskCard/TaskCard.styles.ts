@@ -86,7 +86,7 @@ export const IconButton = styled.button`
 
   &:hover {
     background: ${({ theme }) => theme.primary};
-    color: ${({ theme }) => theme.text.primary};
+    color: white;
   }
 `;
 

@@ -8,7 +8,7 @@ import {
 import { FiPlus } from "react-icons/fi";
 import { useTaskUtility } from "../../context";
 import { PREDEFINED_GROUPS, type PreparationTask } from "../../model";
-import { ButtonPrimary } from "../../sharedStyles";
+import { ButtonDanger, ButtonPrimary } from "../../sharedStyles";
 
 type ContentHeaderProps = {
   readonly openAddTaskModal: (task: PreparationTask | null) => void;
@@ -16,7 +16,8 @@ type ContentHeaderProps = {
 
 export const ContentHeader = memo<ContentHeaderProps>(
   ({ openAddTaskModal }) => {
-    const { customGroups, selectedGroupId } = useTaskUtility();
+    const { customGroups, selectedGroupId, deleteCustomGroup } =
+      useTaskUtility();
 
     const allGroups = useMemo(
       () => [...PREDEFINED_GROUPS, ...customGroups],
@@ -35,6 +36,18 @@ export const ContentHeader = memo<ContentHeaderProps>(
       openAddTaskModal(null);
     }, [openAddTaskModal]);
 
+    const handleGroupDelete = useCallback(() => {
+      if (selectedGroupId && currentSelectedGroup) {
+        if (
+          window.confirm(
+            `Are you sure you want to delete ${currentSelectedGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
+          )
+        ) {
+          deleteCustomGroup(selectedGroupId);
+        }
+      }
+    }, [currentSelectedGroup, deleteCustomGroup, selectedGroupId]);
+
     if (!currentSelectedGroup) {
       return null;
     }
@@ -49,6 +62,7 @@ export const ContentHeader = memo<ContentHeaderProps>(
           </ContentSubtitle>
         </div>
         <ContentActions>
+          <ButtonDanger onClick={handleGroupDelete} disabled={!currentSelectedGroup.isCustom}>Delete Group</ButtonDanger>
           <ButtonPrimary onClick={handleAddTask}>
             <FiPlus size={16} />
             Add Task

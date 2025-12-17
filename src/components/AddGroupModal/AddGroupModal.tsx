@@ -15,6 +15,7 @@ import {
 import { useTaskUtility } from "../../context";
 import type { Group } from "../../model";
 import { FiX } from "react-icons/fi";
+import { generateId } from "../../utils";
 
 type AddGroupModalProps = {
   readonly onCloseModal: () => void;
@@ -28,9 +29,8 @@ export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
   const handleAddCustomGroup = useCallback(() => {
     if (!newGroupName.trim()) return;
 
-    const groupId = newGroupName.toLowerCase().replace(/\s+/g, "-");
     const newGroup: Group = {
-      id: `custom-${groupId}-${Date.now()}`,
+      id: generateId('group'),
       description: description.trim(),
       name: newGroupName.trim(),
       isCustom: true,

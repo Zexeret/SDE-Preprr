@@ -24,6 +24,11 @@ export const Select = styled.select`
     border-color: ${({ theme }) => theme.primary};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.primary}1a;
   }
+  
+    &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.surfaceHover};
+    color: ${({ theme }) => theme.text.primary};
+  }
 
   option {
     background: ${({ theme }) => theme.surfaceElevated};
@@ -132,6 +137,7 @@ export const ButtonBase = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    pointer-events: inherit;
   }
 `;
 
