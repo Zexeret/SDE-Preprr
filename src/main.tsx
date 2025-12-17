@@ -15,8 +15,5 @@ createRoot(document.getElementById("root")!).render(
 /*
 TODO Tasks
 - Convert window.confirm into a styled model
-- Fix classes and theme
-- Update theme to move away from purple theme
-
-
+- Allow option to delete whole group.
 */

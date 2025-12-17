@@ -22,6 +22,7 @@ type AddGroupModalProps = {
 
 export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
   const [newGroupName, setNewGroupName] = useState<string>("");
+  const [description, setGroupDescription] = useState<string>("");
   const { addCustomGroup, setSelectedGroupId } = useTaskUtility();
 
   const handleAddCustomGroup = useCallback(() => {
@@ -30,6 +31,7 @@ export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
     const groupId = newGroupName.toLowerCase().replace(/\s+/g, "-");
     const newGroup: Group = {
       id: `custom-${groupId}-${Date.now()}`,
+      description: description.trim(),
       name: newGroupName.trim(),
       isCustom: true,
       createdAt: Date.now(),
@@ -38,7 +40,13 @@ export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
     addCustomGroup(newGroup);
     setSelectedGroupId(newGroup.id);
     onCloseModal();
-  }, [addCustomGroup, newGroupName, onCloseModal, setSelectedGroupId]);
+  }, [
+    addCustomGroup,
+    description,
+    newGroupName,
+    onCloseModal,
+    setSelectedGroupId,
+  ]);
 
   return (
     <ModalOverlay onClick={onCloseModal}>
@@ -57,6 +65,16 @@ export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder="e.g., System Design, OOP Concepts"
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label>Group Description *</Label>
+          <Input
+            type="text"
+            value={description}
+            onChange={(e) => setGroupDescription(e.target.value)}
+            placeholder="Enter your group description"
           />
         </FormGroup>
 
