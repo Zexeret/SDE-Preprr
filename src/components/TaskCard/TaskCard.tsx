@@ -106,7 +106,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <TaskCardBase>
+      <TaskCardBase $isCompleted={task.isDone}>
         <TaskHeader>
           {enableDragDrop && (
             <DragHandle {...attributes} {...listeners}>

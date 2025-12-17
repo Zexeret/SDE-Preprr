@@ -1,55 +1,56 @@
 import styled from "@emotion/styled";
-import type { Theme } from "../../theme";
-
-export const StatCard = styled.div`
-  ${({ theme: { surface, text, border } }) => `
-    flex: 1;
-    min-width: 150px;
-    background: ${surface};
-    padding: 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid ${border};
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-
-  .label {
-    color: ${text.secondary};
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-    `}
-`;
 
 export const StatsBar = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
+  padding: 0 2rem;
 `;
 
-const getTextColor = (
-  variant: "success" | "warning" | "danger" | "info",
-  theme: Theme
-): string => {
-  switch (variant) {
-    case "info":
-      return theme.text.primary;
-    case "success":
-      return theme.success;
-    case "danger":
-      return theme.error;
-    case "warning":
-      return theme.warning;
-  }
-};
+export const StatCard = styled.div`
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  padding: 1.5rem;
+  min-width: 200px;
+  flex: 1;
+  box-shadow: ${({ theme }) => theme.shadow};
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-export const ValueContainer = styled.div<{
-  readonly $variant: "success" | "warning" | "danger" | "info";
-}>`
-  font-size: 1.3rem;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.shadowHover};
+  }
+`;
+
+// const getTextColor = (
+//   variant: "success" | "warning" | "danger" | "info",
+//   theme: Theme
+// ): string => {
+//   switch (variant) {
+//     case "info":
+//       return theme.text.primary;
+//     case "success":
+//       return theme.success;
+//     case "danger":
+//       return theme.error;
+//     case "warning":
+//       return theme.warning;
+//   }
+// };
+
+export const StatLabel = styled.div`
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.text.muted};
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+`;
+
+export const StatValue = styled.div`
+  font-size: 2rem;
   font-weight: 600;
-  color: ${(props) => getTextColor(props.$variant, props.theme)};
+  color: ${({ theme }) => theme.text.primary};
 `;

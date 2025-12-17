@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from "react";
 import { AddCustomTagContainer } from "./TaskForm.styles";
-import { ButtonPrimary } from "../../sharedStyles";
+import { ButtonPrimary, Input } from "../../sharedStyles";
 import { useTaskUtility } from "../../context";
 import type { Tag } from "../../model";
 import { FiPlus } from "react-icons/fi";
@@ -27,7 +27,7 @@ export const AddCustomTag = memo(
 
     return (
       <AddCustomTagContainer>
-        <input
+        <Input
           type="text"
           value={newTagName}
           onChange={(e) => setNewTagName(e.target.value)}

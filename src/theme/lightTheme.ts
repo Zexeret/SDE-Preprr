@@ -1,19 +1,32 @@
 import type { Theme } from "./Theme";
 
 export const lightTheme: Theme = {
-    background: "#E2E8F0",         // Main background (very light gray)
-    surface: "#F1F5F9",            // Card/sidebar background (white)
-    surfaceElevated: "#F8FAFC",    // Modals, dropdowns, hover states (light gray)
-    border: "#E5E7EB",             // Subtle border
-    text: {
-      primary: "#232634",          // Main text (dark blue-gray)
-      secondary: "#6B7280",        // Secondary text (muted gray)
-    },
-    primary: "#2563EB",            // Blue (buttons, highlights)
-    primaryHover: "#1D4ED8",       // Darker blue for hover
-    success: "#22C55E",            // Green (success)
-    error: "#EF4444",              // Red (error)
-    warning: "#F59E42",            // Orange (warning)
-    overlay: "rgba(24, 26, 32, 0.1)", // Light overlay for modals
-    shadow: "rgba(0, 0, 0, 0.08)",    // Soft shadow for depth
-  };
+  background: "#F5F7FB",
+  backgroundSidebar: "#FFFFFF",
+  surface: "#FFFFFF",
+  surfaceHover: "#F1F4FA",
+  surfaceElevated: "#FFFFFF",
+  border: "rgba(0, 0, 0, 0.06)",
+  borderStrong: "rgba(0, 0, 0, 0.12)",
+  text: {
+    primary: "#0F172A",
+    secondary: "#475569",
+    muted: "#64748B",
+  },
+  primary: "#2563EB",
+  primaryHover: "#1D4ED8",
+  success: "#16A34A",
+  successBackground: "rgba(22, 163, 74, 0.12)",
+  error: "#DC2626",
+  errorBackground: "rgba(220, 38, 38, 0.12)",
+  warning: "#CA8A04",
+  warningBackground: "rgba(202, 138, 4, 0.12)",
+  overlay: "rgba(0, 0, 0, 0.4)",
+  shadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+  shadowHover: "0 8px 24px rgba(0, 0, 0, 0.12)",
+  radius: {
+    sm: "6px",
+    md: "10px",
+    lg: "14px",
+  },
+};

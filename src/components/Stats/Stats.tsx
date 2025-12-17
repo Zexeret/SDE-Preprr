@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
-import { StatCard, StatsBar, ValueContainer } from "./Stats.styles";
 import { useTaskUtility } from "../../context";
+import { StatCard, StatLabel, StatsBar, StatValue } from "./Stats.styles";
 
 export const Stats = memo(() => {
   const { tasks, selectedGroupId } = useTaskUtility();
@@ -18,20 +18,20 @@ export const Stats = memo(() => {
   return (
     <StatsBar>
       <StatCard>
-        <div className="label">Total Tasks</div>
-        <ValueContainer $variant='info'>{totalTasks}</ValueContainer>
+        <StatLabel>Total Tasks</StatLabel>
+        <StatValue>{totalTasks}</StatValue>
       </StatCard>
       <StatCard>
-        <div className="label">Completed</div>
-        <ValueContainer $variant='success'>{completedTasks}</ValueContainer> 
+        <StatLabel>Completed</StatLabel>
+        <StatValue>{completedTasks}</StatValue>
       </StatCard>
       <StatCard>
-        <div className="label">Pending</div>
-        <ValueContainer $variant='warning'>{pendingTasks}</ValueContainer>
+        <StatLabel>Pending</StatLabel>
+        <StatValue>{pendingTasks}</StatValue>
       </StatCard>
       <StatCard>
-        <div className="label">Completion Rate</div>
-        <ValueContainer $variant='info'>{completionRate}%</ValueContainer>
+        <StatLabel>Completion Rate</StatLabel>
+        <StatValue>{completionRate}%</StatValue>
       </StatCard>
     </StatsBar>
   );

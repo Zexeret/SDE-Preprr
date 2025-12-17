@@ -1,21 +1,20 @@
 import { memo, useCallback, useMemo } from "react";
 import { FiSettings, FiFolder, FiPlus } from "react-icons/fi";
-import {
-  SideBarContainer,
-  SidebarHeader,
-  SidebarTitle,
-  SidebarSection,
-  SidebarSectionTitle,
-  SidebarMenuItem,
-  SidebarMenuItemIcon,
-  SidebarMenuItemText,
-  SidebarMenuItemBadge,
-  SidebarFooter,
-  AddGroupButton,
-  CodeIcon,
-} from "./Sidebar.styles";
 import { useTaskUtility } from "../../context";
 import { PREDEFINED_GROUPS } from "../../model";
+import {
+  AddGroupButton,
+  AppSubtitle,
+  AppTitle,
+  CodeIcon,
+  NavItem,
+  NavItemCount,
+  NavSection,
+  SectionTitle,
+  SidebarContainer,
+  SidebarFooter,
+  SidebarHeader,
+} from "./Sidebar.styles";
 
 type SidebarProps = {
   readonly onNewGroupButtonClick: () => void;
@@ -45,48 +44,43 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
   );
 
   return (
-    <SideBarContainer>
+    <SidebarContainer>
       <SidebarHeader>
-        <SidebarTitle>
+        <AppTitle>
           <CodeIcon size={24} />
-          SDE Preprr
-        </SidebarTitle>
+          DSA Manager
+        </AppTitle>
+        <AppSubtitle>Track your progress</AppSubtitle>
       </SidebarHeader>
 
-      <SidebarSection>
-        <SidebarSectionTitle>General</SidebarSectionTitle>
-        <SidebarMenuItem
+      <NavSection>
+        <SectionTitle>Views</SectionTitle>
+        <NavItem
           $isActive={selectedGroupId === null}
           onClick={() => handleMenuItemClick(null)}
         >
-          <SidebarMenuItemIcon>
-            <FiSettings size={18} />
-          </SidebarMenuItemIcon>
-          <SidebarMenuItemText>Settings</SidebarMenuItemText>
-        </SidebarMenuItem>
-      </SidebarSection>
+          <FiSettings size={18} />
+          <span>Settings</span>
+        </NavItem>
+      </NavSection>
 
-      <SidebarSection>
-        <SidebarSectionTitle>Groups</SidebarSectionTitle>
+      <NavSection>
+        <SectionTitle>Groups</SectionTitle>
         {allGroups.map((group) => {
           const taskCount = getGroupTaskCount(group.id);
           return (
-            <SidebarMenuItem
+            <NavItem
               key={group.id}
               $isActive={selectedGroupId === group.id}
               onClick={() => handleMenuItemClick(group.id)}
             >
-              <SidebarMenuItemIcon>
-                <FiFolder size={18} />
-              </SidebarMenuItemIcon>
-              <SidebarMenuItemText>{group.name}</SidebarMenuItemText>
-              {taskCount > 0 && (
-                <SidebarMenuItemBadge>{taskCount}</SidebarMenuItemBadge>
-              )}
-            </SidebarMenuItem>
+              <FiFolder size={18} />
+              <span>{group.name}</span>
+              {taskCount > 0 && <NavItemCount>{taskCount}</NavItemCount>}
+            </NavItem>
           );
         })}
-      </SidebarSection>
+      </NavSection>
 
       <SidebarFooter>
         <AddGroupButton onClick={onNewGroupButtonClick}>
@@ -94,6 +88,6 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
           New Group
         </AddGroupButton>
       </SidebarFooter>
-    </SideBarContainer>
+    </SidebarContainer>
   );
 });

@@ -9,6 +9,7 @@ export const AppContainer = styled.div`
   color: ${({ theme }) => theme.text.primary};
   display: flex;
   scrollbar-width: none;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 `;
 
 export const SideBarContainer = styled.div`
@@ -16,8 +17,11 @@ export const SideBarContainer = styled.div`
   display: block;
   position: static;
   flex-grow: 0.05;
-  background: ${({ theme }) => theme.surface};
-  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.backgroundSidebar};
+  border-right: 1px solid ${({ theme }) => theme.border};
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
 `;
 
 export const MainContentWithSidebar = styled.main`

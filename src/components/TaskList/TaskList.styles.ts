@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 export const TaskListContainer = styled.div`
-  /* Container for the entire task list */
+  padding: 2rem;
 `;
 
 export const EmptyListContainer = styled.div`
@@ -22,6 +22,7 @@ export const EmptyListContainer = styled.div`
 
   p {
     margin: 0;
+    color: ${({ theme }) => theme.text.muted};
   }
 `;
 
@@ -60,6 +61,6 @@ export const GroupHeader = styled.div`
 
 export const GroupCount = styled.span`
   font-size: 0.875rem;
-  color: ${({ theme }) => theme.text.secondary};
+  color: ${({ theme }) => theme.text.muted};
   font-weight: 400;
 `;

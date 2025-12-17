@@ -14,20 +14,22 @@ import {
   ModalActions,
   ModalContent,
   ModalOverlay,
-} from "../../sharedStyles";
+  ModalHeader,
+  ModalTitle,
+  CloseButton,
+  Label,
+  Input,
+} from "../../sharedStyles/shared.styles";
 import { useTaskUtility } from "../../context";
 import { Editor } from "primereact/editor";
 import {
   FooterActionContainer,
   FormContainer,
-  StyledCloseButton,
   StyledTag,
   TagsContainer,
-  TaskFormHeading,
 } from "./TaskForm.styles";
 import { AddCustomTag } from "./AddCustomTag";
 import { FiX } from "react-icons/fi";
-import { css } from "@emotion/css";
 
 interface TaskFormProps {
   readonly selectedGroupId: string;
@@ -185,23 +187,20 @@ export const TaskForm = memo<TaskFormProps>(
     return (
       <ModalOverlay onClick={onClose}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
-          <TaskFormHeading>
-            {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}
-            <StyledCloseButton
-              type="button"
-              onClick={onClose}
-              className={css`
-                background: none;
-              `}
-            >
-              <FiX size={16} />
-            </StyledCloseButton>
-          </TaskFormHeading>
+          <ModalHeader>
+            <ModalTitle>
+              {isNewTaskBeingAdded ? "Add New Task" : "Edit Task"}
+            </ModalTitle>
+            <CloseButton onClick={onClose}>
+              <FiX />
+            </CloseButton>
+          </ModalHeader>
+
           <FormContainer>
             <form>
               <FormGroup>
-                <label htmlFor="task-title">Title *</label>
-                <input
+                <Label htmlFor="task-title">Title *</Label>
+                <Input
                   id="task-title"
                   type="text"
                   value={title}
@@ -212,8 +211,8 @@ export const TaskForm = memo<TaskFormProps>(
               </FormGroup>
 
               <FormGroup>
-                <label htmlFor="task-link">Link</label>
-                <input
+                <Label htmlFor="task-link">Link</Label>
+                <Input
                   id="task-link"
                   type="text"
                   value={link ?? ""}
@@ -223,7 +222,7 @@ export const TaskForm = memo<TaskFormProps>(
               </FormGroup>
 
               <FormGroup>
-                <label>Difficulty Level *</label>
+                <Label>Difficulty Level *</Label>
                 <TagsContainer>
                   {DIFFICULTY_TAGS.map((tag) => (
                     <StyledTag
@@ -239,7 +238,7 @@ export const TaskForm = memo<TaskFormProps>(
               </FormGroup>
 
               <FormGroup>
-                <label>Tags</label>
+                <Label>Tags</Label>
                 <TagsContainer>
                   {tagsByGroup.map((tag) => (
                     <StyledTag
@@ -265,7 +264,7 @@ export const TaskForm = memo<TaskFormProps>(
               </FormGroup>
 
               <FormGroup>
-                <label>Notes</label>
+                <Label>Notes</Label>
                 <Editor
                   value={notes}
                   onTextChange={(e) => setNotes(e.htmlValue || "")}
@@ -274,12 +273,9 @@ export const TaskForm = memo<TaskFormProps>(
               </FormGroup>
             </form>
           </FormContainer>
+
           <FooterActionContainer>
-            <ModalActions
-              className={css`
-                margin: 0;
-              `}
-            >
+            <ModalActions>
               {currentTaskInFormModal ? (
                 <ButtonDanger onClick={handleDelete}>Delete</ButtonDanger>
               ) : (

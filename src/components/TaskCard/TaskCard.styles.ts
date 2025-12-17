@@ -1,19 +1,21 @@
 import styled from "@emotion/styled";
-import type { DifficultyTagId } from "../../model";
+import { DifficultyTagId } from "../../model";
 
-export const TaskCardBase = styled.div`
+export const TaskCardBase = styled.div<{ readonly $isCompleted?: boolean }>`
   background: ${({ theme }) => theme.surface};
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 0.75rem;
+  border-radius: ${({ theme }) => theme.radius.md};
   padding: 0.45rem;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   position: relative;
+  opacity: ${({ $isCompleted }) => ($isCompleted ? 0.5 : 1)};
 
   &:hover {
     z-index: 1;
-    border-color: ${({ theme }) => theme.primary};
-    box-shadow: 0 0px 5px ${({ theme }) => `${theme.primary}`};
+    background: ${({ theme }) => theme.surfaceHover};
+    transform: translateY(-1px);
+    box-shadow: ${({ theme }) => theme.shadow};
   }
 `;
 
@@ -56,11 +58,12 @@ export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`
   color: ${({ theme, $isDone }) =>
-    $isDone ? theme.text.secondary : theme.text.primary}e3;
+    $isDone ? theme.success : theme.text.primary};
   text-decoration: ${(props) => (props.$isDone ? "line-through" : "none")};
   font-weight: 500;
   font-size: 0.8rem;
   word-break: break-all;
+  transition: color 0.2s ease;
 `;
 
 export const TaskActions = styled.div`
@@ -71,9 +74,9 @@ export const TaskActions = styled.div`
 
 export const IconButton = styled.button`
   padding: 0.5rem;
-  border-radius: 0.375rem;
+  border-radius: ${({ theme }) => theme.radius.sm};
   border: none;
-  background: none;
+  background: transparent;
   color: ${({ theme }) => theme.text.secondary};
   cursor: pointer;
   display: flex;
@@ -83,26 +86,28 @@ export const IconButton = styled.button`
 
   &:hover {
     background: ${({ theme }) => theme.primary};
-    color: white;
+    color: ${({ theme }) => theme.text.primary};
   }
 `;
 
 export const IconButtonSuccess = styled(IconButton)<{
   readonly isDone: boolean;
 }>`
-  background: ${(props) => (props.isDone ? props.theme.success : "none")};
-  color: ${(props) => (props.isDone ? "white" : props.theme.text.secondary)};
+  background: ${(props) =>
+    props.isDone ? props.theme.successBackground : "transparent"};
+  color: ${(props) =>
+    props.isDone ? props.theme.success : props.theme.text.secondary};
 
   &:hover {
-    background: ${({ theme }) => theme.primary};
-    color: white;
+    background: ${({ theme }) => theme.successBackground};
+    color: ${({ theme }) => theme.success};
   }
 `;
 
 export const IconButtonDanger = styled(IconButton)`
   &:hover {
-    background: ${({ theme }) => theme.error};
-    color: white;
+    background: ${({ theme }) => theme.errorBackground};
+    color: ${({ theme }) => theme.error};
   }
 `;
 
@@ -111,13 +116,13 @@ export const DragHandle = styled.div`
   align-items: center;
   justify-content: center;
   cursor: grab;
-  color: ${({ theme }) => theme.text.secondary};
+  color: ${({ theme }) => theme.text.muted};
   padding: 0.5rem;
   margin-right: 0.5rem;
   transition: color 0.2s;
 
   &:hover {
-    color: ${({ theme }) => theme.primary};
+    color: ${({ theme }) => theme.text.primary};
   }
 
   &:active {
@@ -135,16 +140,20 @@ export const TagsContainer = styled.div`
 export const SeparatingDot = styled.div`
   width: 4px;
   height: 4px;
-  background: ${({ theme }) => theme.text.secondary};
+  background: ${({ theme }) => theme.text.muted};
   border-radius: 50%;
+  opacity: 0.5;
 `;
 
 export const Tag = styled.span<{ readonly $isCustom?: boolean }>`
-  border-radius: 0.375rem;
+  border-radius: ${({ theme }) => theme.radius.sm};
   font-size: 0.75rem;
   font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   color: ${(props) =>
-    props.$isCustom ? props.theme.primary + "ab" : props.theme.text.secondary};
+    props.$isCustom ? props.theme.primary : props.theme.text.secondary};
 `;
 
 export const EmptyState = styled.div`
@@ -181,23 +190,29 @@ export const DifficultyTag = styled.button<{
   readonly difficulty: DifficultyTagId;
 }>`
   ${({ theme, difficulty }) => {
-    const tagMap: Record<DifficultyTagId, string> = {
-      EASY: theme.success,
-      MEDIUM: theme.warning,
-      HARD: theme.error,
-    };
+    let tagColor = theme.warning;
 
-    const tagColor = tagMap[difficulty];
+    if (difficulty === DifficultyTagId.EASY) {
+      tagColor = theme.success;
+    } else if (difficulty === DifficultyTagId.HARD) {
+      tagColor = theme.error;
+    }
 
     return `  
     font-size: 0.7rem;
     width: 65px;
     padding: 0.4rem 0.5rem;
-    border-radius: 0.375rem;
+    border-radius: ${theme.radius.sm};
     margin: 0 1.25rem;
-    border:1px solid ${tagColor};
+    border: 1px solid ${tagColor};
     color: ${tagColor};
     background: ${tagColor}14;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    
+    &:hover {
+      background: ${tagColor}22;
+    }
   `;
   }}
 `;
