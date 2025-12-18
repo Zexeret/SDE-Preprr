@@ -78,7 +78,7 @@ function AppContent() {
 }
 
 const App = () => {
-  const [themeName, setThemeName] = useState<ThemeName>("dark");
+  const [themeName, setThemeName] = useState<ThemeName>("light");
 
   return (
     <ThemeProvider themeName={themeName} >
