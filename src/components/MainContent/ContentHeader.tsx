@@ -7,11 +7,23 @@ import {
 } from "./ContentHeader.styles";
 import { FiPlus } from "react-icons/fi";
 import { useTaskUtility } from "../../context";
-import { PREDEFINED_GROUPS, type PreparationTask } from "../../model";
+import {
+  PREDEFINED_GROUPS,
+  type Group,
+  type PreparationTask,
+} from "../../model";
 import { ButtonDanger, ButtonPrimary } from "../../sharedStyles";
 
 type ContentHeaderProps = {
   readonly openAddTaskModal: (task: PreparationTask | null) => void;
+};
+
+const getGroupDescription = (group: Group) => {
+  return (
+    group.description ??
+    `Manage your ${group.name.toLocaleUpperCase()} preparation
+            tasks`
+  );
 };
 
 export const ContentHeader = memo<ContentHeaderProps>(
@@ -57,12 +69,16 @@ export const ContentHeader = memo<ContentHeaderProps>(
         <div>
           <ContentTitle>{currentSelectedGroup.name}</ContentTitle>
           <ContentSubtitle>
-            Manage your {currentSelectedGroup.name.toLowerCase()} preparation
-            tasks
+            {getGroupDescription(currentSelectedGroup)}
           </ContentSubtitle>
         </div>
         <ContentActions>
-          <ButtonDanger onClick={handleGroupDelete} disabled={!currentSelectedGroup.isCustom}>Delete Group</ButtonDanger>
+          <ButtonDanger
+            onClick={handleGroupDelete}
+            disabled={!currentSelectedGroup.isCustom}
+          >
+            Delete Group
+          </ButtonDanger>
           <ButtonPrimary onClick={handleAddTask}>
             <FiPlus size={16} />
             Add Task

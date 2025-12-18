@@ -186,7 +186,7 @@ export const TaskForm = memo<TaskFormProps>(
     );
 
     return (
-      <ModalOverlay onClick={onClose}>
+      <ModalOverlay>
         <ModalContent onClick={(e) => e.stopPropagation()}>
           <ModalHeader>
             <ModalTitle>

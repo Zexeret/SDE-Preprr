@@ -42,18 +42,26 @@ export const TaskLinkContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-export const TaskLink = styled.a<{ readonly $isDone?: boolean }>`
+export const TaskLink = styled.a<{ readonly $isDone?: boolean ; readonly $disabled: boolean }>`
   color: ${({ theme }) => theme.text.secondary};
   font-weight: 500;
   word-break: break-all;
   display: flex;
-  cursor: pointer;
+  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   margin-left: 1%;
+  pointer-events: inherit;
 
-  &:hover {
-    text-decoration: underline;
-    color: ${({ theme }) => theme.primaryHover};
-  }
+  ${({theme, $disabled}) => $disabled ? 
+    `
+      opacity: 0.5;
+    ` : `
+      &:hover {
+        text-decoration: underline;
+        color: ${theme.primaryHover};
+      }
+    `
+  } 
+
 `;
 
 export const TaskLinkSpan = styled.span<{ readonly $isDone?: boolean }>`

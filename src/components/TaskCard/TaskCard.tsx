@@ -116,15 +116,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <TaskContent>
             <TaskLinkContainer>
               <TaskLinkSpan $isDone={task.isDone}>
-                {task.title} #{task.order}
+                {task.title}
               </TaskLinkSpan>
               <TaskLink
                 href={taskLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 $isDone={task.isDone}
+                $disabled={!task.link}
               >
-                <FiExternalLink size={ICON_SIZE} />
+                <FiExternalLink size={ICON_SIZE}/>
               </TaskLink>
             </TaskLinkContainer>
             {showTags && task.tags.length > 0 && (
