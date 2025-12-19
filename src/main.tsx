@@ -11,10 +11,3 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </StrictMode>
 );
-
-/*
-TODO Tasks
-- Convert window.confirm into a styled model
-- Allow option to delete whole group.
-- On adding new custom tag, the app reloads. Fix it.
-*/

@@ -22,7 +22,7 @@ export const FilterBar = memo<FilterBarProps>(() => {
 
   const tagsByGroupSource: ReadonlyArray<Tag> = useMemo(
     () => [
-      { id: ALL_DIFFICULTY_TAG_ID, name: "All Topics", isCustom: false },
+      { id: ALL_DIFFICULTY_TAG_ID, name: "All Tags", isCustom: false },
       ...DSA_SPECIFIC_TAGS.filter((tag) => tag.groupId === selectedGroupId),
       ...customTags.filter((tag) => tag.groupId === selectedGroupId),
     ],

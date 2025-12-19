@@ -49,7 +49,7 @@ export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
   ]);
 
   return (
-    <ModalOverlay onClick={onCloseModal}>
+    <ModalOverlay>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>Create New Group</ModalTitle>

@@ -48,9 +48,9 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
       <SidebarHeader>
         <AppTitle>
           <CodeIcon size={24} />
-          DSA Manager
+          SDE Preprr
         </AppTitle>
-        <AppSubtitle>Track your progress</AppSubtitle>
+        <AppSubtitle>Your journey companion</AppSubtitle>
       </SidebarHeader>
 
       <NavSection>
