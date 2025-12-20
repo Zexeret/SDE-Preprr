@@ -14,6 +14,8 @@ import {
   MainContentWithSidebar,
   SideBarContainer,
 } from "./App.styles";
+import { store } from "./store";
+import { Provider as ReduxStoreProvider } from "react-redux";
 
 function AppContent() {
   const { selectedGroupId } = useTaskUtility();
@@ -81,11 +83,13 @@ const App = () => {
   const [themeName, setThemeName] = useState<ThemeName>("light");
 
   return (
-    <ThemeProvider themeName={themeName} >
-      <TaskUtilityProvider setTheme={setThemeName} themeName={themeName}>
-        <AppContent />
-      </TaskUtilityProvider>
-    </ThemeProvider>
+    <ReduxStoreProvider store={store}>
+      <ThemeProvider themeName={themeName}>
+        <TaskUtilityProvider setTheme={setThemeName} themeName={themeName}>
+          <AppContent />
+        </TaskUtilityProvider>
+      </ThemeProvider>
+    </ReduxStoreProvider>
   );
 };
 
