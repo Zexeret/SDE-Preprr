@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { TaskUtilityProvider, useTaskUtility } from "./context";
 import type { PreparationTask, ThemeName } from "./model";
-import { ThemeProvider, useTheme } from "./theme";
+import { ThemeProvider } from "./theme";
 import {
   Sidebar,
   Settings,
@@ -16,10 +16,10 @@ import {
 } from "./App.styles";
 import { store } from "./store";
 import { Provider as ReduxStoreProvider } from "react-redux";
+import { usePrimeReactEditorStyle } from "./utils";
 
 function AppContent() {
   const { selectedGroupId } = useTaskUtility();
-  const theme = useTheme();
 
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -36,19 +36,11 @@ function AppContent() {
     setCurrentTaskInFormModal(null);
   }, []);
 
-  useEffect(() => {
-    // Set CSS custom properties when theme changes for editor
-    const root = document.documentElement;
-    root.style.setProperty("--theme-bg-primary", theme.primary);
-    root.style.setProperty("--theme-bg-secondary", theme.surface);
-    root.style.setProperty("--theme-bg-elevated", theme.surfaceElevated);
-    root.style.setProperty("--theme-border-primary", theme.border);
-    root.style.setProperty("--theme-border-secondary", theme.border + "54");
-    root.style.setProperty("--theme-text-primary", theme.text.primary);
-    root.style.setProperty("--theme-text-secondary", theme.text.secondary);
-    root.style.setProperty("--theme-text-muted", theme.text.secondary);
-    root.style.setProperty("--theme-primary-main", theme.primary);
-  }, [theme]);
+
+  // Style prime react editor
+  usePrimeReactEditorStyle();
+
+  
 
   return (
     <AppContainer>
