@@ -66,7 +66,6 @@ export const TaskForm = memo<TaskFormProps>(() => {
       const now = Date.now();
       const isNewTask = editingTask === null;
       let taskData: PreparationTask = {
-        id: generateId("task"),
         groupId: selectedGroupId,
         title: title.trim(),
         link: link,
@@ -75,6 +74,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
         notes: notes,
         updatedAt: now,
         // Different fields based on add/edit mode.
+        id: generateId("task"),
         isDone: false,
         createdAt: now,
         order: maxOrder + ORDER_SEPARATOR_BASE,
@@ -83,6 +83,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
       if (!isNewTask) {
         taskData = {
           ...taskData,
+          id: editingTask.id,
           isDone: editingTask.isDone || false,
           createdAt: editingTask.createdAt,
           order: editingTask.order,
