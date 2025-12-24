@@ -1,6 +1,5 @@
-import { createSlice, createEntityAdapter } from "@reduxjs/toolkit"
-import type { Group } from '../../model'
-
+import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
+import type { Group } from "../../model";
 
 export const groupsAdapter = createEntityAdapter<Group>();
 
@@ -11,18 +10,11 @@ const groupsSlice = createSlice({
     addGroup: groupsAdapter.addOne,
     updateGroup: groupsAdapter.updateOne,
     removeGroup: groupsAdapter.removeOne,
-    loadAllGroups: groupsAdapter.setAll
-  }
+    setAllGroups: groupsAdapter.setAll,
+  },
 });
 
+export const { addGroup, updateGroup, removeGroup, setAllGroups } =
+  groupsSlice.actions;
 
-export const {
-  addGroup,
-  updateGroup,
-  removeGroup,
-  loadAllGroups
-} = groupsSlice.actions
-
-export const groupsReducer =  groupsSlice.reducer ;
-
-
+export const groupsReducer = groupsSlice.reducer;

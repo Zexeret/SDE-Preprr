@@ -11,7 +11,7 @@ const tagsSlice = createSlice({
     addTag: tagsAdapter.addOne,
     updateTag: tagsAdapter.updateOne,
     removeTag: tagsAdapter.removeOne,
-    loadAllTag: tagsAdapter.setAll
+    setAllTags: tagsAdapter.setAll
   }
 });
 
@@ -20,7 +20,7 @@ export const {
   addTag,
   updateTag,
   removeTag,
-  loadAllTag
+  setAllTags
 } = tagsSlice.actions
 
 export const tagsReducer =  tagsSlice.reducer ;

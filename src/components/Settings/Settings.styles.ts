@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 
 export const SettingsPage = styled.div`
@@ -64,25 +65,6 @@ export const ThemeOptions = styled.div`
   gap: 1rem;
 `;
 
-export const ThemeOption = styled.button`
-  background: ${({ theme }) =>theme.surfaceElevated};
-  border: 1px solid ${(props) => props.theme.border};
-  color: ${({  theme }) => (theme.text.primary)};
-  border-radius: 0.75rem;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-
-  &:hover {
-    border-color: ${(props) => props.theme.primary};
-    background: ${(props) => props.theme.surfaceElevated}54;
-  }
-`;
-
 export const ThemeOptionName = styled.span`
   font-size: 0.875rem;
   font-weight: 500;
@@ -127,22 +109,11 @@ export const StatValueSettings = styled.div`
   color: ${(props) => props.theme.text.primary};
 `;
 
-export const FileInputLabel = styled.label`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: ${(props) => props.theme.surfaceElevated};
-  color: ${(props) => props.theme.text.primary};
-  border: 1px solid ${(props) => props.theme.border};
-  border-radius: 0.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${(props) => props.theme.surfaceElevated}54;
+export const importButtonStyles = css`
+  & > label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 `;
 

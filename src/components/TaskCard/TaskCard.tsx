@@ -10,9 +10,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   DIFFICULTY_TAGS,
-  DSA_SPECIFIC_TAGS,
   type DifficultyTagId,
-  type PreparationTask,
 } from "../../model";
 import {
   TaskCardBase,
@@ -31,15 +29,23 @@ import {
   SeparatingDot,
   DifficultyTag,
 } from "./TaskCard.styles";
-import { useTaskUtility } from "../../context";
 import { isValidUrl } from "../../utils";
+import {
+  openTaskModal,
+  removeTask,
+  selectAllTags,
+  selectTaskById,
+  updateTask,
+  useAppDispatch,
+  type RootState,
+} from "../../store";
+import { useSelector } from "react-redux";
 
 interface TaskCardProps {
-  readonly task: PreparationTask;
+  readonly taskId: string;
   readonly showTags: boolean;
   readonly enableDragDrop: boolean;
   readonly showDifficulty: boolean;
-  readonly onEdit: (task: PreparationTask) => void;
 }
 
 const getDifficultyName = (id: DifficultyTagId) =>
@@ -48,12 +54,15 @@ const getDifficultyName = (id: DifficultyTagId) =>
 const ICON_SIZE = 14;
 
 export const TaskCard: React.FC<TaskCardProps> = ({
-  task,
+  taskId,
   showTags,
   enableDragDrop,
   showDifficulty,
-  onEdit,
 }) => {
+  const dispatch = useAppDispatch();
+  const task = useSelector((state: RootState) => selectTaskById(state, taskId));
+  const allTags = useSelector(selectAllTags);
+
   const {
     attributes,
     listeners,
@@ -61,8 +70,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id, disabled: !enableDragDrop });
-  const { deleteTask, updateTask, customTags } = useTaskUtility();
+  } = useSortable({ id: taskId, disabled: !enableDragDrop });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -73,17 +81,33 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleDeleteTask = useCallback(() => {
     if (window.confirm("Are you sure you want to delete this task?")) {
-      deleteTask(task.id);
+      dispatch(removeTask(taskId));
     }
-  }, [deleteTask, task]);
+  }, [dispatch, taskId]);
 
   const handleToggleTaskDone = useCallback(() => {
-    updateTask({ ...task, isDone: !task.isDone });
-  }, [task, updateTask]);
+    dispatch(
+      updateTask({
+        id: task.id,
+        changes: {
+          isDone: !task.isDone,
+        },
+      })
+    );
+  }, [dispatch, task.id, task.isDone]);
+
+  const handleEditTask = useCallback(() => {
+    dispatch(
+      openTaskModal({
+        isOpen: true,
+        taskId: task.id,
+        mode: "edit",
+      })
+    );
+  }, [task, dispatch]);
 
   const renderTags = useCallback(
     (tagIds: ReadonlyArray<string>) => {
-      const allTags = [...DSA_SPECIFIC_TAGS, ...customTags];
       return tagIds.map((tagId, index) => {
         const tag = allTags.find((tag) => tag.id === tagId);
         if (tag) {
@@ -99,7 +123,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         return null;
       });
     },
-    [customTags, task.tags.length]
+    [allTags, task.tags.length]
   );
 
   const taskLink = task.link && isValidUrl(task.link) ? task.link : undefined;
@@ -115,9 +139,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           )}
           <TaskContent>
             <TaskLinkContainer>
-              <TaskLinkSpan $isDone={task.isDone}>
-                {task.title}
-              </TaskLinkSpan>
+              <TaskLinkSpan $isDone={task.isDone}>{task.title}</TaskLinkSpan>
               <TaskLink
                 href={taskLink}
                 target="_blank"
@@ -125,7 +147,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 $isDone={task.isDone}
                 $disabled={!task.link}
               >
-                <FiExternalLink size={ICON_SIZE}/>
+                <FiExternalLink size={ICON_SIZE} />
               </TaskLink>
             </TaskLinkContainer>
             {showTags && task.tags.length > 0 && (
@@ -146,7 +168,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <FiCheck size={ICON_SIZE} />
             </IconButtonSuccess>
 
-            <IconButton onClick={() => onEdit(task)} title="Edit task">
+            <IconButton onClick={handleEditTask} title="Edit task">
               <FiEdit2 size={ICON_SIZE} />
             </IconButton>
             <IconButtonDanger onClick={handleDeleteTask} title="Delete task">

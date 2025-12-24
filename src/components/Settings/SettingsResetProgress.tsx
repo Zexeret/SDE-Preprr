@@ -6,11 +6,13 @@ import {
   SettingsSectionTitle,
 } from "./Settings.styles";
 import { FiRefreshCw } from "react-icons/fi";
-import { useTaskUtility } from "../../context";
 import { ButtonDanger } from "../../sharedStyles";
+import { selectAllTasks, setAllTasks, useAppDispatch } from "../../store";
+import { useSelector } from "react-redux";
 
 export const SettingsResetProgress = () => {
-  const { tasks, setTasks } = useTaskUtility();
+  const dispatch = useAppDispatch();
+  const tasks = useSelector(selectAllTasks);
 
   const handleResetAll = useCallback(() => {
     if (
@@ -18,16 +20,18 @@ export const SettingsResetProgress = () => {
         "Are you sure you want to reset ALL progress? This will mark all tasks as undone across all groups. This action cannot be undone."
       )
     ) {
-      setTasks(
-        tasks.map((task) => ({
-          ...task,
-          isDone: false,
-          updatedAt: Date.now(),
-        }))
+      dispatch(
+        setAllTasks(
+          tasks.map((task) => ({
+            ...task,
+            isDone: false,
+            updatedAt: Date.now(),
+          }))
+        )
       );
     }
-  }, [setTasks, tasks]);
-  
+  }, [dispatch, tasks]);
+
   return (
     <SettingsSection>
       <SettingsSectionTitle>

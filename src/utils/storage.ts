@@ -30,9 +30,7 @@ const getDefaultState = (): AppState => ({
   tasks: [],
   customTags: [],
   customGroups: [],
-  selectedTheme: window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light",
+  selectedTheme: 'light',
   exportedAt: Date.now(),
 });
 

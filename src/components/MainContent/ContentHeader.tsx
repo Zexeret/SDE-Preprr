@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import {
   ContentActions,
   ContentHeaderContainer,
@@ -6,17 +6,15 @@ import {
   ContentTitle,
 } from "./ContentHeader.styles";
 import { FiPlus } from "react-icons/fi";
-import { useTaskUtility } from "../../context";
-import {
-  PREDEFINED_GROUPS,
-  type Group,
-  type PreparationTask,
-} from "../../model";
+import { type Group } from "../../model";
 import { ButtonDanger, ButtonPrimary } from "../../sharedStyles";
-
-type ContentHeaderProps = {
-  readonly openAddTaskModal: (task: PreparationTask | null) => void;
-};
+import {
+  openTaskModal,
+  removeGroup,
+  selectActiveGroup,
+  useAppDispatch,
+} from "../../store";
+import { useSelector } from "react-redux";
 
 const getGroupDescription = (group: Group) => {
   return (
@@ -26,65 +24,60 @@ const getGroupDescription = (group: Group) => {
   );
 };
 
-export const ContentHeader = memo<ContentHeaderProps>(
-  ({ openAddTaskModal }) => {
-    const { customGroups, selectedGroupId, deleteCustomGroup } =
-      useTaskUtility();
+export const ContentHeader = memo(() => {
+  const selectedGroup = useSelector(selectActiveGroup);
+  const dispatch = useAppDispatch();
 
-    const allGroups = useMemo(
-      () => [...PREDEFINED_GROUPS, ...customGroups],
-      [customGroups]
+  const handleAddTask = useCallback(() => {
+    dispatch(
+      openTaskModal({
+        isOpen: true,
+        mode: "edit",
+        taskId: null,
+      })
     );
+  }, [dispatch]);
 
-    const currentSelectedGroup = useMemo(
-      () =>
-        selectedGroupId
-          ? allGroups.find((g) => g.id === selectedGroupId)
-          : null,
-      [allGroups, selectedGroupId]
-    );
-
-    const handleAddTask = useCallback(() => {
-      openAddTaskModal(null);
-    }, [openAddTaskModal]);
-
-    const handleGroupDelete = useCallback(() => {
-      if (selectedGroupId && currentSelectedGroup) {
-        if (
-          window.confirm(
-            `Are you sure you want to delete ${currentSelectedGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
-          )
-        ) {
-          deleteCustomGroup(selectedGroupId);
+  const handleGroupDelete = useCallback(() => {
+    if (selectedGroup) {
+      if (
+        window.confirm(
+          `Are you sure you want to delete ${selectedGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
+        )
+      ) {
+        if (!selectedGroup.isCustom) {
+          console.error(
+            "Current group is not a custom group. Cannot be deleted."
+          );
+          return;
         }
+        dispatch(removeGroup(selectedGroup.id));
       }
-    }, [currentSelectedGroup, deleteCustomGroup, selectedGroupId]);
-
-    if (!currentSelectedGroup) {
-      return null;
     }
+  }, [dispatch, selectedGroup]);
 
-    return (
-      <ContentHeaderContainer>
-        <div>
-          <ContentTitle>{currentSelectedGroup.name}</ContentTitle>
-          <ContentSubtitle>
-            {getGroupDescription(currentSelectedGroup)}
-          </ContentSubtitle>
-        </div>
-        <ContentActions>
-          <ButtonDanger
-            onClick={handleGroupDelete}
-            disabled={!currentSelectedGroup.isCustom}
-          >
-            Delete Group
-          </ButtonDanger>
-          <ButtonPrimary onClick={handleAddTask}>
-            <FiPlus size={16} />
-            Add Task
-          </ButtonPrimary>
-        </ContentActions>
-      </ContentHeaderContainer>
-    );
+  if (!selectedGroup) {
+    return null;
   }
-);
+
+  return (
+    <ContentHeaderContainer>
+      <div>
+        <ContentTitle>{selectedGroup.name}</ContentTitle>
+        <ContentSubtitle>{getGroupDescription(selectedGroup)}</ContentSubtitle>
+      </div>
+      <ContentActions>
+        <ButtonDanger
+          onClick={handleGroupDelete}
+          disabled={!selectedGroup.isCustom}
+        >
+          Delete Group
+        </ButtonDanger>
+        <ButtonPrimary onClick={handleAddTask}>
+          <FiPlus size={16} />
+          Add Task
+        </ButtonPrimary>
+      </ContentActions>
+    </ContentHeaderContainer>
+  );
+});

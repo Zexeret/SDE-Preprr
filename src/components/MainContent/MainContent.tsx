@@ -2,29 +2,22 @@ import { memo } from "react";
 import { ContentHeader } from "./ContentHeader";
 import { MainContentContainer } from "./MainContent.styles";
 import { Stats } from "../Stats";
-import { FilterBar, FilterContextProvider } from "../FilterBar";
+import { FilterBar } from "../FilterBar";
 import { TaskList } from "../TaskList";
-import type { PreparationTask } from "../../model";
 import { CardGlass } from "../../sharedStyles";
 
-type MainContentProps = {
-  readonly openAddTaskModal: (task: PreparationTask | null) => void;
-};
-
-export const MainContent = memo<MainContentProps>(({ openAddTaskModal }) => {
+export const MainContent = memo(() => {
   return (
-    <FilterContextProvider>
-      <MainContentContainer>
-        <ContentHeader openAddTaskModal={openAddTaskModal} />
+    <MainContentContainer>
+      <ContentHeader />
 
-        <Stats />
+      <Stats />
 
-        <CardGlass>
-          <FilterBar />
+      <CardGlass>
+        <FilterBar />
 
-          <TaskList onEdit={openAddTaskModal} enableDragDrop={true} />
-        </CardGlass>
-      </MainContentContainer>
-    </FilterContextProvider>
+        <TaskList enableDragDrop={true} />
+      </CardGlass>
+    </MainContentContainer>
   );
 });

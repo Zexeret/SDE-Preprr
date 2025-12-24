@@ -1,7 +1,15 @@
 import { ButtonPrimary, ButtonSecondary } from "../../sharedStyles";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { VisibilityControls } from "./VisibilityFilters.styles";
-import { useFilterContext } from "./useFilterContext";
+import { useSelector } from "react-redux";
+import {
+  selectShowDifficultyFilter,
+  selectShowTagFilter,
+  setShowDifficultyFilter,
+  setShowTagFilter,
+  useAppDispatch,
+} from "../../store";
+import { memo, useCallback } from "react";
 
 const RenderVisibilityToggle = ({
   visible,
@@ -24,23 +32,32 @@ const RenderVisibilityToggle = ({
   );
 };
 
-export const VisibilityFilters = () => {
-  const { setShowTags, showTags, setShowDifficulty, showDifficulty } =
-    useFilterContext();
+export const VisibilityFilters = memo(() => {
+  const showTags = useSelector(selectShowTagFilter);
+  const showDifficulty = useSelector(selectShowDifficultyFilter);
+  const dispatch = useAppDispatch();
+
+  const handleToggleTagVisibility = useCallback(() => {
+    dispatch(setShowTagFilter(!showTags));
+  }, [dispatch, showTags]);
+
+  const handleToggleDifficultyVisibility = useCallback(() => {
+    dispatch(setShowDifficultyFilter(!showDifficulty));
+  }, [dispatch, showDifficulty]);
   return (
     <>
       <VisibilityControls>
         <RenderVisibilityToggle
-          onClick={() => setShowTags(!showTags)}
+          onClick={handleToggleTagVisibility}
           visible={showTags}
           suffix="Tags"
         />
         <RenderVisibilityToggle
-          onClick={() => setShowDifficulty(!showDifficulty)}
+          onClick={handleToggleDifficultyVisibility}
           visible={showDifficulty}
           suffix="Difficulty"
         />
       </VisibilityControls>
     </>
   );
-};
+});

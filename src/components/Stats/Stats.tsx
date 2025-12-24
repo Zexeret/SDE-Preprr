@@ -1,14 +1,11 @@
-import { memo, useMemo } from "react";
-import { useTaskUtility } from "../../context";
+import { memo } from "react";
 import { StatCard, StatLabel, StatsBar, StatValue } from "./Stats.styles";
+import { useSelector } from "react-redux";
+import { selectTasksByGroupId } from "../../store";
 
 export const Stats = memo(() => {
-  const { tasks, selectedGroupId } = useTaskUtility();
+  const tasksByGroup = useSelector(selectTasksByGroupId);
 
-  const tasksByGroup = useMemo(
-    () => tasks.filter((task) => task.groupId === selectedGroupId),
-    [selectedGroupId, tasks]
-  );
   const totalTasks = tasksByGroup.length;
   const completedTasks = tasksByGroup.filter((t) => t.isDone).length;
   const pendingTasks = totalTasks - completedTasks;

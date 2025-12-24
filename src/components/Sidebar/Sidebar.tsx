@@ -1,7 +1,5 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { FiSettings, FiFolder, FiPlus } from "react-icons/fi";
-import { useTaskUtility } from "../../context";
-import { PREDEFINED_GROUPS } from "../../model";
 import {
   AddGroupButton,
   AppSubtitle,
@@ -15,33 +13,38 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "./Sidebar.styles";
+import {
+  openGroupModal,
+  selectActiveGroupId,
+  selectAllGroups,
+  selectTaskCountByGroup,
+  setSelectedGroupId,
+  useAppDispatch,
+} from "../../store";
+import { useSelector } from "react-redux";
 
-type SidebarProps = {
-  readonly onNewGroupButtonClick: () => void;
-};
-
-export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
-  const { tasks, customGroups, selectedGroupId, setSelectedGroupId } =
-    useTaskUtility();
-
-  const allGroups = useMemo(
-    () => [...PREDEFINED_GROUPS, ...customGroups],
-    [customGroups]
-  );
+export const Sidebar = memo(() => {
+  const selectedGroupId = useSelector(selectActiveGroupId);
+  const taskCountByGroup = useSelector(selectTaskCountByGroup);
+  const allGroups = useSelector(selectAllGroups);
+  const dispatch = useAppDispatch();
 
   const handleMenuItemClick = useCallback(
     (groupId: string | null) => {
-      setSelectedGroupId(groupId);
+      dispatch(setSelectedGroupId(groupId));
     },
-    [setSelectedGroupId]
+    [dispatch]
   );
 
-  const getGroupTaskCount = useCallback(
-    (groupId: string): number => {
-      return tasks.filter((t) => t.groupId === groupId).length;
-    },
-    [tasks]
-  );
+  const handleNewGroupClick = useCallback(() => {
+    dispatch(
+      openGroupModal({
+        isOpen: true,
+        mode: "edit",
+        groupId: null,
+      })
+    );
+  }, [dispatch]);
 
   return (
     <SidebarContainer>
@@ -67,7 +70,7 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
       <NavSection>
         <SectionTitle>Groups</SectionTitle>
         {allGroups.map((group) => {
-          const taskCount = getGroupTaskCount(group.id);
+          const taskCount = taskCountByGroup[group.id] ?? 0;
           return (
             <NavItem
               key={group.id}
@@ -83,7 +86,7 @@ export const Sidebar = memo<SidebarProps>(({ onNewGroupButtonClick }) => {
       </NavSection>
 
       <SidebarFooter>
-        <AddGroupButton onClick={onNewGroupButtonClick}>
+        <AddGroupButton onClick={handleNewGroupClick}>
           <FiPlus size={18} />
           New Group
         </AddGroupButton>

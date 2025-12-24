@@ -14,31 +14,25 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { PreparationTask } from "../../model";
 import { TaskCard } from "../TaskCard";
 import {
   EmptyListContainer,
   TasksGrid,
 } from "./TaskList.styles";
-import { useTaskUtility } from "../../context";
-import { useFilterContext } from "../FilterBar";
+import { useSelector } from "react-redux";
+import { reorderTasks, selectOrderedFilteredTaskIds, selectShowDifficultyFilter, selectShowTagFilter, useAppDispatch } from "../../store";
 
 interface TaskListProps {
-  readonly onEdit: (task: PreparationTask) => void;
   readonly enableDragDrop?: boolean;
 }
 
-
 export const TaskList: React.FC<TaskListProps> = ({
-  onEdit,
   enableDragDrop = false,
 }) => {
-  const { reorderTasks } = useTaskUtility();
-  const {
-    filteredAndSortedTasks: tasks,
-    showDifficulty,
-    showTags,
-  } = useFilterContext();
+  const orderedTaskIds = useSelector(selectOrderedFilteredTaskIds);
+  const showDifficulty = useSelector(selectShowDifficultyFilter);
+  const showTags = useSelector(selectShowTagFilter);
+  const dispatch = useAppDispatch() ;
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -51,14 +45,17 @@ export const TaskList: React.FC<TaskListProps> = ({
     (event: DragEndEvent) => {
       const { active, over } = event;
 
-      if (over && active.id !== over.id && reorderTasks) {
-        reorderTasks(active.id as string, over.id as string);
+      if (over && active.id !== over.id) {
+        dispatch(reorderTasks({
+          activeId: String(active.id),
+          overId: String(over.id)
+        }));
       }
     },
-    [reorderTasks]
+    [dispatch]
   );
 
-  if (tasks.length === 0) {
+  if (orderedTaskIds.length === 0) {
     return (
       <EmptyListContainer>
         <FiX />
@@ -71,14 +68,13 @@ export const TaskList: React.FC<TaskListProps> = ({
   const tasksList = (
     <>
       <TasksGrid>
-        {tasks.map((task) => (
+        {orderedTaskIds.map((taskId) => (
           <TaskCard
-            key={task.id}
-            task={task}
+            key={taskId}
+            taskId={taskId}
             showTags={showTags}
             showDifficulty={showDifficulty}
             enableDragDrop={enableDragDrop}
-            onEdit={onEdit}
           />
         ))}
       </TasksGrid>
@@ -94,7 +90,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={tasks.map((t) => t.id)}
+            items={orderedTaskIds}
             strategy={verticalListSortingStrategy}
           >
             {tasksList}

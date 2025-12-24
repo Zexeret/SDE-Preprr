@@ -1,5 +1,11 @@
-import { registerUIListeners } from "./ui"
+import {
+  registerNormalizeTaskListener,
+  registerSaveDataListener,
+} from "./derived";
+import { registerUIListeners } from "./ui";
 
-export const registerListeners =() => {
-    registerUIListeners(); 
-}
+export const registerListeners = () => {
+  registerUIListeners();
+  registerSaveDataListener();
+  registerNormalizeTaskListener();
+};

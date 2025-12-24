@@ -1,130 +1,24 @@
-import React, { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { FiFilter } from "react-icons/fi";
-import { DIFFICULTY_TAGS, DifficultyTagId, DSA_SPECIFIC_TAGS, type Tag } from "../../model";
 import { FilterBarContainer } from "./FilterBar.styles";
-import { ButtonSecondary, Select } from "../../sharedStyles";
-import { useTaskUtility } from "../../context";
-import { DEFAULT_FILTER_TO_APPLY } from "./FilterToApplyType";
-import { useFilterContext } from "./useFilterContext";
+import { ButtonSecondary } from "../../sharedStyles";
 import { VisibilityFilters } from "./VisibilityFilters";
+import { DifficultyFilter } from "./DifficultyFilter";
+import { resetFilters, useAppDispatch } from "../../store";
+import { TagsFilter } from "./TagsFilter";
 
-type FilterBarProps = {};
-
-const ALL_DIFFICULTY_TAG_ID = "All";
-const DIFFICULTY_FILTER_SOURCE: ReadonlyArray<Tag> = [
-  { id: ALL_DIFFICULTY_TAG_ID, name: "All Difficulties", isCustom: false },
-  ...DIFFICULTY_TAGS,
-];
-
-export const FilterBar = memo<FilterBarProps>(() => {
-  const { tasks, customTags, selectedGroupId } = useTaskUtility();
-  const { currentFilterToApply, setCurrentFilterToApply } = useFilterContext();
-
-  const tagsByGroupSource: ReadonlyArray<Tag> = useMemo(
-    () => [
-      { id: ALL_DIFFICULTY_TAG_ID, name: "All Tags", isCustom: false },
-      ...DSA_SPECIFIC_TAGS.filter((tag) => tag.groupId === selectedGroupId),
-      ...customTags.filter((tag) => tag.groupId === selectedGroupId),
-    ],
-    [customTags, selectedGroupId]
-  );
-
-  const tasksByGroup = useMemo(
-    () => tasks.filter((task) => task.groupId === selectedGroupId),
-    [tasks, selectedGroupId]
-  );
-
-  // Calculate task count for each tag
-  const getTagCount = useCallback(
-    (tagId: string): number => {
-      if (tagId === ALL_DIFFICULTY_TAG_ID) return tasksByGroup.length;
-
-      return tasksByGroup.filter((task) =>
-        task.tags.some((tag) => tag === tagId)
-      ).length;
-    },
-    [tasksByGroup]
-  );
-
-  // Calculate task count for each difficulty
-  const getDifficultyCount = useCallback(
-    (tagId: string): number => {
-      if (tagId === ALL_DIFFICULTY_TAG_ID) return tasksByGroup.length;
-
-      return tasksByGroup.filter((task) => task.difficulty === tagId).length;
-    },
-    [tasksByGroup]
-  );
-
-  const handleDifficultyFilterSelect = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const selectedDifficultyId = event.target.value;
-      if (selectedDifficultyId === ALL_DIFFICULTY_TAG_ID) {
-        setCurrentFilterToApply((prev) => ({
-          ...prev,
-          difficultyId: null,
-        }));
-      } else {
-        setCurrentFilterToApply((prev) => ({
-          ...prev,
-          difficultyId: selectedDifficultyId as DifficultyTagId,
-        }));
-      }
-    },
-    [setCurrentFilterToApply]
-  );
-
-  const handleTagFilterSelect = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const seletedTagId = event.target.value;
-      if (seletedTagId === ALL_DIFFICULTY_TAG_ID) {
-        setCurrentFilterToApply((prev) => ({
-          ...prev,
-          tagId: null,
-        }));
-      } else {
-        setCurrentFilterToApply((prev) => ({
-          ...prev,
-          tagId: seletedTagId,
-        }));
-      }
-    },
-    [setCurrentFilterToApply]
-  );
+export const FilterBar = memo(() => {
+  const dispatch = useAppDispatch();
 
   const handleClearFilters = useCallback(() => {
-    setCurrentFilterToApply(DEFAULT_FILTER_TO_APPLY);
-  }, [setCurrentFilterToApply]);
+    dispatch(resetFilters());
+  }, [dispatch]);
 
   return (
     <FilterBarContainer>
-      <Select
-        value={currentFilterToApply.difficultyId ?? ALL_DIFFICULTY_TAG_ID}
-        onChange={handleDifficultyFilterSelect}
-      >
-        {DIFFICULTY_FILTER_SOURCE.map((tag) => {
-          const count = getDifficultyCount(tag.id);
-          return (
-            <option key={tag.id} value={tag.id}>
-              {tag.name} ({count})
-            </option>
-          );
-        })}
-      </Select>
+      <DifficultyFilter />
 
-      <Select
-        value={currentFilterToApply.tagId ?? ALL_DIFFICULTY_TAG_ID}
-        onChange={handleTagFilterSelect}
-      >
-        {tagsByGroupSource.map((tag) => {
-          const count = getTagCount(tag.id);
-          return (
-            <option key={tag.id} value={tag.id}>
-              {tag.name} ({count})
-            </option>
-          );
-        })}
-      </Select>
+      <TagsFilter />
 
       <VisibilityFilters />
 

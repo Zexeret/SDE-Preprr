@@ -1,4 +1,4 @@
-import  { memo } from "react";
+import { memo } from "react";
 import {
   SettingsSection,
   SettingsSectionTitle,
@@ -8,17 +8,20 @@ import {
   StatValueSettings,
 } from "./Settings.styles";
 import { FiBarChart2 } from "react-icons/fi";
-import { useTaskUtility } from "../../context";
-import { PREDEFINED_GROUPS } from "../../model";
+import { useSelector } from "react-redux";
+import {
+  selectCompletedTasksCount,
+  selectCustomGroupsCount,
+  selectCustomTagsCount,
+  selectTasksCount,
+} from "../../store";
 
 export const SettingsOverview = memo(() => {
-  const { tasks, customGroups, customTags } = useTaskUtility();
+  const totalTasks = useSelector(selectTasksCount);
+  const completedTasks = useSelector(selectCompletedTasksCount);
+  const customGroupsCount = useSelector(selectCustomGroupsCount);
+  const customTagCounts = useSelector(selectCustomTagsCount);
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.isDone).length;
-  const totalGroups = customGroups.length + PREDEFINED_GROUPS.length;
-  const totalCustomTags = customTags.length;
-  
   return (
     <SettingsSection>
       <SettingsSectionTitle>
@@ -35,12 +38,12 @@ export const SettingsOverview = memo(() => {
           <StatValueSettings>{completedTasks}</StatValueSettings>
         </StatCardSettings>
         <StatCardSettings>
-          <StatLabelSettings>Groups</StatLabelSettings>
-          <StatValueSettings>{totalGroups}</StatValueSettings>
+          <StatLabelSettings>Custom Groups</StatLabelSettings>
+          <StatValueSettings>{customGroupsCount}</StatValueSettings>
         </StatCardSettings>
         <StatCardSettings>
           <StatLabelSettings>Custom Tags</StatLabelSettings>
-          <StatValueSettings>{totalCustomTags}</StatValueSettings>
+          <StatValueSettings>{customTagCounts}</StatValueSettings>
         </StatCardSettings>
       </StatsGrid>
     </SettingsSection>

@@ -11,42 +11,41 @@ import {
   CloseButton,
   Input,
   Label,
-} from "../../sharedStyles/shared.styles";
-import { useTaskUtility } from "../../context";
+} from "../../sharedStyles";
 import type { Group } from "../../model";
 import { FiX } from "react-icons/fi";
 import { generateId } from "../../utils";
+import {
+  addGroup,
+  closeGroupModal,
+  setSelectedGroupId,
+  useAppDispatch,
+} from "../../store";
 
-type AddGroupModalProps = {
-  readonly onCloseModal: () => void;
-};
-
-export const AddGroupModal = memo<AddGroupModalProps>(({ onCloseModal }) => {
+export const AddGroupModal = memo(() => {
   const [newGroupName, setNewGroupName] = useState<string>("");
   const [description, setGroupDescription] = useState<string>("");
-  const { addCustomGroup, setSelectedGroupId } = useTaskUtility();
+
+  const dispatch = useAppDispatch();
+
+  const onCloseModal = useCallback(() => {
+    dispatch(closeGroupModal());
+  }, [dispatch]);
 
   const handleAddCustomGroup = useCallback(() => {
     if (!newGroupName.trim()) return;
 
     const newGroup: Group = {
-      id: generateId('group'),
+      id: generateId("group"),
       description: description.trim(),
       name: newGroupName.trim(),
       isCustom: true,
       createdAt: Date.now(),
     };
 
-    addCustomGroup(newGroup);
-    setSelectedGroupId(newGroup.id);
-    onCloseModal();
-  }, [
-    addCustomGroup,
-    description,
-    newGroupName,
-    onCloseModal,
-    setSelectedGroupId,
-  ]);
+    dispatch(addGroup(newGroup));
+    dispatch(setSelectedGroupId(newGroup.id));
+  }, [description, dispatch, newGroupName]);
 
   return (
     <ModalOverlay>

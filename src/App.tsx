@@ -1,6 +1,3 @@
-import { useState, useCallback } from "react";
-import { TaskUtilityProvider, useTaskUtility } from "./context";
-import type { PreparationTask, ThemeName } from "./model";
 import { ThemeProvider } from "./theme";
 import {
   Sidebar,
@@ -14,74 +11,57 @@ import {
   MainContentWithSidebar,
   SideBarContainer,
 } from "./App.styles";
-import { store } from "./store";
-import { Provider as ReduxStoreProvider } from "react-redux";
-import { usePrimeReactEditorStyle } from "./utils";
+import {
+  selectActiveGroupId,
+  selectIsGroupModalOpen,
+  selectIsTaskModalOpen,
+  selectTaskIdInModal,
+  selectThemename,
+} from "./store";
+import { useSelector } from "react-redux";
+import { useLoadAppData, usePrimeReactEditorStyle } from "./utils";
 
 function AppContent() {
-  const { selectedGroupId } = useTaskUtility();
-
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [showGroupModal, setShowGroupModal] = useState(false);
-  const [currentTaskInFormModal, setCurrentTaskInFormModal] =
-    useState<PreparationTask | null>(null);
-
-  const handleOpenAddTaskModal = useCallback((task: PreparationTask | null) => {
-    setCurrentTaskInFormModal(task);
-    setShowTaskModal(true);
-  }, []);
-
-  const handleCloseTaskFormModal = useCallback(() => {
-    setShowTaskModal(false);
-    setCurrentTaskInFormModal(null);
-  }, []);
-
+  const showTaskModal = useSelector(selectIsTaskModalOpen);
+  const showGroupModal = useSelector(selectIsGroupModalOpen);
+  const taskIdInModal = useSelector(selectTaskIdInModal);
+  const selectedGroupId = useSelector(selectActiveGroupId);
 
   // Style prime react editor
   usePrimeReactEditorStyle();
 
-  
+  //Load data from local storage/ db if any
+  useLoadAppData();
 
   return (
     <AppContainer>
       <SideBarContainer>
-        <Sidebar onNewGroupButtonClick={() => setShowGroupModal(true)} />
+        <Sidebar />
       </SideBarContainer>
 
       <MainContentWithSidebar>
-        {selectedGroupId === null ? (
-          <Settings />
-        ) : (
-          <MainContent openAddTaskModal={handleOpenAddTaskModal} />
-        )}
+        {selectedGroupId === null ? <Settings /> : <MainContent />}
       </MainContentWithSidebar>
 
       {showTaskModal && selectedGroupId && (
         <TaskForm
+          currentTaskInModalId={taskIdInModal}
           selectedGroupId={selectedGroupId}
-          currentTaskInFormModal={currentTaskInFormModal}
-          onClose={handleCloseTaskFormModal}
         />
       )}
 
-      {showGroupModal && (
-        <AddGroupModal onCloseModal={() => setShowGroupModal(false)} />
-      )}
+      {showGroupModal && <AddGroupModal />}
     </AppContainer>
   );
 }
 
 const App = () => {
-  const [themeName, setThemeName] = useState<ThemeName>("light");
+  const themeName = useSelector(selectThemename);
 
   return (
-    <ReduxStoreProvider store={store}>
-      <ThemeProvider themeName={themeName}>
-        <TaskUtilityProvider setTheme={setThemeName} themeName={themeName}>
-          <AppContent />
-        </TaskUtilityProvider>
-      </ThemeProvider>
-    </ReduxStoreProvider>
+    <ThemeProvider themeName={themeName}>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 
