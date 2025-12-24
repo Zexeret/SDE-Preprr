@@ -6,6 +6,7 @@ export const selectIsTaskModalOpen = (state: RootState) => state.ui.taskModal.is
 export const selectIsGroupModalOpen = (state: RootState) => state.ui.groupModal.isOpen;
 
 export const selectTaskIdInModal = (state: RootState) => state.ui.taskModal.taskId;
+export const selectGroupIdInModal = (state: RootState) => state.ui.groupModal.groupId;
 
 export const selectThemename = (state: RootState) => state.ui.selectedTheme;
 

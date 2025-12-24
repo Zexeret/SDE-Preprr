@@ -7,10 +7,10 @@ import {
 } from "./ContentHeader.styles";
 import { FiPlus } from "react-icons/fi";
 import { type Group } from "../../model";
-import { ButtonDanger, ButtonPrimary } from "../../sharedStyles";
+import { ButtonPrimary, ButtonSecondary } from "../../sharedStyles";
 import {
+  openGroupModal,
   openTaskModal,
-  removeGroup,
   selectActiveGroup,
   useAppDispatch,
 } from "../../store";
@@ -38,21 +38,15 @@ export const ContentHeader = memo(() => {
     );
   }, [dispatch]);
 
-  const handleGroupDelete = useCallback(() => {
+  const handleOpenGroupModal = useCallback(() => {
     if (selectedGroup) {
-      if (
-        window.confirm(
-          `Are you sure you want to delete ${selectedGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
-        )
-      ) {
-        if (!selectedGroup.isCustom) {
-          console.error(
-            "Current group is not a custom group. Cannot be deleted."
-          );
-          return;
-        }
-        dispatch(removeGroup(selectedGroup.id));
-      }
+      dispatch(
+        openGroupModal({
+          isOpen: true,
+          mode: "edit",
+          groupId: selectedGroup.id,
+        })
+      );
     }
   }, [dispatch, selectedGroup]);
 
@@ -67,12 +61,12 @@ export const ContentHeader = memo(() => {
         <ContentSubtitle>{getGroupDescription(selectedGroup)}</ContentSubtitle>
       </div>
       <ContentActions>
-        <ButtonDanger
-          onClick={handleGroupDelete}
+        <ButtonSecondary
+          onClick={handleOpenGroupModal}
           disabled={!selectedGroup.isCustom}
         >
-          Delete Group
-        </ButtonDanger>
+          Edit Group
+        </ButtonSecondary>
         <ButtonPrimary onClick={handleAddTask}>
           <FiPlus size={16} />
           Add Task

@@ -9,3 +9,4 @@ export * from './selectTasksByGroupId';
 export * from './selectActiveGroup';
 export * from './selectActiveTaskInModal';
 export * from './registerNormalizeTaskListener';
+export * from './selectActiveGroupInModal';

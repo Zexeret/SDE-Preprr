@@ -11,6 +11,7 @@ import {
   CloseButton,
   Input,
   Label,
+  ButtonDanger,
 } from "../../sharedStyles";
 import type { Group } from "../../model";
 import { FiX } from "react-icons/fi";
@@ -18,13 +19,19 @@ import { generateId } from "../../utils";
 import {
   addGroup,
   closeGroupModal,
+  removeGroup,
+  selectActiveGroupInModal,
+  selectGroupIdInModal,
   setSelectedGroupId,
   useAppDispatch,
 } from "../../store";
+import { useSelector } from "react-redux";
 
 export const AddGroupModal = memo(() => {
-  const [newGroupName, setNewGroupName] = useState<string>("");
-  const [description, setGroupDescription] = useState<string>("");
+  const isAddMode = useSelector(selectGroupIdInModal) === null;
+  const editingGroup = useSelector(selectActiveGroupInModal) ;
+  const [newGroupName, setNewGroupName] = useState<string>(editingGroup?.name ?? "");
+  const [description, setGroupDescription] = useState<string>(editingGroup?.description ?? "");
 
   const dispatch = useAppDispatch();
 
@@ -45,7 +52,29 @@ export const AddGroupModal = memo(() => {
 
     dispatch(addGroup(newGroup));
     dispatch(setSelectedGroupId(newGroup.id));
-  }, [description, dispatch, newGroupName]);
+
+    onCloseModal();
+  }, [description, dispatch, newGroupName, onCloseModal]);
+
+    const handleGroupDelete = useCallback(() => {
+      if (editingGroup) {
+        if (
+          window.confirm(
+            `Are you sure you want to delete ${editingGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
+          )
+        ) {
+          if (!editingGroup.isCustom) {
+            console.error(
+              "Current group is not a custom group. Cannot be deleted."
+            );
+            return;
+          }
+          dispatch(removeGroup(editingGroup.id));
+        }
+
+        onCloseModal();
+      }
+    }, [dispatch, editingGroup, onCloseModal]);
 
   return (
     <ModalOverlay>
@@ -68,7 +97,7 @@ export const AddGroupModal = memo(() => {
         </FormGroup>
 
         <FormGroup>
-          <Label>Group Description *</Label>
+          <Label>Group Description</Label>
           <Input
             type="text"
             value={description}
@@ -78,9 +107,13 @@ export const AddGroupModal = memo(() => {
         </FormGroup>
 
         <ModalActions>
-          <ButtonSecondary onClick={onCloseModal}>Cancel</ButtonSecondary>
+          {isAddMode ? (
+            <ButtonSecondary onClick={onCloseModal}>Cancel</ButtonSecondary>
+          ) : (
+            <ButtonDanger onClick={handleGroupDelete}>Delete</ButtonDanger>
+          )}
           <ButtonPrimary onClick={handleAddCustomGroup}>
-            Create Group
+            {isAddMode ? 'Create' : 'Update'} Group
           </ButtonPrimary>
         </ModalActions>
       </ModalContent>
