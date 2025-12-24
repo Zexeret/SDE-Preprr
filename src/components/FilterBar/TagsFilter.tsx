@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { Select } from "../../sharedStyles";
-import type { Tag } from "../../model";
+import { DIFFICULTY_TAGS, type Tag } from "../../model";
 import { useSelector } from "react-redux";
 import {
   selectTagsBySelectedGroup,
@@ -24,7 +24,12 @@ export const TagsFilter = memo(() => {
   const dispatch = useAppDispatch();
 
   const source = useMemo(() => {
-    return [ALL_TAGS, ...tagsBySelectedGroup];
+    return [
+      ALL_TAGS,
+      ...tagsBySelectedGroup.filter(
+        (tag) => !DIFFICULTY_TAGS.some((difficulty) => difficulty.id === tag.id)
+      ),
+    ];
   }, [tagsBySelectedGroup]);
 
   const selectedValues: ReadonlyArray<string> = useMemo(

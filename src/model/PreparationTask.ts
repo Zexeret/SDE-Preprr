@@ -8,6 +8,7 @@ export type PreparationTask = {
   readonly difficulty : DifficultyTagId ;
   readonly tags: ReadonlyArray<string>;
   readonly notes: string;
+  readonly postCompletionNotes : string;
   readonly isDone: boolean;
   readonly createdAt: number;
   readonly updatedAt: number;
@@ -17,4 +18,4 @@ export type PreparationTask = {
 export type SortBy = "dateAdded" | "dateUpdated" | "status" | "name";
 export type SortOrder = "asc" | "desc";
 
-export const CURRENT_MODEL_VERSION = 1;
+

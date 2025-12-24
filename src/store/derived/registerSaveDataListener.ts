@@ -16,7 +16,8 @@ import {
   updateGroup,
 } from "../groups";
 import { selectThemename, setThemeName } from "../ui";
-import { saveAppState } from "../../utils";
+import { saveToLocalStorage } from "../../importExport";
+
 
 export const registerSaveDataListener = () => {
   // Save the data
@@ -39,7 +40,7 @@ export const registerSaveDataListener = () => {
       listenerApi.cancelActiveListeners();
 
       // Debounce (wait 500ms of silence)
-      await listenerApi.delay(500);
+      await listenerApi.delay(1000);
       
       const state = listenerApi.getState();
 
@@ -51,7 +52,7 @@ export const registerSaveDataListener = () => {
         selectedTheme: selectThemename(state),
         exportedAt: Date.now(),
       };
-      saveAppState(appState);
+      saveToLocalStorage(appState);
       console.log("Auto-saved app state");
     },
   });

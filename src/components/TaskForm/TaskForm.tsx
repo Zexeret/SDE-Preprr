@@ -39,6 +39,9 @@ export const TaskForm = memo<TaskFormProps>(() => {
   const [title, setTitle] = useState<string>(editingTask?.title ?? "");
   const [link, setLink] = useState<string | null>(editingTask?.link ?? null);
   const [notes, setNotes] = useState<string>(editingTask?.notes ?? "");
+  const [postCompletionNotes, setPostCompletionNotes] = useState<string>(
+    editingTask?.postCompletionNotes ?? ""
+  );
   const [difficulty, setDifficulty] = useState<DifficultyTagId>(
     editingTask?.difficulty ?? DifficultyTagId.EASY
   );
@@ -68,10 +71,11 @@ export const TaskForm = memo<TaskFormProps>(() => {
       let taskData: PreparationTask = {
         groupId: selectedGroupId,
         title: title.trim(),
-        link: link,
+        link,
         difficulty,
         tags: Array.from(selectedTags),
-        notes: notes,
+        notes,
+        postCompletionNotes,
         updatedAt: now,
         // Different fields based on add/edit mode.
         id: generateId("task"),
@@ -108,6 +112,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
       difficulty,
       selectedTags,
       notes,
+      postCompletionNotes,
       maxOrder,
       handleCloseModal,
       dispatch,
@@ -159,6 +164,15 @@ export const TaskForm = memo<TaskFormProps>(() => {
               <Editor
                 value={notes}
                 onTextChange={(e) => setNotes(e.htmlValue || "")}
+                style={{ height: "300px" }}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label>Post Completion Notes</Label>
+              <Editor
+                value={postCompletionNotes}
+                onTextChange={(e) => setPostCompletionNotes(e.htmlValue || "")}
                 style={{ height: "300px" }}
               />
             </FormGroup>

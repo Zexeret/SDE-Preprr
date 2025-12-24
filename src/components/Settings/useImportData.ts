@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { importData } from "../../utils";
 import { useAppDispatch } from "../../store";
 import { hydrateAppData } from "../../store";
+import { importData } from "../../importExport";
 
 export const useImportData = () => {
   const dispatch = useAppDispatch();

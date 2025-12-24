@@ -5,5 +5,6 @@ export * from './ThemeName';
 export * from './AppState';
 export * from './Group';
 export * from './PredefinedDSATags';
+export * from './errors';
 
 

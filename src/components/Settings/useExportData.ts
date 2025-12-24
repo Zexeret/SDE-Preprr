@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { exportData } from "../../utils";
 import { useSelector } from "react-redux";
 import {
   selectAllTasks,
@@ -7,6 +6,7 @@ import {
   selectCustomTags,
   selectThemename,
 } from "../../store";
+import { exportData } from "../../importExport";
 
 export const useExportData = () => {
   const tasks = useSelector(selectAllTasks);

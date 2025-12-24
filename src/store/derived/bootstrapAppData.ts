@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { loadAppState } from "../../utils";
 import { hydrateAppData } from "./hydrateAppData";
+import { loadFromLocalStorage } from "../../importExport";
 
 export const bootstrapAppData = createAsyncThunk(
   "app/bootstrap",
   async (_, { dispatch }) => {
-    const localAppData = loadAppState();
+    const localAppData = loadFromLocalStorage();
     if (!localAppData) return;
 
     // Add migration function here for converting old versioned data to new one.
