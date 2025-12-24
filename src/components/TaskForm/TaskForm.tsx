@@ -7,7 +7,6 @@ import {
   Label,
   Input,
 } from "../../sharedStyles";
-import { Editor } from "primereact/editor";
 import { FormContainer } from "./TaskForm.styles";
 import { generateId } from "../../utils";
 import {
@@ -15,8 +14,8 @@ import {
   closeTaskModal,
   ORDER_SEPARATOR_BASE,
   selectActiveGroupId,
-  selectActiveTaskInModal,
   selectMaxOrderFromTasks,
+  selectModeInTaskModal,
   updateTask,
   useAppDispatch,
 } from "../../store";
@@ -25,28 +24,31 @@ import { TaskFormHeader } from "./TaskFormHeader";
 import { DifficultyTagInput } from "./DifficultyTagInput";
 import { TagInput } from "./TagInput";
 import { ActionButtons } from "./ActionButtons";
+import { PostCompletionNotes } from "./PostCompletionNotes";
+import { Notes } from "./Notes";
 
 interface TaskFormProps {
-  readonly selectedGroupId: string;
-  readonly currentTaskInModalId: string | null;
+  readonly currentTaskInModal: PreparationTask | null;
 }
 
-export const TaskForm = memo<TaskFormProps>(() => {
-  const editingTask = useSelector(selectActiveTaskInModal);
+export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
+  const isViewMode = useSelector(selectModeInTaskModal) === "view";
   const selectedGroupId = useSelector(selectActiveGroupId);
   const maxOrder = useSelector(selectMaxOrderFromTasks);
 
-  const [title, setTitle] = useState<string>(editingTask?.title ?? "");
-  const [link, setLink] = useState<string | null>(editingTask?.link ?? null);
-  const [notes, setNotes] = useState<string>(editingTask?.notes ?? "");
+  const [title, setTitle] = useState<string>(currentTaskInModal?.title ?? "");
+  const [link, setLink] = useState<string | null>(
+    currentTaskInModal?.link ?? null
+  );
+  const [notes, setNotes] = useState<string>(currentTaskInModal?.notes ?? "");
   const [postCompletionNotes, setPostCompletionNotes] = useState<string>(
-    editingTask?.postCompletionNotes ?? ""
+    currentTaskInModal?.postCompletionNotes ?? ""
   );
   const [difficulty, setDifficulty] = useState<DifficultyTagId>(
-    editingTask?.difficulty ?? DifficultyTagId.EASY
+    currentTaskInModal?.difficulty ?? DifficultyTagId.EASY
   );
   const [selectedTags, setSelectedTags] = useState<ReadonlySet<string>>(
-    new Set(editingTask?.tags ?? [])
+    new Set(currentTaskInModal?.tags ?? [])
   );
 
   const dispatch = useAppDispatch();
@@ -67,7 +69,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
       }
 
       const now = Date.now();
-      const isNewTask = editingTask === null;
+      const isNewTask = currentTaskInModal === null;
       let taskData: PreparationTask = {
         groupId: selectedGroupId,
         title: title.trim(),
@@ -87,10 +89,10 @@ export const TaskForm = memo<TaskFormProps>(() => {
       if (!isNewTask) {
         taskData = {
           ...taskData,
-          id: editingTask.id,
-          isDone: editingTask.isDone || false,
-          createdAt: editingTask.createdAt,
-          order: editingTask.order,
+          id: currentTaskInModal.id,
+          isDone: currentTaskInModal.isDone || false,
+          createdAt: currentTaskInModal.createdAt,
+          order: currentTaskInModal.order,
         };
         dispatch(
           updateTask({
@@ -107,7 +109,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
     [
       selectedGroupId,
       title,
-      editingTask,
+      currentTaskInModal,
       link,
       difficulty,
       selectedTags,
@@ -135,6 +137,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Binary Search or Max Depth of Binary Tree"
                 required
+                readOnly={isViewMode}
               />
             </FormGroup>
 
@@ -146,6 +149,7 @@ export const TaskForm = memo<TaskFormProps>(() => {
                 value={link ?? ""}
                 onChange={(e) => setLink(e.target.value)}
                 placeholder="https://leetcode.com/problems/..."
+                readOnly={isViewMode}
               />
             </FormGroup>
 
@@ -159,23 +163,12 @@ export const TaskForm = memo<TaskFormProps>(() => {
               setSelectedTags={setSelectedTags}
             />
 
-            <FormGroup>
-              <Label>Notes</Label>
-              <Editor
-                value={notes}
-                onTextChange={(e) => setNotes(e.htmlValue || "")}
-                style={{ height: "300px" }}
-              />
-            </FormGroup>
+            <Notes notes={notes} setNotes={setNotes} />
 
-            <FormGroup>
-              <Label>Post Completion Notes</Label>
-              <Editor
-                value={postCompletionNotes}
-                onTextChange={(e) => setPostCompletionNotes(e.htmlValue || "")}
-                style={{ height: "300px" }}
-              />
-            </FormGroup>
+            <PostCompletionNotes
+              postCompletionNotes={postCompletionNotes}
+              setPostCompletionNotes={setPostCompletionNotes}
+            />
           </form>
         </FormContainer>
 

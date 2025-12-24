@@ -4,6 +4,7 @@ import { StyledTag, TagsContainer } from "./TaskForm.styles";
 import { useSelector } from "react-redux";
 import {
   removeTag,
+  selectModeInTaskModal,
   selectTagsBySelectedGroup,
   useAppDispatch,
 } from "../../store";
@@ -21,6 +22,7 @@ type TagInputProps = {
 export const TagInput = memo<TagInputProps>(
   ({ selectedTags, setSelectedTags }) => {
     const tagsByGroup = useSelector(selectTagsBySelectedGroup);
+    const isViewMode = useSelector(selectModeInTaskModal) === "view";
     const dispatch = useAppDispatch();
 
     const handleTagToggle = useCallback(
@@ -71,6 +73,7 @@ export const TagInput = memo<TagInputProps>(
                 selected={selectedTags.has(tag.id)}
                 isCustom={tag.isCustom}
                 onClick={() => handleTagToggle(tag)}
+                $readonly={isViewMode}
               >
                 {tag.name}
                 {tag.isCustom && (
@@ -78,7 +81,7 @@ export const TagInput = memo<TagInputProps>(
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                   >
-                    <FiX size={14} />
+                    {!isViewMode && <FiX size={14} />}
                   </ButtonSecondary>
                 )}
               </StyledTag>
@@ -86,7 +89,7 @@ export const TagInput = memo<TagInputProps>(
           })}
         </TagsContainer>
 
-        <AddCustomTag />
+        {!isViewMode && <AddCustomTag />}
       </FormGroup>
     );
   }

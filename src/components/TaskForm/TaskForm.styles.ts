@@ -14,7 +14,7 @@ export const TaskFormHeading = styled.h2`
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
     border-bottom: 1px solid ${({ theme }) => theme.border};
-        display: flex;
+    display: flex;
     justify-content: space-between;
   }
 `;
@@ -22,6 +22,7 @@ export const TaskFormHeading = styled.h2`
 export const StyledTag = styled.span<{
   readonly selected?: boolean;
   readonly isCustom?: boolean;
+  readonly $readonly?: boolean;
 }>`
   display: inline-flex;
   align-items: center;
@@ -49,6 +50,19 @@ export const StyledTag = styled.span<{
       opacity: 0.7;
     }
   }
+
+  ${({$readonly, selected}) => {
+    if ($readonly && selected) {
+      return `
+        cursor: pointer;
+        pointer-events: none;
+      `;
+    } else if($readonly && !selected) {
+      return `
+        display: none;
+      `
+    }
+  }}
 
   ${({ selected, isCustom, theme }) => {
     if (selected) {
@@ -107,6 +121,6 @@ export const StyledCloseButton = styled(ButtonSecondary)`
   border: none;
 
   &&:hover {
-  background: ${props => props.theme.surfaceElevated}
+    background: ${(props) => props.theme.surfaceElevated};
   }
-`
+`;

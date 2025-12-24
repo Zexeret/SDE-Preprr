@@ -13,9 +13,9 @@ import {
 } from "./App.styles";
 import {
   selectActiveGroupId,
+  selectActiveTaskInModal,
   selectIsGroupModalOpen,
   selectIsTaskModalOpen,
-  selectTaskIdInModal,
   selectThemename,
 } from "./store";
 import { useSelector } from "react-redux";
@@ -24,7 +24,7 @@ import { useLoadAppData, usePrimeReactEditorStyle } from "./utils";
 function AppContent() {
   const showTaskModal = useSelector(selectIsTaskModalOpen);
   const showGroupModal = useSelector(selectIsGroupModalOpen);
-  const taskIdInModal = useSelector(selectTaskIdInModal);
+  const currentTaskInModal = useSelector(selectActiveTaskInModal);
   const selectedGroupId = useSelector(selectActiveGroupId);
 
   // Style prime react editor
@@ -45,8 +45,8 @@ function AppContent() {
 
       {showTaskModal && selectedGroupId && (
         <TaskForm
-          currentTaskInModalId={taskIdInModal}
-          selectedGroupId={selectedGroupId}
+          currentTaskInModal={currentTaskInModal}
+
         />
       )}
 

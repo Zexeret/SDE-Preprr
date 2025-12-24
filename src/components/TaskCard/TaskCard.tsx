@@ -8,10 +8,7 @@ import {
 } from "react-icons/fi";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  DIFFICULTY_TAGS,
-  type DifficultyTagId,
-} from "../../model";
+import { DIFFICULTY_TAGS, type DifficultyTagId } from "../../model";
 import {
   TaskCardBase,
   TaskHeader,
@@ -106,6 +103,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     );
   }, [task, dispatch]);
 
+  const handleDoubleClick = useCallback(() => {
+    dispatch(
+      openTaskModal({
+        isOpen: true,
+        taskId: task.id,
+        mode: "view",
+      })
+    );
+  }, [task, dispatch]);
+
   const renderTags = useCallback(
     (tagIds: ReadonlyArray<string>) => {
       return tagIds.map((tagId, index) => {
@@ -130,7 +137,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <TaskCardBase $isCompleted={task.isDone}>
+      <TaskCardBase
+        $isCompleted={task.isDone}
+        onDoubleClick={handleDoubleClick}
+      >
         <TaskHeader>
           {enableDragDrop && (
             <DragHandle {...attributes} {...listeners}>

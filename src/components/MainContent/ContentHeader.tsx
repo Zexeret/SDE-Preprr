@@ -32,7 +32,7 @@ export const ContentHeader = memo(() => {
     dispatch(
       openTaskModal({
         isOpen: true,
-        mode: "edit",
+        mode: "add",
         taskId: null,
       })
     );

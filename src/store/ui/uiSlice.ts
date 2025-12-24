@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction, type WritableDraft } from "@reduxjs/toolkit"; 
 import { PredefinedGroupId, type DifficultyTagId, type ThemeName } from '../../model'
 
-type ModalViewModes = 'edit' | 'view' ;
+export type ModalViewModes = 'edit' | 'view' | 'add' ;
 
 export type UIState = {
   readonly selectedGroupId: string | null ;
