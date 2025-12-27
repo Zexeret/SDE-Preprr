@@ -23,15 +23,20 @@ import {
   selectActiveGroupInModal,
   selectGroupIdInModal,
   setSelectedGroupId,
+  updateGroup,
   useAppDispatch,
 } from "../../store";
 import { useSelector } from "react-redux";
 
 export const AddGroupModal = memo(() => {
   const isAddMode = useSelector(selectGroupIdInModal) === null;
-  const editingGroup = useSelector(selectActiveGroupInModal) ;
-  const [newGroupName, setNewGroupName] = useState<string>(editingGroup?.name ?? "");
-  const [description, setGroupDescription] = useState<string>(editingGroup?.description ?? "");
+  const editingGroup = useSelector(selectActiveGroupInModal);
+  const [newGroupName, setNewGroupName] = useState<string>(
+    editingGroup?.name ?? ""
+  );
+  const [description, setGroupDescription] = useState<string>(
+    editingGroup?.description ?? ""
+  );
 
   const dispatch = useAppDispatch();
 
@@ -56,25 +61,52 @@ export const AddGroupModal = memo(() => {
     onCloseModal();
   }, [description, dispatch, newGroupName, onCloseModal]);
 
-    const handleGroupDelete = useCallback(() => {
-      if (editingGroup) {
-        if (
-          window.confirm(
-            `Are you sure you want to delete ${editingGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
-          )
-        ) {
-          if (!editingGroup.isCustom) {
-            console.error(
-              "Current group is not a custom group. Cannot be deleted."
-            );
-            return;
-          }
-          dispatch(removeGroup(editingGroup.id));
-        }
+  const handleUpdateGroup = useCallback(() => {
+    if (!newGroupName.trim()) return;
+    if (isAddMode || editingGroup === null) return;
 
-        onCloseModal();
+    const updatedGroup: Group = {
+      ...editingGroup,
+      description: description.trim(),
+      name: newGroupName.trim(),
+    };
+
+    dispatch(
+      updateGroup({
+        id: editingGroup.id,
+        changes: updatedGroup,
+      })
+    );
+
+    onCloseModal();
+  }, [
+    description,
+    dispatch,
+    editingGroup,
+    isAddMode,
+    newGroupName,
+    onCloseModal,
+  ]);
+
+  const handleGroupDelete = useCallback(() => {
+    if (editingGroup) {
+      if (
+        window.confirm(
+          `Are you sure you want to delete ${editingGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
+        )
+      ) {
+        if (!editingGroup.isCustom) {
+          console.error(
+            "Current group is not a custom group. Cannot be deleted."
+          );
+          return;
+        }
+        dispatch(removeGroup(editingGroup.id));
       }
-    }, [dispatch, editingGroup, onCloseModal]);
+
+      onCloseModal();
+    }
+  }, [dispatch, editingGroup, onCloseModal]);
 
   return (
     <ModalOverlay>
@@ -112,8 +144,10 @@ export const AddGroupModal = memo(() => {
           ) : (
             <ButtonDanger onClick={handleGroupDelete}>Delete</ButtonDanger>
           )}
-          <ButtonPrimary onClick={handleAddCustomGroup}>
-            {isAddMode ? 'Create' : 'Update'} Group
+          <ButtonPrimary
+            onClick={isAddMode ? handleAddCustomGroup : handleUpdateGroup}
+          >
+            {isAddMode ? "Create" : "Update"} Group
           </ButtonPrimary>
         </ModalActions>
       </ModalContent>
