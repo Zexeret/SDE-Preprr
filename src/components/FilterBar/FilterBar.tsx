@@ -6,6 +6,7 @@ import { VisibilityFilters } from "./VisibilityFilters";
 import { DifficultyFilter } from "./DifficultyFilter";
 import { resetFilters, useAppDispatch } from "../../store";
 import { TagsFilter } from "./TagsFilter";
+import { CompletionFilter } from "./CompletionFilter";
 
 export const FilterBar = memo(() => {
   const dispatch = useAppDispatch();
@@ -19,6 +20,8 @@ export const FilterBar = memo(() => {
       <DifficultyFilter />
 
       <TagsFilter />
+
+      <CompletionFilter />
 
       <VisibilityFilters />
 

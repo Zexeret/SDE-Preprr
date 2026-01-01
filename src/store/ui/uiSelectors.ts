@@ -20,3 +20,5 @@ export const selectDifficultyFilter = (state: RootState) => state.ui.filter.diff
 export const selectTagIdsFilter = (state: RootState) => state.ui.filter.tagIds;
 export const selectShowTagFilter = (state : RootState) => state.ui.filter.showTags;
 export const selectShowDifficultyFilter = (state : RootState) => state.ui.filter.showDifficulty;
+
+export const selectCompletionStatusFilter = (state : RootState) => state.ui.filter.completionStatus; 

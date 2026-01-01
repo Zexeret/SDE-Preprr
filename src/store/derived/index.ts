@@ -10,3 +10,4 @@ export * from './selectActiveGroup';
 export * from './selectActiveTaskInModal';
 export * from './registerNormalizeTaskListener';
 export * from './selectActiveGroupInModal';
+export * from './selectTaskCountByCompletionStatus';

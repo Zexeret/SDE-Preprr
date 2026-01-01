@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction, type WritableDraft } from "@reduxjs/to
 import { PredefinedGroupId, type DifficultyTagId, type ThemeName } from '../../model'
 
 export type ModalViewModes = 'edit' | 'view' | 'add' ;
+export type TaskCompletionStatus = 'All' | 'Done' | 'Pending';
 
 export type UIState = {
   readonly selectedGroupId: string | null ;
@@ -11,7 +12,7 @@ export type UIState = {
     readonly difficulties : ReadonlyArray<DifficultyTagId> ;
     readonly showTags: boolean ;
     readonly showDifficulty: boolean ;
-    readonly completionStatus: 'All' | 'Done' | 'Pending',
+    readonly completionStatus: TaskCompletionStatus ;
   }
   readonly taskModal: {
     readonly isOpen: boolean;
@@ -84,6 +85,9 @@ const uiSlice = createSlice({
     },
     setShowDifficultyFilter(state, action : PayloadAction<boolean>){
       state.filter.showDifficulty = action.payload;
+    },
+    setCompletionStatusFilter(state, action: PayloadAction<TaskCompletionStatus>){
+      state.filter.completionStatus = action.payload;
     }
   }
 });
@@ -100,7 +104,8 @@ export const {
   setDifficultyFilter,
   setTagIdsFilter,
   setShowTagFilter,
-  setShowDifficultyFilter
+  setShowDifficultyFilter,
+  setCompletionStatusFilter,
 } = uiSlice.actions
 
 export const uiReducer =  uiSlice.reducer ;
