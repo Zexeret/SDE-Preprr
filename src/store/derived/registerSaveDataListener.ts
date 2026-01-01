@@ -16,7 +16,7 @@ import {
   updateGroup,
 } from "../groups";
 import { selectThemename, setThemeName } from "../ui";
-import { saveToLocalStorage } from "../../importExport";
+import { saveToIndexedDB } from "../../importExport";
 
 
 export const registerSaveDataListener = () => {
@@ -52,7 +52,7 @@ export const registerSaveDataListener = () => {
         selectedTheme: selectThemename(state),
         exportedAt: Date.now(),
       };
-      saveToLocalStorage(appState);
+      await saveToIndexedDB(appState);
       console.log("Auto-saved app state");
     },
   });

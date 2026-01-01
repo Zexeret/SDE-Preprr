@@ -1,26 +1,19 @@
 import { migrate } from "../migration";
 import { getDefaultAppState, type AppState } from "../model";
-import {
-  APP_STATE_STORAGE_KEY,
-  decompressWithPako,
-  generateChecksum,
-} from "./helper";
+import { getIndexedDb, STORE_NAME } from "./getIndexedDb";
+import { decompressWithPako, generateChecksum } from "./helper";
 import { validateExportWrapper } from "./validateExportWrapper";
 
-/**
- * @deprecated
- * The app uses indexedDb to store contents, keeping it here just in-case someone
- * wants to understand how do we store in localStorage.
- * 
- * NOTE: The logic may be out-dated compared to latest.
- *  
- */
-export const loadFromLocalStorage = (): AppState => {
+export const loadFromIndexedDB = async (): Promise<AppState> => {
   try {
-    const raw = localStorage.getItem(APP_STATE_STORAGE_KEY);
-    if (!raw) return getDefaultAppState();
+    const db = await getIndexedDb();
 
-    const wrapper: unknown = JSON.parse(raw);
+    // We currently store one key: "current"
+    const wrapper: unknown = await db.get(STORE_NAME, "current");
+
+    if (!wrapper) {
+      return getDefaultAppState();
+    }
 
     validateExportWrapper(wrapper);
 
@@ -37,7 +30,10 @@ export const loadFromLocalStorage = (): AppState => {
 
     return migrated;
   } catch (err) {
-    console.warn("Failed to load app state, using defaults", err);
+    console.warn(
+      "Failed to load app state from IndexedDB, using defaults",
+      err
+    );
     return getDefaultAppState();
   }
 };
