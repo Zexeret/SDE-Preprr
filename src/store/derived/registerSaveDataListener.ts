@@ -1,6 +1,6 @@
 import { isAnyOf } from "@reduxjs/toolkit";
 import { startAppListening } from "../listenerMiddleware";
-import { addTask, removeTask, setAllTasks, updateTask } from "../tasks";
+import { addTask, removeTask, reorderTasks, setAllTasks, updateTask } from "../tasks";
 import { addTag, removeTag, updateTag } from "../tags";
 import { addGroup, removeGroup, updateGroup } from "../groups";
 import { setThemeName } from "../ui";
@@ -15,6 +15,7 @@ export const saveDataMatcher = isAnyOf(
   addTask,
   updateTask,
   removeTask,
+  reorderTasks,
   setAllTasks,
   addGroup,
   updateGroup,
