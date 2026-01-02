@@ -11,7 +11,8 @@
     "module": "ESNext",
     "types": [
       "vite/client",
-      "node"
+      "node",
+      "wicg-file-system-access"
     ],
     /* Bundler mode */
     "moduleResolution": "bundler",

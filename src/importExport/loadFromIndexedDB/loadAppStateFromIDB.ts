@@ -1,15 +1,15 @@
-import { migrate } from "../migration";
-import { getDefaultAppState, type AppState } from "../model";
-import { getIndexedDb, STORE_NAME } from "./getIndexedDb";
-import { decompressWithPako, generateChecksum } from "./helper";
-import { validateExportWrapper } from "./validateExportWrapper";
+import { migrate } from "../../migration";
+import { getDefaultAppState, type AppState } from "../../model";
+import { getIndexedDb } from "../getIndexedDb";
+import { decompressWithPako, generateChecksum } from "../helper";
+import { APP_STATE_KEY, APP_STATE_STORE } from "../types";
+import { validateExportWrapper } from "../validateExportWrapper";
 
-export const loadFromIndexedDB = async (): Promise<AppState> => {
+export const loadAppStateFromIDB = async (): Promise<AppState> => {
   try {
     const db = await getIndexedDb();
 
-    // We currently store one key: "current"
-    const wrapper: unknown = await db.get(STORE_NAME, "current");
+    const wrapper: unknown = await db.get(APP_STATE_STORE, APP_STATE_KEY);
 
     if (!wrapper) {
       return getDefaultAppState();

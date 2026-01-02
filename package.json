@@ -34,6 +34,7 @@
     "@types/pako": "^2.0.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@types/wicg-file-system-access": "^2023.10.7",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
     "eslint-plugin-functional": "^9.0.2",

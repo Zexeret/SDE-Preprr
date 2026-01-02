@@ -1,59 +1,49 @@
 import { isAnyOf } from "@reduxjs/toolkit";
 import { startAppListening } from "../listenerMiddleware";
-import { CURRENT_MODEL_VERSION, type AppState } from "../../model";
-import {
-  addTask,
-  removeTask,
-  selectAllTasks,
-  setAllTasks,
-  updateTask,
-} from "../tasks";
-import { addTag, removeTag, selectCustomTags, updateTag } from "../tags";
-import {
-  addGroup,
-  removeGroup,
-  selectCustomGroups,
-  updateGroup,
-} from "../groups";
-import { selectThemename, setThemeName } from "../ui";
-import { saveToIndexedDB } from "../../importExport";
+import { addTask, removeTask, setAllTasks, updateTask } from "../tasks";
+import { addTag, removeTag, updateTag } from "../tags";
+import { addGroup, removeGroup, updateGroup } from "../groups";
+import { setThemeName } from "../ui";
+import { saveAppStateToIDB } from "../../importExport";
+import { buildAppStateForExport } from "./selectAppStateForExport";
+import { getFileSaveManager } from "../fileBackup";
 
+/**
+ * Matcher for all actions that should trigger a save
+ */
+export const saveDataMatcher = isAnyOf(
+  addTask,
+  updateTask,
+  removeTask,
+  setAllTasks,
+  addGroup,
+  updateGroup,
+  removeGroup,
+  addTag,
+  updateTag,
+  removeTag,
+  setThemeName
+);
 
 export const registerSaveDataListener = () => {
-  // Save the data
   startAppListening({
-    matcher: isAnyOf(
-      addTask,
-      updateTask,
-      removeTask,
-      setAllTasks,
-      addGroup,
-      updateGroup,
-      removeGroup,
-      addTag,
-      updateTag,
-      removeTag,
-      setThemeName
-    ),
+    matcher: saveDataMatcher,
     effect: async (_, listenerApi) => {
       // Cancel any pending save
       listenerApi.cancelActiveListeners();
 
-      // Debounce (wait 500ms of silence)
+      // Debounce (wait 1 second of silence)
       await listenerApi.delay(1000);
-      
-      const state = listenerApi.getState();
 
-      const appState: AppState = {
-        version: CURRENT_MODEL_VERSION,
-        tasks: selectAllTasks(state),
-        customTags: selectCustomTags(state),
-        customGroups: selectCustomGroups(state),
-        selectedTheme: selectThemename(state),
-        exportedAt: Date.now(),
-      };
-      await saveToIndexedDB(appState);
-      console.log("Auto-saved app state");
+      const state = listenerApi.getState();
+      const appState = buildAppStateForExport(state);
+
+      // Save to IndexedDB
+      await saveAppStateToIDB(appState);
+      console.log("Auto-saved app state to IndexedDB");
+
+      // Save to file if enabled
+      getFileSaveManager().saveToFileIfEnabled();
     },
   });
 };

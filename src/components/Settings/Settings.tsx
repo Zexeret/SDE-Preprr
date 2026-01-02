@@ -9,6 +9,7 @@ import { SettingsOverview } from "./SettingsOverview";
 import { SettingsTheme } from "./SettingsTheme";
 import { SettingsImportExport } from "./SettingsImportExport";
 import { SettingsResetProgress } from "./SettingsResetProgress";
+import { SettingsSyncToFile } from "./SyncToFile";
 
 export const Settings = memo(() => {
   return (
@@ -21,6 +22,8 @@ export const Settings = memo(() => {
       <SettingsOverview />
 
       <SettingsTheme />
+
+      <SettingsSyncToFile />
 
       <SettingsImportExport />
 
