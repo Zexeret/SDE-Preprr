@@ -23,6 +23,7 @@ import {
   useAppDispatch,
 } from "../../../store";
 import { useLastSavedDisplay } from "./useLastSavedDisplay";
+import { useDialog } from "../../Dialog";
 
 export interface UseSyncToFileReturn {
   // State
@@ -52,6 +53,7 @@ export interface UseSyncToFileReturn {
 export const useSyncToFile = (): UseSyncToFileReturn => {
   const dispatch = useAppDispatch();
   const isSupported = isFileSystemAccessSupported();
+  const { alert } = useDialog();
 
   // Read from Redux store (single source of truth)
   const autoSaveEnabled = useSelector(selectIsAutoSaveEnabled);
@@ -71,15 +73,19 @@ export const useSyncToFile = (): UseSyncToFileReturn => {
   const handleOpenFile = useCallback(() => {
     dispatch(openFileThunk())
       .unwrap()
-      .catch((error: string) => alert(error));
-  }, [dispatch]);
+      .catch(async (error: string) => {
+        await alert({ title: "Error", message: error, type: "error" });
+      });
+  }, [alert, dispatch]);
 
   // Handle create new file
   const handleCreateFile = useCallback(() => {
     dispatch(createFileThunk())
       .unwrap()
-      .catch((error: string) => alert(error));
-  }, [dispatch]);
+      .catch(async (error: string) => {
+        await alert({ title: "Error", message: error, type: "error" });
+      });
+  }, [alert, dispatch]);
 
   // Handle disconnect - just dispatch action, listener handles the service call
   const handleDisconnect = useCallback(() => {
@@ -90,17 +96,23 @@ export const useSyncToFile = (): UseSyncToFileReturn => {
   const handleRequestPermission = useCallback(() => {
     dispatch(requestPermissionThunk())
       .unwrap()
-      .catch((error: string) => alert(error));
-  }, [dispatch]);
+      .catch(async (error: string) => {
+        await alert({ title: "Error", message: error, type: "error" });
+      });
+  }, [alert, dispatch]);
 
   // Handle save now - just dispatch action, listener handles the rest
-  const handleSaveNow = useCallback(() => {
+  const handleSaveNow = useCallback(async () => {
     if (!isConnected) {
-      alert("No file connected. Please connect a file first.");
+      await alert({
+        title: "No File Connected",
+        message: "Please connect a file first.",
+        type: "warning",
+      });
       return;
     }
     dispatch(triggerManualSave());
-  }, [dispatch, isConnected]);
+  }, [alert, dispatch, isConnected]);
 
   // Handle auto-save toggle - just dispatch, listener handles periodic save
   const handleAutoSaveToggle = useCallback(() => {

@@ -14,6 +14,7 @@ import {
   useAppDispatch,
 } from "../../store";
 import { useSelector } from "react-redux";
+import { useDialog } from "../Dialog";
 
 type ActionButtonsProps = {
   readonly onClose: () => void;
@@ -25,18 +26,22 @@ export const ActionButtons = memo<ActionButtonsProps>(
     const mode = useSelector(selectModeInTaskModal);
     const selectedTaskId = useSelector(selectTaskIdInModal);
     const dispatch = useAppDispatch();
+    const { confirm } = useDialog();
 
-    const handleDelete = useCallback(() => {
+    const handleDelete = useCallback(async () => {
       if (!selectedTaskId) return;
-      if (
-        window.confirm(
-          "Are you sure you want to delete this task? This action cannot be undone."
-        )
-      ) {
+      const confirmed = await confirm({
+        title: "Delete Task",
+        message:
+          "Are you sure you want to delete this task? This action cannot be undone.",
+        confirmText: "Delete",
+        isDangerous: true,
+      });
+      if (confirmed) {
         dispatch(removeTask(selectedTaskId));
         onClose();
       }
-    }, [dispatch, onClose, selectedTaskId]);
+    }, [confirm, dispatch, onClose, selectedTaskId]);
 
     const handleEditTask = useCallback(() => {
       if (!selectedTaskId) return;

@@ -11,6 +11,7 @@ import {
 import { FiX } from "react-icons/fi";
 import { AddCustomTag } from "./AddCustomTag";
 import { DIFFICULTY_TAGS, type Tag } from "../../model";
+import { useDialog } from "../Dialog";
 
 type TagInputProps = {
   readonly selectedTags: ReadonlySet<string>;
@@ -24,6 +25,7 @@ export const TagInput = memo<TagInputProps>(
     const tagsByGroup = useSelector(selectTagsBySelectedGroup);
     const isViewMode = useSelector(selectModeInTaskModal) === "view";
     const dispatch = useAppDispatch();
+    const { confirm } = useDialog();
 
     const handleTagToggle = useCallback(
       (tag: Tag) => {
@@ -43,16 +45,18 @@ export const TagInput = memo<TagInputProps>(
     );
 
     const handleRemoveTag = useCallback(
-      (tag: Tag) => {
-        if (
-          window.confirm(
-            `Are you sure you want to delete ${tag.name} tag? It will be removed from all tasks in this group.`
-          )
-        ) {
+      async (tag: Tag) => {
+        const confirmed = await confirm({
+          title: "Delete Tag",
+          message: `Are you sure you want to delete "${tag.name}" tag? It will be removed from all tasks in this group.`,
+          confirmText: "Delete",
+          isDangerous: true,
+        });
+        if (confirmed) {
           dispatch(removeTag(tag.id));
         }
       },
-      [dispatch]
+      [confirm, dispatch]
     );
 
     return (

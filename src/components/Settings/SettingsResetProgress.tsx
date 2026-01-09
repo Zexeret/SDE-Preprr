@@ -9,17 +9,22 @@ import { FiRefreshCw } from "react-icons/fi";
 import { ButtonDanger } from "../../sharedStyles";
 import { selectAllTasks, setAllTasks, useAppDispatch } from "../../store";
 import { useSelector } from "react-redux";
+import { useDialog } from "../Dialog";
 
 export const SettingsResetProgress = () => {
   const dispatch = useAppDispatch();
   const tasks = useSelector(selectAllTasks);
+  const { confirm } = useDialog();
 
-  const handleResetAll = useCallback(() => {
-    if (
-      window.confirm(
-        "Are you sure you want to reset ALL progress? This will mark all tasks as undone across all groups. This action cannot be undone."
-      )
-    ) {
+  const handleResetAll = useCallback(async () => {
+    const confirmed = await confirm({
+      title: "Reset All Progress",
+      message:
+        "Are you sure you want to reset ALL progress? This will mark all tasks as undone across all groups. This action cannot be undone.",
+      confirmText: "Reset All",
+      isDangerous: true,
+    });
+    if (confirmed) {
       dispatch(
         setAllTasks(
           tasks.map((task) => ({
@@ -30,7 +35,7 @@ export const SettingsResetProgress = () => {
         )
       );
     }
-  }, [dispatch, tasks]);
+  }, [confirm, dispatch, tasks]);
 
   return (
     <SettingsSection>

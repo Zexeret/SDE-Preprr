@@ -6,6 +6,7 @@ import {
   MainContent,
   AddGroupModal,
   ErrorBoundary,
+  DialogProvider,
 } from "./components";
 import {
   AppContainer,
@@ -71,9 +72,11 @@ const App = () => {
 
   return (
     <ThemeProvider themeName={themeName}>
-      <ErrorBoundary onError={handleGlobalError}>
-        <AppContent />
-      </ErrorBoundary>
+      <DialogProvider>
+        <ErrorBoundary onError={handleGlobalError}>
+          <AppContent />
+        </ErrorBoundary>
+      </DialogProvider>
     </ThemeProvider>
   );
 };

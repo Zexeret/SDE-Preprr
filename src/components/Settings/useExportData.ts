@@ -8,6 +8,7 @@ import {
 } from "../../store";
 import { exportData } from "../../importExport";
 import { getLogger } from "../../logger";
+import { useDialog } from "../Dialog";
 
 const log = getLogger("ui:export");
 
@@ -16,8 +17,9 @@ export const useExportData = () => {
   const customTags = useSelector(selectCustomTags);
   const customGroups = useSelector(selectCustomGroups);
   const themeName = useSelector(selectThemename);
+  const { alert } = useDialog();
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     log.info(
       "Starting export - tasks: {}, tags: {}, groups: {}",
       tasks.length,
@@ -31,13 +33,14 @@ export const useExportData = () => {
       log.info("Export initiated successfully");
     } catch (error) {
       log.error("Export failed: {}", error);
-      alert(
-        `Export failed: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      await alert({
+        title: "Export Failed",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+        type: "error",
+      });
     }
-  }, [customGroups, customTags, tasks, themeName]);
+  }, [alert, customGroups, customTags, tasks, themeName]);
 
   return handleExport;
 };

@@ -28,6 +28,7 @@ import {
 } from "../../store";
 import { useSelector } from "react-redux";
 import { getLogger } from "../../logger";
+import { useDialog } from "../Dialog";
 
 const log = getLogger("ui:group-modal");
 
@@ -91,14 +92,19 @@ export const AddGroupModal = memo(() => {
     onCloseModal,
   ]);
 
-  const handleGroupDelete = useCallback(() => {
+  const { confirm } = useDialog();
+
+  const handleGroupDelete = useCallback(async () => {
     if (editingGroup) {
       log.debug("Attempting to delete group: {}", editingGroup.name);
-      if (
-        window.confirm(
-          `Are you sure you want to delete ${editingGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
-        )
-      ) {
+      const confirmed = await confirm({
+        title: "Delete Group",
+        message: `Are you sure you want to delete "${editingGroup.name}" group? This will delete all your tasks and tags permanently and cannot be recovered.`,
+        confirmText: "Delete",
+        isDangerous: true,
+      });
+
+      if (confirmed) {
         if (!editingGroup.isCustom) {
           log.error("Cannot delete predefined group: {}", editingGroup.name);
           return;
@@ -109,7 +115,7 @@ export const AddGroupModal = memo(() => {
 
       onCloseModal();
     }
-  }, [dispatch, editingGroup, onCloseModal]);
+  }, [confirm, dispatch, editingGroup, onCloseModal]);
 
   return (
     <ModalOverlay>

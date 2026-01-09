@@ -38,6 +38,7 @@ import {
 } from "../../store";
 import { useSelector } from "react-redux";
 import { getLogger } from "../../logger";
+import { useDialog } from "../Dialog";
 
 const log = getLogger("ui:task-card");
 
@@ -79,12 +80,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     position: "relative" as const,
   };
 
-  const handleDeleteTask = useCallback(() => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
+  const { confirm } = useDialog();
+
+  const handleDeleteTask = useCallback(async () => {
+    const confirmed = await confirm({
+      title: "Delete Task",
+      message: "Are you sure you want to delete this task?",
+      confirmText: "Delete",
+      isDangerous: true,
+    });
+    if (confirmed) {
       log.info("Deleting task: {}", taskId);
       dispatch(removeTask(taskId));
     }
-  }, [dispatch, taskId]);
+  }, [confirm, dispatch, taskId]);
 
   const handleToggleTaskDone = useCallback(() => {
     const newStatus = !task.isDone;

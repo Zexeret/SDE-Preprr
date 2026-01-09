@@ -27,6 +27,7 @@ import { ActionButtons } from "./ActionButtons";
 import { PostCompletionNotes } from "./PostCompletionNotes";
 import { Notes } from "./Notes";
 import { getLogger } from "../../logger";
+import { useDialog } from "../Dialog";
 
 const log = getLogger("ui:task-form");
 
@@ -55,13 +56,14 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
   );
 
   const dispatch = useAppDispatch();
+  const { alert } = useDialog();
 
   const handleCloseModal = useCallback(() => {
     dispatch(closeTaskModal());
   }, [dispatch]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
 
       if (!selectedGroupId) {
@@ -71,7 +73,11 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
 
       if (!title.trim()) {
         log.debug("Task title is empty, showing alert");
-        alert("Please enter a task title");
+        await alert({
+          title: "Validation Error",
+          message: "Please enter a task title",
+          type: "warning",
+        });
         return;
       }
 
@@ -122,6 +128,7 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
       handleCloseModal();
     },
     [
+      alert,
       selectedGroupId,
       title,
       currentTaskInModal,

@@ -3,6 +3,7 @@ import { useAppDispatch } from "../../store";
 import { hydrateAppData } from "../../store";
 import { importData } from "../../importExport";
 import { getLogger } from "../../logger";
+import { useDialog } from "../Dialog";
 import type { AppState } from "../../model";
 
 const log = getLogger("ui:import");
@@ -53,6 +54,7 @@ const buildSuccessMessage = (data: AppState): string => {
  */
 export const useImportData = () => {
   const dispatch = useAppDispatch();
+  const { alert, confirm } = useDialog();
 
   const handleImport = useCallback(
     async (file: File): Promise<boolean> => {
@@ -63,7 +65,11 @@ export const useImportData = () => {
 
       if (!result.success || !result.data) {
         log.error("Import failed: {}", result.error);
-        alert(`Import failed: ${result.error}`);
+        await alert({
+          title: "Import Failed",
+          message: result.error ?? "Unknown error occurred",
+          type: "error",
+        });
         return false;
       }
 
@@ -76,7 +82,13 @@ export const useImportData = () => {
       );
 
       // Step 2: User confirmation
-      const confirmed = window.confirm(buildConfirmMessage(data));
+      const confirmed = await confirm({
+        title: "Import Data",
+        message: buildConfirmMessage(data),
+        confirmText: "Import",
+        cancelText: "Cancel",
+        type: "warning",
+      });
 
       if (!confirmed) {
         log.debug("User cancelled import");
@@ -88,12 +100,16 @@ export const useImportData = () => {
       await dispatch(hydrateAppData(data));
 
       // Step 4: Success feedback
-      alert(buildSuccessMessage(data));
+      await alert({
+        title: "Import Successful",
+        message: buildSuccessMessage(data),
+        type: "success",
+      });
       log.info("Import completed successfully");
 
       return true;
     },
-    [dispatch]
+    [alert, confirm, dispatch]
   );
 
   return handleImport;
