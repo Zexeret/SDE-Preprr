@@ -11,6 +11,9 @@ import {
   FILE_HANDLE_KEY,
   type ExportWrapper,
 } from "./types";
+import { getLogger } from "../logger";
+
+const log = getLogger("file:backup-service");
 
 // Check if File System Access API is supported
 export const isFileSystemAccessSupported = (): boolean => {
@@ -19,39 +22,47 @@ export const isFileSystemAccessSupported = (): boolean => {
 
 // Store file handle in IndexedDB
 const storeFileHandle = async (handle: FileSystemFileHandle): Promise<void> => {
+  log.debug("storeFileHandle() called for: {}", handle.name);
   try {
     const db = await getIndexedDb();
     await db.put(FILE_BACKUP_STORE, handle, FILE_HANDLE_KEY);
-    console.log("File handle stored in IndexedDB");
+    log.info("File handle stored in IndexedDB: {}", handle.name);
   } catch (error) {
-    console.error("Failed to store file handle:", error);
+    log.error("Failed to store file handle: {}", error);
     throw error;
   }
 };
 
 // Retrieve file handle from IndexedDB
 const getStoredFileHandle = async (): Promise<FileSystemFileHandle | null> => {
+  log.debug("getStoredFileHandle() called");
   try {
     const db = await getIndexedDb();
     const handle = await db.get(FILE_BACKUP_STORE, FILE_HANDLE_KEY);
     if (handle && "kind" in handle && handle.kind === "file") {
+      log.debug(
+        "Found stored file handle: {}",
+        (handle as FileSystemFileHandle).name
+      );
       return handle as FileSystemFileHandle;
     }
+    log.debug("No file handle found in IndexedDB");
     return null;
   } catch (error) {
-    console.error("Failed to retrieve file handle:", error);
+    log.error("Failed to retrieve file handle: {}", error);
     return null;
   }
 };
 
 // Remove file handle from IndexedDB
 const removeStoredFileHandle = async (): Promise<void> => {
+  log.debug("removeStoredFileHandle() called");
   try {
     const db = await getIndexedDb();
     await db.delete(FILE_BACKUP_STORE, FILE_HANDLE_KEY);
-    console.log("File handle removed from IndexedDB");
+    log.info("File handle removed from IndexedDB");
   } catch (error) {
-    console.error("Failed to remove file handle:", error);
+    log.error("Failed to remove file handle: {}", error);
   }
 };
 
@@ -60,16 +71,24 @@ export const requestFilePermission = async (
   handle: FileSystemFileHandle,
   mode: "read" | "readwrite" = "readwrite"
 ): Promise<boolean> => {
+  log.debug(
+    "requestFilePermission() called - mode: {}, file: {}",
+    mode,
+    handle.name
+  );
   try {
     const permission = await handle.queryPermission({ mode });
+    log.debug("Current permission status: {}", permission);
     if (permission === "granted") {
       return true;
     }
 
+    log.debug("Requesting permission from user...");
     const requestResult = await handle.requestPermission({ mode });
+    log.debug("Permission request result: {}", requestResult);
     return requestResult === "granted";
   } catch (error) {
-    console.error("Failed to request file permission:", error);
+    log.error("Failed to request file permission: {}", error);
     return false;
   }
 };
@@ -80,16 +99,20 @@ export const verifyStoredHandle = async (): Promise<{
   readonly hasPermission: boolean;
   readonly fileName: string | null;
 }> => {
+  log.debug("verifyStoredHandle() called");
   const handle = await getStoredFileHandle();
 
   if (!handle) {
+    log.debug("No stored handle to verify");
     return { handle: null, hasPermission: false, fileName: null };
   }
 
   try {
     // Check if we still have permission (this also validates the handle)
+    log.debug("Checking permission for stored handle: {}", handle.name);
     const permission = await handle.queryPermission({ mode: "readwrite" });
     const hasPermission = permission === "granted";
+    log.debug("Stored handle permission: {}", permission);
 
     return {
       handle,
@@ -98,7 +121,10 @@ export const verifyStoredHandle = async (): Promise<{
     };
   } catch (error) {
     // Handle might be invalid (file deleted/moved)
-    console.error("Stored handle is invalid:", error);
+    log.warn(
+      "Stored handle is invalid (file may have been moved/deleted): {}",
+      error
+    );
     await removeStoredFileHandle();
     return { handle: null, hasPermission: false, fileName: null };
   }
@@ -107,6 +133,7 @@ export const verifyStoredHandle = async (): Promise<{
 // Open file picker to select an existing file
 export const openFilePicker =
   async (): Promise<FileSystemFileHandle | null> => {
+    log.debug("openFilePicker() called");
     try {
       const [handle] = await window.showOpenFilePicker({
         types: [
@@ -117,13 +144,15 @@ export const openFilePicker =
         ],
         multiple: false,
       });
+      log.info("File selected: {}", handle.name);
       return handle;
     } catch (error) {
       // User cancelled the picker
       if (error instanceof Error && error.name === "AbortError") {
+        log.debug("File picker cancelled by user");
         return null;
       }
-      console.error("Failed to open file picker:", error);
+      log.error("Failed to open file picker: {}", error);
       throw error;
     }
   };
@@ -131,6 +160,7 @@ export const openFilePicker =
 // Open save file picker to create a new file
 export const createFilePicker =
   async (): Promise<FileSystemFileHandle | null> => {
+    log.debug("createFilePicker() called");
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName: `sde-preprr-backup-${
@@ -143,13 +173,15 @@ export const createFilePicker =
           },
         ],
       });
+      log.info("File created: {}", handle.name);
       return handle;
     } catch (error) {
       // User cancelled the picker
       if (error instanceof Error && error.name === "AbortError") {
+        log.debug("Save file picker cancelled by user");
         return null;
       }
-      console.error("Failed to create file picker:", error);
+      log.error("Failed to create file picker: {}", error);
       throw error;
     }
   };
@@ -159,13 +191,17 @@ export const saveToFile = async (
   handle: FileSystemFileHandle,
   state: AppState
 ): Promise<number> => {
+  log.debug("saveToFile() called for: {}", handle.name);
   try {
     // Verify permission before writing
+    log.debug("Verifying write permission...");
     const hasPermission = await requestFilePermission(handle);
     if (!hasPermission) {
+      log.error("Permission denied to write to file");
       throw new Error("Permission denied to write to file");
     }
 
+    log.debug("Serializing and compressing state...");
     const jsonString = JSON.stringify(state);
     const checksum = generateChecksum(jsonString);
 
@@ -176,16 +212,17 @@ export const saveToFile = async (
       data: compressWithPako(jsonString),
     };
 
+    log.debug("Writing to file...");
     const writable = await handle.createWritable();
     await writable.write(JSON.stringify(wrapper));
     await writable.close();
 
     const savedAt = Date.now();
-    console.log("App state saved to file:", handle.name);
+    log.info("App state saved to file: {}", handle.name);
 
     return savedAt;
   } catch (error) {
-    console.error("Failed to save to file:", error);
+    log.error("Failed to save to file: {}", error);
     throw error;
   }
 };

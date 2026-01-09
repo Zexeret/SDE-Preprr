@@ -12,6 +12,9 @@ import {
 } from "../fileBackup";
 import { DEFAULT_FILE_BACKUP_CONFIG } from "../../model";
 import type { RootState, AppDispatch } from "../store";
+import { getLogger } from "../../logger";
+
+const log = getLogger("app:bootstrap");
 
 const loadFileBackUpState = async (): Promise<FileBackupState> => {
   const storedConfig = await loadFileBackupConfigFromIDB();
@@ -34,17 +37,24 @@ const loadFileBackUpState = async (): Promise<FileBackupState> => {
 export const bootstrapAppData = createAsyncThunk(
   "app/bootstrap",
   async (_, { dispatch, getState }) => {
+    log.info("Starting app bootstrap");
+
     // Initialize FileSaveManager singleton (must be done before any file save operations)
     createFileSaveManager(dispatch as AppDispatch, getState as () => RootState);
 
     // Hydrate App Data
+    log.debug("Loading app state from IndexedDB");
     const localAppData = await loadAppStateFromIDB();
     if (localAppData) {
+      log.debug("Hydrating app data with {} tasks", localAppData.tasks.length);
       await dispatch(hydrateAppData(localAppData));
     }
 
     // Hydrate File Backup Data
+    log.debug("Loading file backup state");
     const fileBackupState: FileBackupState = await loadFileBackUpState();
     dispatch(setFileBackupState(fileBackupState));
+
+    log.info("App bootstrap complete");
   }
 );

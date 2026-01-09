@@ -27,6 +27,9 @@ import {
   useAppDispatch,
 } from "../../store";
 import { useSelector } from "react-redux";
+import { getLogger } from "../../logger";
+
+const log = getLogger("ui:group-modal");
 
 export const AddGroupModal = memo(() => {
   const isAddMode = useSelector(selectGroupIdInModal) === null;
@@ -90,17 +93,17 @@ export const AddGroupModal = memo(() => {
 
   const handleGroupDelete = useCallback(() => {
     if (editingGroup) {
+      log.debug("Attempting to delete group: {}", editingGroup.name);
       if (
         window.confirm(
           `Are you sure you want to delete ${editingGroup.name} group? This will delete all your tasks and tags permanently and cant be recovered. `
         )
       ) {
         if (!editingGroup.isCustom) {
-          console.error(
-            "Current group is not a custom group. Cannot be deleted."
-          );
+          log.error("Cannot delete predefined group: {}", editingGroup.name);
           return;
         }
+        log.info("Deleting group: {}", editingGroup.name);
         dispatch(removeGroup(editingGroup.id));
       }
 

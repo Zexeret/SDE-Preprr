@@ -26,6 +26,9 @@ import { TagInput } from "./TagInput";
 import { ActionButtons } from "./ActionButtons";
 import { PostCompletionNotes } from "./PostCompletionNotes";
 import { Notes } from "./Notes";
+import { getLogger } from "../../logger";
+
+const log = getLogger("ui:task-form");
 
 interface TaskFormProps {
   readonly currentTaskInModal: PreparationTask | null;
@@ -61,15 +64,25 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
     (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!selectedGroupId) return;
+      if (!selectedGroupId) {
+        log.warn("No group selected, cannot submit task");
+        return;
+      }
 
       if (!title.trim()) {
+        log.debug("Task title is empty, showing alert");
         alert("Please enter a task title");
         return;
       }
 
       const now = Date.now();
       const isNewTask = currentTaskInModal === null;
+      log.debug(
+        "Submitting task - isNewTask: {}, title: {}",
+        isNewTask,
+        title.trim()
+      );
+
       let taskData: PreparationTask = {
         groupId: selectedGroupId,
         title: title.trim(),
@@ -94,6 +107,7 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
           createdAt: currentTaskInModal.createdAt,
           order: currentTaskInModal.order,
         };
+        log.info("Updating existing task: {}", taskData.id);
         dispatch(
           updateTask({
             id: taskData.id,
@@ -101,6 +115,7 @@ export const TaskForm = memo<TaskFormProps>(({ currentTaskInModal }) => {
           })
         );
       } else {
+        log.info("Creating new task: {}", taskData.title);
         dispatch(addTask(taskData));
       }
 

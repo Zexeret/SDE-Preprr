@@ -37,6 +37,9 @@ import {
   type RootState,
 } from "../../store";
 import { useSelector } from "react-redux";
+import { getLogger } from "../../logger";
+
+const log = getLogger("ui:task-card");
 
 interface TaskCardProps {
   readonly taskId: string;
@@ -78,22 +81,30 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleDeleteTask = useCallback(() => {
     if (window.confirm("Are you sure you want to delete this task?")) {
+      log.info("Deleting task: {}", taskId);
       dispatch(removeTask(taskId));
     }
   }, [dispatch, taskId]);
 
   const handleToggleTaskDone = useCallback(() => {
+    const newStatus = !task.isDone;
+    log.debug(
+      "Toggling task completion: {} -> {}",
+      task.id,
+      newStatus ? "done" : "not done"
+    );
     dispatch(
       updateTask({
         id: task.id,
         changes: {
-          isDone: !task.isDone,
+          isDone: newStatus,
         },
       })
     );
   }, [dispatch, task.id, task.isDone]);
 
   const handleEditTask = useCallback(() => {
+    log.debug("Opening task for edit: {}", task.id);
     dispatch(
       openTaskModal({
         isOpen: true,
@@ -104,6 +115,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   }, [task, dispatch]);
 
   const handleDoubleClick = useCallback(() => {
+    log.debug("Opening task for view: {}", task.id);
     dispatch(
       openTaskModal({
         isOpen: true,

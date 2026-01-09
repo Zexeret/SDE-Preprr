@@ -7,6 +7,9 @@ import {
   selectThemename,
 } from "../../store";
 import { exportData } from "../../importExport";
+import { getLogger } from "../../logger";
+
+const log = getLogger("ui:export");
 
 export const useExportData = () => {
   const tasks = useSelector(selectAllTasks);
@@ -15,11 +18,19 @@ export const useExportData = () => {
   const themeName = useSelector(selectThemename);
 
   const handleExport = useCallback(() => {
+    log.info(
+      "Starting export - tasks: {}, tags: {}, groups: {}",
+      tasks.length,
+      customTags.length,
+      customGroups.length
+    );
     try {
       exportData(tasks, customTags, customGroups, themeName, {
         compress: true,
       });
+      log.info("Export initiated successfully");
     } catch (error) {
+      log.error("Export failed: {}", error);
       alert(
         `Export failed: ${
           error instanceof Error ? error.message : "Unknown error"

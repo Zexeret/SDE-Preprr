@@ -22,6 +22,9 @@ import {
   useAppDispatch,
 } from "../../store";
 import { useSelector } from "react-redux";
+import { getLogger } from "../../logger";
+
+const log = getLogger("ui:sidebar");
 
 export const Sidebar = memo(() => {
   const selectedGroupId = useSelector(selectActiveGroupId);
@@ -31,12 +34,14 @@ export const Sidebar = memo(() => {
 
   const handleMenuItemClick = useCallback(
     (groupId: string | null) => {
+      log.debug("Group selected: {}", groupId ?? "Settings");
       dispatch(setSelectedGroupId(groupId));
     },
     [dispatch]
   );
 
   const handleNewGroupClick = useCallback(() => {
+    log.debug("Opening new group modal");
     dispatch(
       openGroupModal({
         isOpen: true,

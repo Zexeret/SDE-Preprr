@@ -17,6 +17,9 @@ import {
   saveFileBackupConfigToIDB,
 } from "../../importExport";
 import { getFileSaveManager } from "./FileSaveManager";
+import { getLogger } from "../../logger";
+
+const log = getLogger("file:backup-listener");
 
 /**
  * Matcher for all file backup actions that should trigger a config save
@@ -39,18 +42,22 @@ const fileBackupConfigMatcher = isAnyOf(
  * 3. Handles manual save triggers
  */
 export const registerFileBackupListener = () => {
+  log.debug("Registering file backup listeners");
+
   // Persist config changes to IndexedDB
   startAppListening({
     matcher: fileBackupConfigMatcher,
-    effect: async (_, listenerApi) => {
+    effect: async (action, listenerApi) => {
+      log.debug("File backup config action received: {}", action.type);
       listenerApi.cancelActiveListeners();
       await listenerApi.delay(1000);
 
       const state = listenerApi.getState();
       const config = selectFileBackupConfig(state);
 
+      log.debug("Persisting file backup config to IndexedDB...");
       await saveFileBackupConfigToIDB(config);
-      console.log("File backup config persisted to IndexedDB");
+      log.info("File backup config persisted to IndexedDB");
     },
   });
 
@@ -62,7 +69,8 @@ export const registerFileBackupListener = () => {
       setSaveFrequency,
       setPeriodicInterval
     ),
-    effect: () => {
+    effect: (action) => {
+      log.debug("Periodic save settings changed: {}", action.type);
       getFileSaveManager().updatePeriodicSave();
     },
   });
@@ -71,8 +79,10 @@ export const registerFileBackupListener = () => {
   startAppListening({
     actionCreator: disconnectFile,
     effect: async () => {
+      log.info("Disconnecting from file...");
       getFileSaveManager().stopPeriodicSave();
       await disconnectFileService();
+      log.info("File disconnected and handle cleared");
     },
   });
 
@@ -80,6 +90,7 @@ export const registerFileBackupListener = () => {
   startAppListening({
     actionCreator: triggerManualSave,
     effect: async () => {
+      log.info("Manual save triggered");
       await getFileSaveManager().performFileSaveNow();
     },
   });

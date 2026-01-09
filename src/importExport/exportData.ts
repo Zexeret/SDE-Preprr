@@ -7,6 +7,9 @@ import {
 } from "../model";
 import { compressWithPako, generateChecksum } from "./helper";
 import type { ExportOptions } from "./types";
+import { getLogger } from "../logger";
+
+const log = getLogger("export:data");
 
 export const exportData = (
   tasks: ReadonlyArray<PreparationTask>,
@@ -16,6 +19,14 @@ export const exportData = (
   options: ExportOptions = {}
 ): void => {
   const { compress = true, onProgress } = options;
+
+  log.info(
+    "Starting export - tasks: {}, tags: {}, groups: {}, compress: {}",
+    tasks.length,
+    customTags.length,
+    customGroups.length,
+    compress
+  );
 
   try {
     onProgress?.(10);
@@ -31,8 +42,10 @@ export const exportData = (
 
     onProgress?.(30);
 
+    log.debug("Serializing app state...");
     const jsonString = JSON.stringify(data);
     const checksum = generateChecksum(jsonString);
+    log.debug("Checksum generated: {}", checksum.substring(0, 8) + "...");
 
     onProgress?.(50);
 
@@ -41,6 +54,7 @@ export const exportData = (
     const dateStr = new Date().toISOString().split("T")[0];
 
     if (compress) {
+      log.debug("Compressing data with pako...");
       // Compress using pako (gzip)
       const compressedData = compressWithPako(jsonString);
 
@@ -57,6 +71,7 @@ export const exportData = (
       });
       filename = `sde-preper-save-${dateStr}.json`;
     } else {
+      log.debug("Creating uncompressed export...");
       // Uncompressed with checksum
       const wrapper = {
         compressed: false,
@@ -73,6 +88,7 @@ export const exportData = (
 
     onProgress?.(80);
 
+    log.debug("Triggering download: {}", filename);
     const url = URL.createObjectURL(fileContent);
     const link = document.createElement("a");
     link.href = url;
@@ -84,11 +100,13 @@ export const exportData = (
 
     onProgress?.(100);
 
-    console.log(
-      `Export complete. File size: ${(fileContent.size / 1024).toFixed(4)} KB`
+    log.info(
+      "Export complete - file: {}, size: {} KB",
+      filename,
+      (fileContent.size / 1024).toFixed(2)
     );
   } catch (error) {
-    console.error("Export failed:", error);
+    log.error("Export failed: {}", error);
     throw new Error(
       `Failed to export data: ${
         error instanceof Error ? error.message : "Unknown error"
