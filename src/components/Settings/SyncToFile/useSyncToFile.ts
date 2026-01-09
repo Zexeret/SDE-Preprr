@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useSelector } from "react-redux";
-import { isFileSystemAccessSupported } from "../../../importExport";
+import { isFileSystemAccessSupported } from "../../../fileBackup";
 import type { SaveFrequency } from "../../../model";
 import {
   createFileThunk,

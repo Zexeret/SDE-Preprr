@@ -12,10 +12,8 @@ import {
   triggerManualSave,
 } from "./fileBackupSlice";
 import { selectFileBackupConfig } from "./fileBackupSelectors";
-import {
-  disconnectFile as disconnectFileService,
-  saveFileBackupConfigToIDB,
-} from "../../importExport";
+import { disconnectFile as disconnectFileService } from "../../fileBackup";
+import { saveFileBackupConfigToIDB } from "../../importExport";
 import { getFileSaveManager } from "./FileSaveManager";
 import { getLogger } from "../../logger";
 

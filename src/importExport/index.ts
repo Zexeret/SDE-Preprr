@@ -3,4 +3,4 @@ export * from "./types";
 export * from "./exportData";
 export * from "./saveToIndexedDB";
 export * from "./loadFromIndexedDB";
-export * from "./fileBackupService";
+export * from "./serialization";

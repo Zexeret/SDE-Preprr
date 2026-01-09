@@ -1,56 +1,32 @@
-import { migrate } from "../migration";
 import { ImportError, type AppState } from "../model";
-import { decompressWithPako, generateChecksum } from "./helper";
-import type { ExportWrapper, ImportOptions } from "./types";
+import { deserializeFromFile } from "./serialization";
+import type { ImportOptions } from "./types";
+import { getLogger } from "../logger";
 
-export const importData = (
+const log = getLogger("import:data");
+
+export const importData = async (
   file: File,
   options: ImportOptions = {}
 ): Promise<AppState> => {
-  const { onProgress, validateOnly = false } = options;
+  const { onProgress } = options;
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  log.info("Starting import from file: {}", file.name);
 
-    reader.onload = () => {
-      try {
-        onProgress?.(10);
+  onProgress?.(10);
 
-        const wrapper = JSON.parse(reader.result as string) as ExportWrapper;
-
-        onProgress?.(30);
-
-        const jsonString = wrapper.compressed
-          ? decompressWithPako(wrapper.data)
-          : JSON.stringify(wrapper.data);
-
-        onProgress?.(50);
-
-        const checksum = generateChecksum(jsonString);
-        if (checksum !== wrapper.checksum) {
-          throw new ImportError("Checksum mismatch");
-        }
-
-        onProgress?.(70);
-
-        const rawData = JSON.parse(jsonString);
-        const migrated = migrate(rawData);
-
-        onProgress?.(90);
-
-        if (validateOnly) {
-          resolve(migrated);
-          return;
-        }
-
-        onProgress?.(100);
-        resolve(migrated);
-      } catch (err) {
-        reject(err instanceof Error ? err : new ImportError("Unknown import error"));
-      }
-    };
-
-    reader.onerror = () => reject(new ImportError("File read failed"));
-    reader.readAsText(file);
-  });
+  try {
+    const appState = await deserializeFromFile(file);
+    onProgress?.(100);
+    log.info(
+      "Import successful - tasks: {}, tags: {}, groups: {}",
+      appState.tasks.length,
+      appState.customTags.length,
+      appState.customGroups.length
+    );
+    return appState;
+  } catch (err) {
+    log.error("Import failed: {}", err);
+    throw err instanceof Error ? err : new ImportError("Unknown import error");
+  }
 };

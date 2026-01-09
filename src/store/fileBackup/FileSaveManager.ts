@@ -1,5 +1,5 @@
 /* eslint-disable functional/prefer-readonly-type */
-import { saveToFile, verifyStoredHandle } from "../../importExport";
+import { saveToFile, verifyStoredHandle } from "../../fileBackup";
 import { buildAppStateForExport } from "../derived/selectAppStateForExport";
 import {
   selectIsAutoSaveEnabled,

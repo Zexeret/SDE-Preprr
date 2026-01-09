@@ -1,12 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   connectToFile as connectToFileService,
-  importData,
   readFromFileHandle,
   requestFilePermission,
   saveToFile,
   verifyStoredHandle,
-} from "../../importExport";
+} from "../../fileBackup";
+import { importData } from "../../importExport";
 import type { RootState } from "../store";
 import { buildAppStateForExport, hydrateAppData } from "../derived";
 import {

@@ -3,8 +3,8 @@ import { hydrateAppData } from "./hydrateAppData";
 import {
   loadAppStateFromIDB,
   loadFileBackupConfigFromIDB,
-  verifyStoredHandle,
 } from "../../importExport";
+import { verifyStoredHandle } from "../../fileBackup";
 import {
   setFileBackupState,
   createFileSaveManager,

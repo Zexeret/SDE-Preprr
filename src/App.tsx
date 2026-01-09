@@ -5,6 +5,7 @@ import {
   TaskForm,
   MainContent,
   AddGroupModal,
+  ErrorBoundary,
 } from "./components";
 import {
   AppContainer,
@@ -20,6 +21,9 @@ import {
 } from "./store";
 import { useSelector } from "react-redux";
 import { useLoadAppData, usePrimeReactEditorStyle } from "./utils";
+import { getLogger } from "./logger";
+
+const log = getLogger("ui:app");
 
 function AppContent() {
   const showTaskModal = useSelector(selectIsTaskModalOpen);
@@ -40,14 +44,13 @@ function AppContent() {
       </SideBarContainer>
 
       <MainContentWithSidebar>
-        {selectedGroupId === null ? <Settings /> : <MainContent />}
+        <ErrorBoundary>
+          {selectedGroupId === null ? <Settings /> : <MainContent />}
+        </ErrorBoundary>
       </MainContentWithSidebar>
 
       {showTaskModal && selectedGroupId && (
-        <TaskForm
-          currentTaskInModal={currentTaskInModal}
-
-        />
+        <TaskForm currentTaskInModal={currentTaskInModal} />
       )}
 
       {showGroupModal && <AddGroupModal />}
@@ -55,12 +58,22 @@ function AppContent() {
   );
 }
 
+const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo): void => {
+  log.error(
+    "Global error caught: {} at {}",
+    error.message,
+    errorInfo.componentStack
+  );
+};
+
 const App = () => {
   const themeName = useSelector(selectThemename);
 
   return (
     <ThemeProvider themeName={themeName}>
-      <AppContent />
+      <ErrorBoundary onError={handleGlobalError}>
+        <AppContent />
+      </ErrorBoundary>
     </ThemeProvider>
   );
 };
