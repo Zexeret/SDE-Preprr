@@ -8,13 +8,14 @@ export const {
   selectIds: selectAllTaskIds,
 } = tasksAdapter.getSelectors((state: RootState) => state.tasks);
 
-export const selectTaskCountByGroup = createSelector(
+export const selectPendingTaskCountByGroup = createSelector(
   [selectAllTasks],
   (entities) => {
     const counts: Record<string, number> = {};
 
     for (const task of Object.values(entities)) {
-      counts[task.groupId] = (counts[task.groupId] ?? 0) + 1;
+      counts[task.groupId] =
+        (counts[task.groupId] ?? 0) + (task.isDone ? 0 : 1);
     }
 
     return counts;
@@ -35,6 +36,6 @@ export const selectCompletedTasksCount = createSelector(
 export const selectMaxOrderFromTasks = createSelector(
   [selectAllTasks],
   (allTask) => {
-    return Math.max(0, ...allTask.map(t => t.order));
+    return Math.max(0, ...allTask.map((t) => t.order));
   }
-)
+);

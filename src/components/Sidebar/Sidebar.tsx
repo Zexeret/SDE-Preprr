@@ -17,7 +17,7 @@ import {
   openGroupModal,
   selectActiveGroupId,
   selectAllGroups,
-  selectTaskCountByGroup,
+  selectPendingTaskCountByGroup,
   setSelectedGroupId,
   useAppDispatch,
 } from "../../store";
@@ -28,7 +28,7 @@ const log = getLogger("ui:sidebar");
 
 export const Sidebar = memo(() => {
   const selectedGroupId = useSelector(selectActiveGroupId);
-  const taskCountByGroup = useSelector(selectTaskCountByGroup);
+  const pendingTaskCountByGroup = useSelector(selectPendingTaskCountByGroup);
   const allGroups = useSelector(selectAllGroups);
   const dispatch = useAppDispatch();
 
@@ -75,7 +75,7 @@ export const Sidebar = memo(() => {
       <NavSection>
         <SectionTitle>Groups</SectionTitle>
         {allGroups.map((group) => {
-          const taskCount = taskCountByGroup[group.id] ?? 0;
+          const taskCount = pendingTaskCountByGroup[group.id] ?? 0;
           return (
             <NavItem
               key={group.id}
